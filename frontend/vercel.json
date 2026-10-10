@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://planner-api-ralfs.vercel.app/api/:path*" },
+    { "source": "/sanctum/:path*", "destination": "https://planner-api-ralfs.vercel.app/sanctum/:path*" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
