@@ -1,0 +1,20 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "frontend", "run", "dev"],
+      "port": 5173
+    },
+    {
+      "name": "backend-sqlite",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": [
+        "-c",
+        "cd /Users/ralfs/Documents/GitHub/1/backend && DB_CONNECTION=sqlite DB_URL= DB_DATABASE=/private/tmp/claude-501/-Users-ralfs-Documents-GitHub-1/9a4f2515-4136-4372-9f3c-de897d0bc572/scratchpad/dev.sqlite SESSION_DRIVER=cookie SANCTUM_STATEFUL_DOMAINS=localhost:5173 exec php -S 127.0.0.1:8000 -t public vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php"
+      ],
+      "port": 8000
+    }
+  ]
+}

@@ -15,6 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Vercel terminates TLS at its edge, so trust its forwarded headers.
         $middleware->trustProxies(at: '*');
+
+        // Let the Vue SPA (same origin via the Vercel/Vite proxy) use session auth on /api.
+        $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
