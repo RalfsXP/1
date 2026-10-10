@@ -1,0 +1,148 @@
+:root {
+  /* Brand palette */
+  --black: #000000;
+  --seagrass: #66a182;
+  --white: #ffffff;
+
+  /* Dark theme (default) */
+  --bg: var(--black);
+  --fg: var(--white);
+  --muted: color-mix(in srgb, var(--white) 60%, var(--black));
+  --line: color-mix(in srgb, var(--white) 16%, var(--black));
+  --frame: color-mix(in srgb, var(--white) 14%, var(--black));
+  --frame-edge: color-mix(in srgb, var(--white) 24%, var(--black));
+  --screen: var(--black);
+  --glow: color-mix(in srgb, var(--seagrass) 28%, transparent);
+
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --bg: var(--white);
+  --fg: var(--black);
+  --muted: color-mix(in srgb, var(--black) 55%, var(--white));
+  --line: color-mix(in srgb, var(--black) 14%, var(--white));
+  --frame: var(--black);
+  --frame-edge: color-mix(in srgb, var(--black) 78%, var(--white));
+  --screen: var(--white);
+  --glow: color-mix(in srgb, var(--seagrass) 24%, transparent);
+
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: Montserrat, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+/* Form controls don't inherit the page font by default; keep everything in Montserrat. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+::selection {
+  background: var(--seagrass);
+  color: var(--black);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s, transform 0.2s, opacity 0.2s;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--seagrass);
+  outline-offset: 3px;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.btn-ghost {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--fg);
+}
+
+.btn-ghost:hover {
+  border-color: var(--seagrass);
+  color: var(--seagrass);
+}
+
+/* Black on Seagrass in both themes: ~7:1 contrast, white would be ~3:1. */
+.btn-primary {
+  border: 1px solid var(--seagrass);
+  background: var(--seagrass);
+  color: var(--black);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--seagrass) 85%, var(--white));
+  border-color: color-mix(in srgb, var(--seagrass) 85%, var(--white));
+}
+
+.btn-lg {
+  height: 46px;
+  padding: 0 22px;
+  font-size: 0.9rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+  }
+}

@@ -1,10 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="lv">
   <head>
     <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
+    <!-- Tab icon: checkmark that adapts to light/dark browser chrome; PNG/ICO for browsers without SVG icons (Safari). -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <!-- Home-screen icon (iPhone "Add to Home Screen", Android/Chrome install). -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="apple-mobile-web-app-title" content="Merkis">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Merkis</title>
+    <meta name="theme-color" content="#000000">
+    <meta name="description" content="Merkis.app">
+    <title>Merkis.app</title>
+    <script>
+      // Apply the saved (or system) theme before first paint to avoid a flash.
+      (function () {
+        var theme
+        try { theme = localStorage.getItem('merkis-theme') } catch (e) {}
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+        }
+        document.documentElement.dataset.theme = theme
+      })()
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
   </head>
   <body>
     <div id="app"></div>
