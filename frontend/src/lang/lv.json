@@ -1,0 +1,47 @@
+{
+  "common": {
+    "loading": "Ielādē…",
+    "language": "Valoda",
+    "account": "Konts",
+    "themeToLight": "Ieslēgt gaišo režīmu",
+    "themeToDark": "Ieslēgt tumšo režīmu",
+    "themeLight": "Gaišais režīms",
+    "themeDark": "Tumšais režīms",
+    "months": ["janvāris", "februāris", "marts", "aprīlis", "maijs", "jūnijs", "jūlijs", "augusts", "septembris", "oktobris", "novembris", "decembris"]
+  },
+  "landing": {
+    "login": "Pieslēgties",
+    "signup": "Reģistrēties"
+  },
+  "auth": {
+    "back": "Atpakaļ",
+    "loginTitle": "Laipni lūdzam atpakaļ",
+    "loginLead": "Pieslēdzies, lai turpinātu darbu ar Merkis.",
+    "registerTitle": "Izveido savu kontu",
+    "registerLead": "Reģistrējies, lai sāktu lietot Merkis.",
+    "name": "Vārds",
+    "email": "E-pasts",
+    "password": "Parole",
+    "confirmPassword": "Apstiprini paroli",
+    "showPassword": "Rādīt paroli",
+    "hidePassword": "Slēpt paroli",
+    "strength": "Drošība",
+    "strengthAria": "Paroles drošība",
+    "strengthLevels": ["Tukša", "Vāja", "Vāja", "Vidēja", "Laba", "Spēcīga"],
+    "submitLogin": "Pieslēgties",
+    "submittingLogin": "Pieslēdzas…",
+    "submitRegister": "Izveidot kontu",
+    "submittingRegister": "Izveido kontu…",
+    "haveAccount": "Jau ir konts?",
+    "noAccount": "Pirmo reizi Merkis?",
+    "switchToLogin": "Pieslēgties",
+    "switchToRegister": "Reģistrēties",
+    "errorThrottle": "Pārāk daudz mēģinājumu. Lūdzu, uzgaidi minūti un mēģini vēlreiz.",
+    "errorGeneric": "Kaut kas nogāja greizi. Lūdzu, mēģini vēlreiz."
+  },
+  "home": {
+    "welcome": "Laipni lūdzam",
+    "welcomeName": "Laipni lūdzam, {name}",
+    "logout": "Iziet"
+  }
+}

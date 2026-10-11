@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { locale } from './i18n'
 
 /**
  * Shared HTTP client for the Laravel backend.
@@ -16,6 +17,12 @@ const api = axios.create({
     Accept: 'application/json',
     'X-Requested-With': 'XMLHttpRequest',
   },
+})
+
+// Laravel answers (validation/auth messages) in the language on screen.
+api.interceptors.request.use((config) => {
+  config.headers['Accept-Language'] = locale.value
+  return config
 })
 
 export default api

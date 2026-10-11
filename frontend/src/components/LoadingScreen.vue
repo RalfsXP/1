@@ -10,7 +10,7 @@ import LogoMark from './LogoMark.vue'
         <span class="ring" aria-hidden="true" />
         <div class="mark"><LogoMark /></div>
       </div>
-      <span class="visually-hidden">Ielādē…</span>
+      <span class="visually-hidden">{{ $t('common.loading') }}</span>
     </div>
   </Transition>
 </template>

@@ -6,8 +6,8 @@ import { theme, toggleTheme } from '@/lib/theme'
   <button
     type="button"
     class="theme-toggle"
-    :aria-label="theme === 'dark' ? 'Ieslēgt gaišo režīmu' : 'Ieslēgt tumšo režīmu'"
-    :title="theme === 'dark' ? 'Gaišais režīms' : 'Tumšais režīms'"
+    :aria-label="theme === 'dark' ? $t('common.themeToLight') : $t('common.themeToDark')"
+    :title="theme === 'dark' ? $t('common.themeLight') : $t('common.themeDark')"
     @click="toggleTheme"
   >
     <!-- Sun (shown in dark mode) -->

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,6 +19,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Let the Vue SPA (same origin via the Vercel/Vite proxy) use session auth on /api.
         $middleware->statefulApi();
+
+        // Answer in the language the SPA is showing (Accept-Language).
+        $middleware->api(append: [SetLocale::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

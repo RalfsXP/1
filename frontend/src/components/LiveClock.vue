@@ -1,19 +1,16 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-
-// Latvian date + time, e.g. "1. novembris 20:23".
-const MONTHS_LV = [
-  'janvāris', 'februāris', 'marts', 'aprīlis', 'maijs', 'jūnijs',
-  'jūlijs', 'augusts', 'septembris', 'oktobris', 'novembris', 'decembris',
-]
+import { locale, t } from '@/lib/i18n'
 
 const now = ref(new Date())
 let timer
 
 const pad = (n) => String(n).padStart(2, '0')
+// "1. novembris 20:23" in Latvian, "1 November 20:23" in English.
 const label = computed(() => {
   const d = now.value
-  return `${d.getDate()}. ${MONTHS_LV[d.getMonth()]} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+  const day = locale.value === 'lv' ? `${d.getDate()}.` : `${d.getDate()}`
+  return `${day} ${t('common.months')[d.getMonth()]} ${pad(d.getHours())}:${pad(d.getMinutes())}`
 })
 
 onMounted(() => {

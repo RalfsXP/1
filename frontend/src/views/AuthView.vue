@@ -2,8 +2,10 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import AppLogo from '@/components/AppLogo.vue'
+import LanguageSwitch from '@/components/LanguageSwitch.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import { login, register } from '@/lib/auth'
+import { t } from '@/lib/i18n'
 import { withLoader } from '@/lib/loader'
 
 const route = useRoute()
@@ -43,7 +45,7 @@ const strength = computed(() => {
   if (/[^A-Za-z0-9]/.test(pw)) score++
   return score
 })
-const strengthLabel = computed(() => ['', 'Weak', 'Weak', 'Fair', 'Good', 'Strong'][strength.value])
+const strengthLabel = computed(() => t('auth.strengthLevels')[strength.value])
 const submitting = ref(false)
 const errors = ref({})
 const formError = ref('')
@@ -63,9 +65,9 @@ async function submit() {
         Object.entries(e.response.data.errors ?? {}).map(([field, messages]) => [field, messages[0]]),
       )
     } else if (e.response?.status === 429) {
-      formError.value = 'Too many attempts. Please wait a minute and try again.'
+      formError.value = t('auth.errorThrottle')
     } else {
-      formError.value = 'Something went wrong. Please try again.'
+      formError.value = t('auth.errorGeneric')
     }
     submitting.value = false
     return
@@ -82,6 +84,18 @@ async function submit() {
 
 <template>
   <div class="auth-page" :class="[mode, { swapping }]">
+    <!-- Pinned to the page, not a panel, so it stays put while the panels swap. -->
+    <header class="form-top">
+      <RouterLink to="/" class="back">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+        {{ $t('auth.back') }}
+      </RouterLink>
+      <div class="controls">
+        <LanguageSwitch />
+        <ThemeToggle />
+      </div>
+    </header>
+
     <!-- Decorative side -->
     <section class="art" aria-hidden="true">
       <div class="art-logo"><AppLogo /></div>
@@ -89,26 +103,19 @@ async function submit() {
 
     <!-- Form side -->
     <section class="form-side">
-      <header class="form-top">
-        <RouterLink to="/" class="back">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
-          Back
-        </RouterLink>
-        <ThemeToggle />
-      </header>
 
       <div class="form-wrap">
         <Transition name="form-swap" mode="out-in">
           <form :key="mode" class="form" novalidate @submit.prevent="submit">
-            <h1>{{ isRegister ? 'Create your account' : 'Welcome back' }}</h1>
+            <h1>{{ isRegister ? $t('auth.registerTitle') : $t('auth.loginTitle') }}</h1>
             <p class="lead">
-              {{ isRegister ? 'Sign up to start using Merkis.' : 'Log in to continue to Merkis.' }}
+              {{ isRegister ? $t('auth.registerLead') : $t('auth.loginLead') }}
             </p>
 
             <p v-if="formError" class="form-error" role="alert">{{ formError }}</p>
 
             <div v-if="isRegister" class="field">
-              <label for="name">Name</label>
+              <label for="name">{{ $t('auth.name') }}</label>
               <input
                 id="name"
                 v-model.trim="form.name"
@@ -125,7 +132,7 @@ async function submit() {
             </div>
 
             <div class="field">
-              <label for="email">Email</label>
+              <label for="email">{{ $t('auth.email') }}</label>
               <input
                 id="email"
                 v-model.trim="form.email"
@@ -143,7 +150,7 @@ async function submit() {
             </div>
 
             <div class="field">
-              <label for="password">Password</label>
+              <label for="password">{{ $t('auth.password') }}</label>
               <div class="password">
                 <input
                   id="password"
@@ -157,7 +164,7 @@ async function submit() {
                 <button
                   type="button"
                   class="reveal"
-                  :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                  :aria-label="showPassword ? $t('auth.hidePassword') : $t('auth.showPassword')"
                   :aria-pressed="showPassword"
                   @click="showPassword = !showPassword"
                 >
@@ -175,15 +182,15 @@ async function submit() {
                 {{ errors.password }}
               </p>
               <div v-if="isRegister" class="strength">
-                <span class="strength-label">Strength</span>
+                <span class="strength-label">{{ $t('auth.strength') }}</span>
                 <div
                   class="strength-track"
                   role="meter"
-                  aria-label="Password strength"
+                  :aria-label="$t('auth.strengthAria')"
                   aria-valuemin="0"
                   aria-valuemax="5"
                   :aria-valuenow="strength"
-                  :aria-valuetext="strengthLabel || 'Empty'"
+                  :aria-valuetext="strengthLabel"
                 >
                   <div class="strength-fill" :style="{ width: strength * 20 + '%' }" />
                 </div>
@@ -191,7 +198,7 @@ async function submit() {
             </div>
 
             <div v-if="isRegister" class="field">
-              <label for="password-confirmation">Confirm password</label>
+              <label for="password-confirmation">{{ $t('auth.confirmPassword') }}</label>
               <input
                 id="password-confirmation"
                 v-model="form.passwordConfirmation"
@@ -205,19 +212,19 @@ async function submit() {
               <span v-if="submitting" class="btn-spinner" aria-hidden="true" />
               {{
                 submitting
-                  ? isRegister ? 'Creating account…' : 'Logging in…'
-                  : isRegister ? 'Create account' : 'Log in'
+                  ? isRegister ? $t('auth.submittingRegister') : $t('auth.submittingLogin')
+                  : isRegister ? $t('auth.submitRegister') : $t('auth.submitLogin')
               }}
             </button>
 
             <p class="switch">
               <template v-if="isRegister">
-                Already have an account?
-                <RouterLink :to="{ name: 'login' }">Log in</RouterLink>
+                {{ $t('auth.haveAccount') }}
+                <RouterLink :to="{ name: 'login' }">{{ $t('auth.switchToLogin') }}</RouterLink>
               </template>
               <template v-else>
-                New to Merkis?
-                <RouterLink :to="{ name: 'register' }">Sign up</RouterLink>
+                {{ $t('auth.noAccount') }}
+                <RouterLink :to="{ name: 'register' }">{{ $t('auth.switchToRegister') }}</RouterLink>
               </template>
             </p>
           </form>
@@ -304,13 +311,31 @@ async function submit() {
 .form-side {
   display: flex;
   flex-direction: column;
-  padding: 24px 40px;
+  padding: 82px 40px 24px;
 }
 
+/* Back on the left, language + theme on the right, regardless of panel order. */
 .form-top {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 24px 40px;
+  pointer-events: none;
+}
+
+.form-top > * {
+  pointer-events: auto;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .back {
@@ -391,7 +416,8 @@ input {
   background: var(--field-bg);
   color: var(--fg);
   font: inherit;
-  font-size: 0.95rem;
+  /* 16px: anything smaller makes iOS Safari zoom in on focus. */
+  font-size: 1rem;
   font-weight: 600;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -581,13 +607,11 @@ input[aria-invalid='true'] {
     position: static;
     width: auto;
     transform: none;
-    /* will-change would make the panel the containing block for .form-top. */
     will-change: auto;
   }
 
-  /* No panel-wide blur here: a filter on .form-side would become the containing
-     block for the absolutely-positioned .form-top and pull it mid-screen.
-     The form content still blurs/fades via the form-swap transition. */
+  /* Panels don't trade places on phones; the form content still blurs/fades
+     via the form-swap transition. */
   .swapping .art,
   .swapping .form-side {
     animation: none;
@@ -608,11 +632,7 @@ input[aria-invalid='true'] {
   }
 
   .form-top {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    left: 16px;
-    z-index: 2;
+    padding: max(16px, env(safe-area-inset-top)) 16px 0;
   }
 
   .form-wrap {

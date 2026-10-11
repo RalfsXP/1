@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import AppLogo from '@/components/AppLogo.vue'
+import LanguageSwitch from '@/components/LanguageSwitch.vue'
 import LiveClock from '@/components/LiveClock.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import { logout, user } from '@/lib/auth'
@@ -24,14 +25,15 @@ function signOut() {
     <header class="top">
       <LiveClock />
       <div class="top-actions">
-        <button type="button" class="btn btn-ghost" @click="signOut">Log out</button>
+        <button type="button" class="btn btn-ghost" @click="signOut">{{ $t('home.logout') }}</button>
+        <LanguageSwitch />
         <ThemeToggle />
       </div>
     </header>
 
     <main class="center">
       <div class="logo"><AppLogo /></div>
-      <h1>Welcome<template v-if="firstName">, {{ firstName }}</template></h1>
+      <h1>{{ firstName ? $t('home.welcomeName', { name: firstName }) : $t('home.welcome') }}</h1>
     </main>
   </div>
 </template>
@@ -40,8 +42,9 @@ function signOut() {
 .home {
   display: grid;
   grid-template-rows: auto 1fr;
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   padding: 24px 32px;
   background:
     radial-gradient(40rem 28rem at 50% 50%, var(--glow), transparent 70%),
@@ -84,7 +87,7 @@ h1 {
 
 @media (max-width: 640px) {
   .home {
-    padding: 16px;
+    padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
   }
 }
 </style>
