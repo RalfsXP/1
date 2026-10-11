@@ -199,6 +199,29 @@ textarea {
   touch-action: manipulation;
 }
 
+/* Touch devices: no text selection, magnifier or long-press callout anywhere (holding a goal
+   opens edit) — except where you actually type. */
+@media (hover: none) and (pointer: coarse) {
+  html {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+
+  input,
+  textarea,
+  [contenteditable='true'] {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+  }
+
+  img,
+  a {
+    -webkit-user-drag: none;
+  }
+}
+
 /* One focus ring for everything keyboard-focusable. */
 :focus-visible {
   outline: 2px solid var(--accent);

@@ -145,6 +145,47 @@ function onTouchEnd(e) {
   opacity: 0;
 }
 
+/* Phones (iOS 26 Safari tints the status-bar area from a fixed bar at the top instead of
+   blurring the page under it, so the bar is fixed with a solid background). The drawer floats
+   inset from every edge and safe area, so it never meets the status bar with a hard cut. */
+@media (max-width: 859px) {
+  .shell {
+    grid-template-rows: 1fr;
+    /* = bar height: top padding + 40 px controls + 8 px bottom padding + 1 px border */
+    padding-top: calc(max(8px, env(safe-area-inset-top)) + 49px);
+  }
+
+  .topbar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 50;
+    background: var(--bg);
+  }
+
+  .side {
+    top: calc(env(safe-area-inset-top) + 8px);
+    bottom: calc(env(safe-area-inset-bottom) + 8px);
+    left: calc(env(safe-area-inset-left) + 8px);
+    width: min(300px, calc(84vw - 8px));
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    box-shadow: 0 16px 48px color-mix(in srgb, var(--black) 35%, transparent);
+    transform: translateX(calc(-100% - 24px - env(safe-area-inset-left)));
+  }
+
+  .side.open {
+    transform: none;
+  }
+
+  /* The panel already clears the safe areas. */
+  .side :deep(.nav) {
+    padding: 24px 16px 16px;
+  }
+}
+
 @media (min-width: 860px) {
   .shell {
     grid-template-columns: 248px 1fr;
