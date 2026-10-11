@@ -43,6 +43,11 @@ class User extends Authenticatable implements HasLocalePreference
         return $this->hasMany(Goal::class);
     }
 
+    public function whiteboards(): HasMany
+    {
+        return $this->hasMany(Whiteboard::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *

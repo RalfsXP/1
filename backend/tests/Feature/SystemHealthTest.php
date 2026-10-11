@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class SystemHealthTest extends TestCase
@@ -23,10 +22,6 @@ class SystemHealthTest extends TestCase
     {
         parent::setUp();
         config(['health.admin_emails' => ['admin@example.com']]);
-        Http::fake([
-            'status.supabase.com/*' => Http::response(['status' => ['indicator' => 'none', 'description' => 'All Systems Operational']]),
-            'www.vercel-status.com/*' => Http::response(['status' => ['indicator' => 'minor', 'description' => 'Minor Service Outage']]),
-        ]);
     }
 
     public function test_every_signed_in_user_sees_site_health_without_internals(): void
@@ -72,7 +67,7 @@ class SystemHealthTest extends TestCase
         $this->spa(User::factory()->create())->getJson('/api/user')->assertJsonPath('is_admin', false);
     }
 
-    public function test_site_health_reports_api_database_migrations_platforms_and_checks(): void
+    public function test_site_health_reports_api_database_migrations_and_checks(): void
     {
         config(['app.frontend_url' => 'http://localhost:5173', 'sanctum.stateful' => ['localhost:5173']]);
 
@@ -85,8 +80,7 @@ class SystemHealthTest extends TestCase
             ->assertJsonPath('database.limit_bytes', 500 * 1024 * 1024)
             ->assertJsonPath('migrations.status', 'ok')
             ->assertJsonPath('migrations.pending', [])
-            ->assertJsonPath('platforms.0', ['name' => 'supabase', 'status' => 'ok', 'description' => 'All Systems Operational'])
-            ->assertJsonPath('platforms.1.status', 'warning');
+            ->assertJsonPath('database.tables.0', ['name' => 'users', 'rows' => 1, 'bytes' => null]);
 
         $this->assertSame($response->json('migrations.total'), $response->json('migrations.ran'));
         $this->assertGreaterThan(0, $response->json('migrations.total'));

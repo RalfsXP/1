@@ -26,15 +26,18 @@ return [
     'integer' => 'Laukā :attribute jābūt veselam skaitlim.',
     'lowercase' => 'Laukā :attribute jābūt tikai mazajiem burtiem.',
     'max' => [
-        'string' => 'Lauks :attribute nedrīkst būt garāks par :max rakstzīmēm.',
+        'starts_with' => 'Laukam :attribute jāsākas ar: :values.',
+    'string' => 'Lauks :attribute nedrīkst būt garāks par :max rakstzīmēm.',
     ],
     'required_if' => 'Lauks :attribute ir obligāts, ja :other ir :value.',
     'regex' => 'Lauka :attribute formāts nav derīgs.',
     'required_with' => 'Lauks :attribute ir obligāts, ja ir norādīts :values.',
     'min' => [
-        'string' => 'Laukā :attribute jābūt vismaz :min rakstzīmēm.',
+        'starts_with' => 'Laukam :attribute jāsākas ar: :values.',
+    'string' => 'Laukā :attribute jābūt vismaz :min rakstzīmēm.',
     ],
     'required' => 'Lauks :attribute ir obligāts.',
+    'starts_with' => 'Laukam :attribute jāsākas ar: :values.',
     'string' => 'Laukā :attribute jābūt tekstam.',
     'unique' => 'Šāds :attribute jau tiek izmantots.',
 
@@ -70,6 +73,8 @@ return [
         'badge_color' => 'krāsa',
         'badge_icon' => 'ikona',
         'date' => 'datums',
+        'data' => 'saturs',
+        'preview' => 'priekšskatījums',
     ],
 
 ];

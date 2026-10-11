@@ -4,7 +4,7 @@ import { ArrowRightIcon, CheckIcon, ExclamationCircleIcon } from '@heroicons/vue
 import GoalForm from '@/components/GoalForm.vue'
 import GoalItem from '@/components/GoalItem.vue'
 import { user } from '@/lib/auth'
-import { compareOccurrences, loadRange, occurrencesBetween, setDone } from '@/lib/goals'
+import { compareOccurrences, loadRange, occurrencesBetween, refreshTick, setDone } from '@/lib/goals'
 import { PERIOD_TO_ROUTE, addDays, parseISO, periodEnd, periodStart, toISO, weekdayName } from '@/lib/periods'
 import { now, todayISO } from '@/lib/timeLeft'
 
@@ -18,7 +18,7 @@ const yesterdayISO = computed(() => toISO(addDays(todayDate.value, -1)))
 
 const range = computed(() => {
   const d = todayDate.value
-  const from = [periodStart('year', d), periodStart('week', d), addDays(d, -6)].reduce((a, b) => (a < b ? a : b))
+  const from = [periodStart('year', d), periodStart('week', d), addDays(d, -8)].reduce((a, b) => (a < b ? a : b))
   const to = [periodEnd('year', d), periodEnd('week', d)].reduce((a, b) => (a > b ? a : b))
   return { from, to }
 })
@@ -26,7 +26,7 @@ const range = computed(() => {
 const loaded = ref(false)
 const failed = ref(false)
 watch(
-  () => toISO(range.value.from) + toISO(range.value.to),
+  () => [toISO(range.value.from) + toISO(range.value.to), refreshTick.value],
   () =>
     loadRange(range.value.from, range.value.to)
       .then(() => (failed.value = false))
@@ -46,9 +46,17 @@ const current = computed(() =>
   ),
 )
 
-// Missed days of a habit aren't "overdue"; only one-off goals past their deadline are.
+/**
+ * Overdue: one-off goals past their deadline (until done), plus repeating goals missed in the
+ * last 7 days — older misses of a habit would just pile up (a daily goal since January = hundreds).
+ */
+const OVERDUE_WINDOW = 7 * 24 * 3600 * 1000
 const overdue = computed(() =>
-  occurrences.value.filter((o) => !o.done && !o.goal.repeats && o.deadline.getTime() < now.value),
+  occurrences.value.filter((o) => {
+    const due = o.deadline.getTime()
+    if (o.done || due >= now.value) return false
+    return !o.goal.repeats || now.value - due <= OVERDUE_WINDOW
+  }),
 )
 
 function progressTile(key, items, to) {
@@ -74,12 +82,16 @@ const tiles = computed(() => [
   { key: 'overdue', kind: 'count', count: overdue.value.length, complete: loaded.value && !failed.value && !overdue.value.length },
 ])
 
-/** Late one-offs first, then what's open now (most important first). */
+/**
+ * Overdue one-off goals first (real tasks), then what's open now, then habits missed in
+ * the last few days (newest first) — so old misses never push today's work off the list.
+ */
 const focus = computed(() => {
-  const late = [...overdue.value].sort(compareOccurrences)
-  const lateKeys = new Set(late.map((o) => o.key))
+  const late = overdue.value.filter((o) => !o.goal.repeats).sort(compareOccurrences)
+  const missed = overdue.value.filter((o) => o.goal.repeats).sort((a, b) => b.deadline - a.deadline)
+  const lateKeys = new Set(overdue.value.map((o) => o.key))
   const open = current.value.filter((o) => !o.done && !lateKeys.has(o.key)).sort(compareOccurrences)
-  return [...late, ...open].slice(0, 8)
+  return [...late, ...open, ...missed].slice(0, 8)
 })
 
 /* Activity: goals ticked off on each of the last 7 days. */

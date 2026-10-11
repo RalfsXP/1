@@ -49,7 +49,8 @@
     "logout": "Log out",
     "home": "Overview",
     "settings": "Settings",
-    "health": "Site health"
+    "health": "Site health",
+    "whiteboards": "Whiteboards"
   },
   "periods": {
     "day": "Daily goals",
@@ -212,7 +213,8 @@
       "ok": "OK",
       "warning": "Check",
       "error": "Error",
-      "unknown": "Unknown"
+      "unknown": "Unknown",
+      "loading": "Checking…"
     },
     "responseTime": "Response time",
     "serverTime": "Server check time",
@@ -260,5 +262,40 @@
       "gym": "Gym",
       "call": "Call mum"
     }
+  },
+  "whiteboard": {
+    "title": "Whiteboards",
+    "new": "New board",
+    "empty": "No boards yet. Start one to sketch, plan or jot things down.",
+    "rename": "Rename",
+    "back": "All boards",
+    "boardTitle": "Board title",
+    "tools": "Tools",
+    "status": {
+      "saved": "Saved",
+      "pending": "Saving…",
+      "saving": "Saving…",
+      "error": "Couldn't save"
+    },
+    "tool": {
+      "select": "Select",
+      "hand": "Pan",
+      "pen": "Pen",
+      "eraser": "Eraser",
+      "text": "Text",
+      "note": "Sticky note",
+      "rect": "Rectangle",
+      "ellipse": "Ellipse",
+      "line": "Line",
+      "arrow": "Arrow"
+    },
+    "undo": "Undo",
+    "redo": "Redo",
+    "fit": "Fit to screen",
+    "ink": "Ink",
+    "size": "Size",
+    "sizes": ["Thin", "Medium", "Thick"],
+    "deleteSelection": "Delete selection",
+    "notePlaceholder": "Note"
   }
 }

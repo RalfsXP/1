@@ -15,7 +15,31 @@ const loading = ref(false)
 const roundTrip = ref(null)
 const frontendVersion = raw.trim()
 
+/* Hosting status comes straight from the public Statuspage feeds (CORS-enabled), in parallel
+   with the API check, so a slow third party never holds up the rest of the page. */
+const PLATFORMS = {
+  supabase: 'https://status.supabase.com/api/v2/status.json',
+  vercel: 'https://www.vercel-status.com/api/v2/status.json',
+}
+const platforms = ref(Object.keys(PLATFORMS).map((name) => ({ name, status: 'loading', description: null })))
+
+function loadPlatforms() {
+  Object.entries(PLATFORMS).forEach(async ([name, url], i) => {
+    let next = { name, status: 'unknown', description: null }
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(5000) })
+      const { status } = await res.json()
+      // Statuspage indicators: none | minor | major | critical.
+      next = { name, status: status.indicator === 'none' ? 'ok' : 'warning', description: status.description }
+    } catch {
+      // Feed unreachable: shown as "unknown", not as a problem with mērķis.
+    }
+    platforms.value[i] = next
+  })
+}
+
 async function refresh() {
+  loadPlatforms()
   loading.value = true
   failed.value = false
   const started = performance.now()
@@ -81,12 +105,18 @@ const problems = computed(() => {
     db.value.status !== 'ok' && t('health.database'),
     migrations.value.status !== 'ok' && t('health.migrations'),
     storage.value?.status === 'warning' && t('health.storage'),
-    ...r.platforms.filter((p) => p.status === 'warning').map((p) => t(`health.platform.${p.name}`)),
+    ...platforms.value.filter((p) => p.status === 'warning').map((p) => t(`health.platform.${p.name}`)),
     ...checks.value.filter((c) => !c.ok).map((c) => t(`health.check.${c.key}`)),
   ].filter(Boolean)
 })
 
-const icons = { ok: CheckCircleIcon, warning: ExclamationTriangleIcon, error: ExclamationTriangleIcon, unknown: QuestionMarkCircleIcon }
+const icons = {
+  ok: CheckCircleIcon,
+  warning: ExclamationTriangleIcon,
+  error: ExclamationTriangleIcon,
+  unknown: QuestionMarkCircleIcon,
+  loading: ArrowPathIcon,
+}
 </script>
 
 <template>
@@ -238,13 +268,13 @@ const icons = { ok: CheckCircleIcon, warning: ExclamationTriangleIcon, error: Ex
             <h2 class="section-title">{{ $t('health.platforms') }}</h2>
           </header>
           <ul class="rows">
-            <li v-for="p in report.platforms" :key="p.name">
+            <li v-for="p in platforms" :key="p.name">
               <span>
                 <span class="row-name">{{ $t(`health.platform.${p.name}`) }}</span>
                 <span v-if="p.description" class="row-note">{{ p.description }}</span>
               </span>
               <span class="status" :class="p.status">
-                <component :is="icons[p.status]" aria-hidden="true" />{{ $t(`health.status.${p.status}`) }}
+                <component :is="icons[p.status]" :class="{ spinning: p.status === 'loading' }" aria-hidden="true" />{{ $t(`health.status.${p.status}`) }}
               </span>
             </li>
           </ul>
@@ -378,7 +408,8 @@ const icons = { ok: CheckCircleIcon, warning: ExclamationTriangleIcon, error: Ex
   color: var(--fg);
 }
 
-.status.unknown {
+.status.unknown,
+.status.loading {
   color: var(--muted);
 }
 

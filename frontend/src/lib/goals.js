@@ -1,4 +1,4 @@
-import { computed, reactive } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import api from './api'
 import { user } from './auth'
 import { occurrencesIn, toISO } from './periods'
@@ -46,13 +46,44 @@ function upsertWindow(goal, from, to) {
   return upsert(goal)
 }
 
-/** Fetch every goal with an occurrence in [from, to]. */
-export async function loadRange(from, to) {
+/* Range loads: one request per range at a time, and none again while it's fresh. */
+const FRESH_MS = 30_000
+const loads = new Map() // "from|to" -> { at, pending, promise }
+
+/** Bumped when the window regains focus; views watch it to refresh stale ranges. */
+export const refreshTick = ref(0)
+addEventListener('focus', () => refreshTick.value++)
+
+/** Fetch every goal with an occurrence in [from, to] (deduplicated, cached for 30 s). */
+export function loadRange(from, to) {
   const [f, t] = [toISO(from), toISO(to)]
-  const { data } = await api.get('/goals', { params: { from: f, to: t } })
-  data.forEach((goal) => upsertWindow(goal, f, t))
-  return data
+  const key = `${f}|${t}`
+  const hit = loads.get(key)
+  if (hit && (hit.pending || Date.now() - hit.at < FRESH_MS)) return hit.promise
+
+  const entry = { at: 0, pending: true }
+  entry.promise = api
+    .get('/goals', { params: { from: f, to: t } })
+    .then(({ data }) => {
+      data.forEach((goal) => upsertWindow(goal, f, t))
+      Object.assign(entry, { at: Date.now(), pending: false })
+      return data
+    })
+    .catch((e) => {
+      loads.delete(key)
+      throw e
+    })
+  loads.set(key, entry)
+  return entry.promise
 }
+
+// Signing out (or in as someone else) must never show the previous account's goals.
+watch(user, (next, prev) => {
+  if (!next || next.id !== prev?.id) {
+    cache.clear()
+    loads.clear()
+  }
+})
 
 /** Occurrences of cached goals in [from, to], optionally of one period, sorted for display. */
 export function occurrencesBetween(from, to, period = null) {

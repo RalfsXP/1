@@ -6,7 +6,7 @@ import CalendarMonth from '@/components/CalendarMonth.vue'
 import GoalForm from '@/components/GoalForm.vue'
 import GoalItem from '@/components/GoalItem.vue'
 import ProgressMeter from '@/components/ProgressMeter.vue'
-import { loadRange, occurrencesBetween, setDone } from '@/lib/goals'
+import { loadRange, occurrencesBetween, refreshTick, setDone } from '@/lib/goals'
 import { PERIODS, PERIOD_TO_ROUTE, periodEnd, periodLabel, periodStart, toISO } from '@/lib/periods'
 import { todayISO } from '@/lib/timeLeft'
 
@@ -21,7 +21,7 @@ const range = computed(() => ({
   to: periodEnd('week', periodEnd('month', month.value)),
 }))
 
-watch(range, ({ from, to }) => loadRange(from, to).catch(() => {}), { immediate: true })
+watch([range, refreshTick], ([{ from, to }]) => loadRange(from, to).catch(() => {}), { immediate: true })
 
 const occurrences = computed(() => occurrencesBetween(range.value.from, range.value.to))
 

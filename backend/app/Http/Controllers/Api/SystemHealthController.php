@@ -8,20 +8,20 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Throwable;
 
 /**
  * Overview of the running system for every signed-in user (admins see a few
  * more internals and can run migrations): API, database (Supabase),
- * migrations, storage use against the free-plan limit, platform status and
- * configuration checks. Every probe is isolated, so one failure is reported
- * instead of breaking the page. Never returns secrets.
+ * migrations, storage use against the free-plan limit and configuration
+ * checks (hosting platform status is fetched by the browser). Every probe is
+ * isolated, so one failure is reported instead of breaking the page. Never
+ * returns secrets.
  */
 class SystemHealthController extends Controller
 {
     /** Tables shown in the storage breakdown. */
-    private const TABLES = ['users', 'goals', 'goal_completions', 'migrations'];
+    private const TABLES = ['users', 'goals', 'goal_completions', 'whiteboards', 'migrations'];
 
     public function __invoke(Request $request): JsonResponse
     {
@@ -44,7 +44,6 @@ class SystemHealthController extends Controller
             'api' => $this->api(),
             'database' => $database,
             'migrations' => $this->migrations(),
-            'platforms' => $this->platforms(),
             'checks' => $checks,
             'duration_ms' => (int) round((microtime(true) - $started) * 1000),
         ]);
@@ -107,36 +106,41 @@ class SystemHealthController extends Controller
             return ['status' => 'error', 'driver' => $driver, 'error' => class_basename($e), 'limit_bytes' => $limit];
         }
 
-        $result = [
+        // Few round trips: every probe below is a single query (the API and DB may be far apart).
+        $pg = $driver === 'pgsql';
+        $stats = $this->attempt(fn () => $pg
+            ? (array) $connection->selectOne("select version() as version, pg_database_size(current_database()) as size,
+                (select count(*) from pg_stat_activity where datname = current_database()) as active,
+                current_setting('max_connections')::int as max")
+            : ['version' => 'SQLite '.$connection->scalar('select sqlite_version()'), 'size' => $this->sqliteSize()]) ?? [];
+
+        // Table names are our own constants, never user input.
+        $rows = $this->attempt(fn () => (array) $connection->selectOne('select '.implode(', ', array_map(
+            fn ($t) => "(select count(*) from {$t}) as {$t}",
+            self::TABLES,
+        )))) ?? [];
+        $names = "'".implode("','", self::TABLES)."'";
+        $sizes = $pg ? $this->attempt(fn () => collect($connection->select(
+            "select c.relname, pg_total_relation_size(c.oid) as bytes from pg_class c
+             join pg_namespace n on n.oid = c.relnamespace
+             where n.nspname = current_schema() and c.relkind = 'r' and c.relname in ({$names})",
+        ))->pluck('bytes', 'relname')->all()) ?? [] : [];
+
+        return [
             'status' => 'ok',
             'driver' => $driver,
-            'host' => $driver === 'pgsql' ? parse_url((string) config('database.connections.pgsql.url'), PHP_URL_HOST) ?: config('database.connections.pgsql.host') : null,
+            'host' => $pg ? parse_url((string) config('database.connections.pgsql.url'), PHP_URL_HOST) ?: config('database.connections.pgsql.host') : null,
             'latency_ms' => $latency,
-            'version' => $this->attempt(fn () => $driver === 'pgsql'
-                ? preg_replace('/^(PostgreSQL [\d.]+).*$/', '$1', $connection->scalar('select version()'))
-                : 'SQLite '.$connection->scalar('select sqlite_version()')),
-            'size_bytes' => $this->attempt(fn () => $driver === 'pgsql'
-                ? (int) $connection->scalar('select pg_database_size(current_database())')
-                : $this->sqliteSize()),
+            'version' => isset($stats['version']) ? preg_replace('/^(PostgreSQL [\d.]+).*$/', '$1', $stats['version']) : null,
+            'size_bytes' => isset($stats['size']) ? (int) $stats['size'] : null,
             'limit_bytes' => $limit,
-            'connections' => $driver === 'pgsql' ? $this->attempt(fn () => [
-                'active' => (int) $connection->scalar('select count(*) from pg_stat_activity where datname = current_database()'),
-                'max' => (int) $connection->scalar('show max_connections'),
-            ]) : null,
-            'tables' => [],
+            'connections' => $pg && isset($stats['active']) ? ['active' => (int) $stats['active'], 'max' => (int) $stats['max']] : null,
+            'tables' => array_map(fn ($t) => [
+                'name' => $t,
+                'rows' => isset($rows[$t]) ? (int) $rows[$t] : null,
+                'bytes' => isset($sizes[$t]) ? (int) $sizes[$t] : null,
+            ], self::TABLES),
         ];
-
-        foreach (self::TABLES as $table) {
-            $result['tables'][] = [
-                'name' => $table,
-                'rows' => $this->attempt(fn () => DB::table($table)->count()),
-                'bytes' => $driver === 'pgsql'
-                    ? $this->attempt(fn () => (int) $connection->scalar('select pg_total_relation_size(?::regclass)', [$table]))
-                    : null,
-            ];
-        }
-
-        return $result;
     }
 
     private function migrations(): array
@@ -159,30 +163,6 @@ class SystemHealthController extends Controller
 
             return ['status' => 'error', 'ran' => null, 'total' => null, 'pending' => []];
         }
-    }
-
-    private function platforms(): array
-    {
-        $urls = config('health.platforms');
-        // Both feeds at once: the slower one sets the wait, capped at 3 s.
-        $responses = Http::pool(fn ($pool) => array_map(
-            fn ($name) => $pool->as($name)->timeout(3)->acceptJson()->get($urls[$name]),
-            array_keys($urls),
-        ));
-
-        $out = [];
-        foreach (array_keys($urls) as $name) {
-            $response = $responses[$name] ?? null;
-            $status = $response instanceof \Illuminate\Http\Client\Response && $response->successful() ? $response->json('status') : null;
-            $out[] = [
-                'name' => $name,
-                // Statuspage indicators: none | minor | major | critical.
-                'status' => $status === null ? 'unknown' : (($status['indicator'] ?? null) === 'none' ? 'ok' : 'warning'),
-                'description' => $status['description'] ?? null,
-            ];
-        }
-
-        return $out;
     }
 
     /** Configuration checks; `ok` false means "look at this". Values never include secrets. */

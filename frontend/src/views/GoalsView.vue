@@ -5,7 +5,7 @@ import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '@heroicons/vue/24/o
 import GoalForm from '@/components/GoalForm.vue'
 import GoalItem from '@/components/GoalItem.vue'
 import ProgressMeter from '@/components/ProgressMeter.vue'
-import { loadRange, occurrencesBetween, setDone } from '@/lib/goals'
+import { loadRange, occurrencesBetween, refreshTick, setDone } from '@/lib/goals'
 import { ROUTE_TO_PERIOD, addDays, parseISO, periodEnd, periodLabel, periodStart, shiftPeriod, toISO } from '@/lib/periods'
 import { todayISO } from '@/lib/timeLeft'
 
@@ -30,7 +30,7 @@ const start = computed(() =>
 const end = computed(() => (isCustom ? addDays(parseISO(todayISO.value), 3 * 365) : periodEnd(period, start.value)))
 const isCurrent = computed(() => toISO(start.value) === toISO(periodStart(period, todayISO.value)))
 
-watch([start, end], ([from, to]) => loadRange(from, to).catch(() => {}), { immediate: true })
+watch([start, end, refreshTick], ([from, to]) => loadRange(from, to).catch(() => {}), { immediate: true })
 
 const occurrences = computed(() => occurrencesBetween(start.value, end.value, period))
 const open = computed(() => occurrences.value.filter((o) => !o.done))

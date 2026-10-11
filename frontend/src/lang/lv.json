@@ -49,7 +49,8 @@
     "logout": "Iziet",
     "home": "Pārskats",
     "settings": "Iestatījumi",
-    "health": "Sistēmas stāvoklis"
+    "health": "Sistēmas stāvoklis",
+    "whiteboards": "Tāfeles"
   },
   "periods": {
     "day": "Dienas mērķi",
@@ -212,7 +213,8 @@
       "ok": "Kārtībā",
       "warning": "Pārbaudīt",
       "error": "Kļūda",
-      "unknown": "Nav zināms"
+      "unknown": "Nav zināms",
+      "loading": "Pārbauda…"
     },
     "responseTime": "Atbildes laiks",
     "serverTime": "Servera pārbaudes laiks",
@@ -260,5 +262,40 @@
       "gym": "Sporta zāle",
       "call": "Piezvanīt mammai"
     }
+  },
+  "whiteboard": {
+    "title": "Tāfeles",
+    "new": "Jauna tāfele",
+    "empty": "Vēl nav nevienas tāfeles. Izveido pirmo, lai zīmētu, plānotu vai pierakstītu.",
+    "rename": "Pārdēvēt",
+    "back": "Visas tāfeles",
+    "boardTitle": "Tāfeles nosaukums",
+    "tools": "Rīki",
+    "status": {
+      "saved": "Saglabāts",
+      "pending": "Saglabā…",
+      "saving": "Saglabā…",
+      "error": "Neizdevās saglabāt"
+    },
+    "tool": {
+      "select": "Atlasīt",
+      "hand": "Pārvietot skatu",
+      "pen": "Pildspalva",
+      "eraser": "Dzēšgumija",
+      "text": "Teksts",
+      "note": "Piezīme",
+      "rect": "Taisnstūris",
+      "ellipse": "Elipse",
+      "line": "Līnija",
+      "arrow": "Bulta"
+    },
+    "undo": "Atsaukt",
+    "redo": "Atcelt atsaukšanu",
+    "fit": "Rādīt visu",
+    "ink": "Tinte",
+    "size": "Biezums",
+    "sizes": ["Plāns", "Vidējs", "Biezs"],
+    "deleteSelection": "Dzēst atlasīto",
+    "notePlaceholder": "Piezīme"
   }
 }

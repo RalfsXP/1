@@ -6,6 +6,7 @@ import {
   CalendarDaysIcon,
   CalendarIcon,
   Cog6ToothIcon,
+  PencilSquareIcon,
   SignalIcon,
   Squares2X2Icon,
   StarIcon,
@@ -28,6 +29,7 @@ const links = [
   { to: { name: 'goals', params: { period: 'monthly' } }, label: 'periods.month', icon: CalendarIcon },
   { to: { name: 'goals', params: { period: 'yearly' } }, label: 'periods.year', icon: StarIcon },
   { to: { name: 'goals', params: { period: 'custom' } }, label: 'periods.custom', icon: CalendarDateRangeIcon },
+  { to: { name: 'whiteboards' }, label: 'nav.whiteboards', icon: PencilSquareIcon },
 ]
 
 function signOut() {

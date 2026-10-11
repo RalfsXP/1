@@ -32,6 +32,9 @@ const router = createRouter({
           name: 'goals',
           component: () => import('./views/GoalsView.vue'),
         },
+        { path: '/whiteboards', name: 'whiteboards', component: () => import('./views/WhiteboardsView.vue') },
+        // The editor chunk carries Fabric.js; nothing else loads it.
+        { path: '/whiteboards/:id(\\d+)', name: 'whiteboard', component: () => import('./views/WhiteboardView.vue') },
         { path: '/settings', name: 'settings', component: () => import('./views/SettingsView.vue') },
         // Every signed-in user; admins (ADMIN_EMAILS) also see internals and can run migrations.
         { path: '/health', name: 'health', component: () => import('./views/HealthView.vue') },

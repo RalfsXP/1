@@ -15,10 +15,4 @@ return [
     // Supabase free plan: 500 MB database. Raise it if the project is upgraded.
     'db_limit_mb' => (int) env('DB_SIZE_LIMIT_MB', 500),
 
-    // Public Atlassian Statuspage feeds of the hosting platforms.
-    'platforms' => [
-        'supabase' => 'https://status.supabase.com/api/v2/status.json',
-        'vercel' => 'https://www.vercel-status.com/api/v2/status.json',
-    ],
-
 ];
