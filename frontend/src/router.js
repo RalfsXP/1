@@ -33,8 +33,8 @@ const router = createRouter({
           component: () => import('./views/GoalsView.vue'),
         },
         { path: '/settings', name: 'settings', component: () => import('./views/SettingsView.vue') },
-        // Admins only (ADMIN_EMAILS on the backend); the API answers 404 to anyone else.
-        { path: '/health', name: 'health', component: () => import('./views/HealthView.vue'), meta: { adminOnly: true } },
+        // Every signed-in user; admins (ADMIN_EMAILS) also see internals and can run migrations.
+        { path: '/health', name: 'health', component: () => import('./views/HealthView.vue') },
       ],
     },
     { path: '/:pathMatch(.*)*', redirect: '/' },
@@ -52,7 +52,6 @@ router.beforeEach(async (to) => {
   }
 
   if (to.meta.requiresAuth && !current) return { name: 'login' }
-  if (to.meta.adminOnly && !current?.is_admin) return { name: 'home' }
   if (to.meta.guestOnly && current) return { name: 'home' }
   return true
 })

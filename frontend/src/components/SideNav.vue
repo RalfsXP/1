@@ -14,7 +14,7 @@ import {
 } from '@heroicons/vue/24/outline'
 import AppLogo from '@/components/AppLogo.vue'
 import AppVersion from '@/components/AppVersion.vue'
-import { logout, user } from '@/lib/auth'
+import { logout } from '@/lib/auth'
 import { withLoader } from '@/lib/loader'
 
 const emit = defineEmits(['navigate'])
@@ -60,7 +60,7 @@ function signOut() {
         <Cog6ToothIcon aria-hidden="true" />
         <span>{{ $t('nav.settings') }}</span>
       </RouterLink>
-      <RouterLink v-if="user?.is_admin" :to="{ name: 'health' }" class="link" exact-active-class="active" @click="emit('navigate')">
+      <RouterLink :to="{ name: 'health' }" class="link" exact-active-class="active" @click="emit('navigate')">
         <SignalIcon aria-hidden="true" />
         <span>{{ $t('nav.health') }}</span>
       </RouterLink>
