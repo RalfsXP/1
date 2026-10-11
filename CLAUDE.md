@@ -4,7 +4,7 @@
 > **Keep it current:** every change that alters behaviour, structure, env vars, design rules or the version MUST update this file in the same change (see "Maintaining this file"). Keep it dense — it is loaded every session, so every line costs tokens.
 
 ## What it is
-Mērķis = Latvian for "goal". A minimal planner web app, live at **https://merkis.app**. Current version: **v1.4.2** (`frontend/VERSION`). Owner: Ralfs (GitHub `RalfsXP/1`). Landing, auth, and the signed-in planner: side nav, Overview dashboard (/home), Calendar, Daily/Weekly/Monthly/Yearly/Custom-period goals (priorities, recurrence, completion per occurrence, time left, custom badges), Settings, Site health (all users; admins see internals + can run migrations), Whiteboards (Fabric.js).
+Mērķis = Latvian for "goal". A minimal planner web app, live at **https://merkis.app**. Current version: **v1.4.3** (`frontend/VERSION`). Owner: Ralfs (GitHub `RalfsXP/1`). Landing, auth, and the signed-in planner: side nav, Overview dashboard (/home), Calendar, Daily/Weekly/Monthly/Yearly/Custom-period goals (priorities, recurrence, completion per occurrence, time left, custom badges), Settings, Site health (all users; admins see internals + can run migrations), Whiteboards (Fabric.js).
 
 ## Stack & hosting (all free tier except the domain)
 | Part | Tech | Where |
@@ -39,7 +39,7 @@ Request flow: browser → merkis.app → `frontend/vercel.json` rewrites `/api/*
 frontend/
   index.html            theme + design pre-paint script, icons, Montserrat font; viewport WITHOUT viewport-fit=cover in Safari tabs — the script adds it
                         + html.standalone when opened from the Home Screen (iOS 26 opens those as web apps); App.vue .status-strip = opaque bar under the clock there
-  VERSION               "v1.4.2" → shown bottom-left (AppVersion.vue; inside the side nav in the app shell)
+  VERSION               "v1.4.3" → shown bottom-left (AppVersion.vue; inside the side nav in the app shell)
   vercel.json           /api + /sanctum proxy to backend, SPA fallback
   public/               (icon URLs carry ?v=2 in index.html + manifest — bump on any icon change) favicon.svg (Seagrass tile + black m), favicon-32.png, favicon.ico (16/32/48), apple-touch-icon.png + icon-192/512.png
                         (black, white m + dot; maskable), site.webmanifest, email/logo.png (white wordmark), brand/ (logo-on-dark|light.svg, mark.svg — README uses these)
@@ -163,7 +163,7 @@ APP_KEY, APP_ENV=production, APP_DEBUG=false, APP_NAME, APP_URL, FRONTEND_URL=ht
 - Slow prod = check `x-vercel-id`: the middle region code is where the PHP function ran; it must be dub1 (Supabase is eu-west-1). Each request opens a fresh DB connection, so distance multiplies.
 - Goal rows: desktop = check toggles, click edits; touch (`touchUI`) = tap anywhere toggles, hold edits (GoalItem + calendar strip badges via usePress). Don't add click-to-edit on touch.
 - BottomSheet focuses `[autofocus]` inside it if present, else the dialog.
-- iOS 26: a Safari tab with `viewport-fit=cover` lets the bottom toolbar cover sheets → no cover in tabs. Home Screen web apps get an edge-blur ramp over the top unless an OPAQUE fixed box (no backdrop-filter, ≥90% wide, >10px) covers the top edge → html.standalone adds cover + .status-strip, and the fixed top bar pads by env(safe-area-inset-top). `html` has an opaque background (Safari's fallback colour). theme-color is ignored by Safari 26.
+- iOS 26: a Safari tab with `viewport-fit=cover` lets the bottom toolbar cover sheets → no cover in tabs. Home Screen web apps get an edge-blur ramp over the top unless an OPAQUE fixed box (no backdrop-filter, ≥90% wide, >10px) covers the top edge → html.standalone adds cover + .status-strip; even so the ramp blurred the header, so in standalone `--top-inset` = safe area + 28px (top bar, landing/auth headers and the strip all use `var(--top-inset)`, never env(safe-area-inset-top) directly). `html` has an opaque background (Safari's fallback colour). theme-color is ignored by Safari 26.
 - iPhone status-bar strip: in a Safari tab it belongs to Safari — it blurs the page under it unless a solid fixed bar touches the top (then it takes that colour). Hence the fixed top bar on phones. Left-side drawers always looked cut under it (rejected twice); standalone/Home-Screen mode added a solid bottom block (rejected). Keep: fixed top bar + bottom Menu sheet; no full-width fixed bottom bars.
 - Whiteboard: Fabric needs `enablePointerEvents: true`; the surface needs its own `touch-action: none` (global is `manipulation`). Never rebuild `freeDrawingBrush` in a capture-phase pointerup — Fabric then finishes the stroke on an empty brush (a dot at 0,0). Fabric 7 default origin is centre.
 - Every period (incl. 'custom') needs an entry in BOTH `DEFAULT_STYLES` (src/lib/goals.js) and `config/goals.php` — a missing one makes `readableOn(undefined)` crash the render.
@@ -177,6 +177,7 @@ APP_KEY, APP_ENV=production, APP_DEBUG=false, APP_NAME, APP_URL, FRONTEND_URL=ht
 - Owner is learning hosting — give click-by-click steps for dashboards (Vercel/Supabase/Resend), with direct links when possible.
 
 ## Changelog
+- **v1.4.3** — Home Screen web app: header starts 28 px below the status bar (`--top-inset`), so iOS 26's top blur only covers plain background.
 - **v1.4.2** — security: Supabase lints fixed — RLS on all public tables, Data API roles (anon/authenticated) revoked incl. default privileges; Rls helper for new tables; Site health `db_rls` check. Unused-index lints left (cookie sessions, array cache, sync queue → those tables are empty by design).
 - **v1.4.1** — phones: no text selection / long-press callout (except fields); fixed solid top bar; `viewport-fit=cover` only for Home Screen web apps + opaque status strip there (no iOS 26 top blur), none in Safari tabs (toolbar no longer covers sheets); opaque html background; side drawer replaced by a floating Menu button that opens the navigation as a bottom sheet.
 - **v1.4** — design switch in Settings (labels Noklusējuma / V2 / V3 = ids default / new / ocean: V2 Imperial Blue + Blue Bell + Magenta, V3 Deep Space + Amber + Orange), each light + dark, saved on the account; colours refactored to role tokens; phones: tap = done, hold = edit (+ dismissible hint); whiteboards ask for a name first.

@@ -96,7 +96,7 @@ const open = (name) => withLoader(() => router.push({ name }))
       'auth auth'
       '. .';
     column-gap: 12px;
-    padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+    padding: max(16px, var(--top-inset)) 16px max(16px, env(safe-area-inset-bottom));
   }
 
   .top {

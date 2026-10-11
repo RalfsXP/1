@@ -18,6 +18,10 @@
   --amber: #ffb703;
   --orange: #fb8500;
 
+  /* Space above the top bar / headers. Home Screen web app (html.standalone): iOS 26 blurs ~the top of the
+     page under the status bar, so content starts a little lower there and the blur only covers plain colour. */
+  --top-inset: env(safe-area-inset-top, 0px);
+
   /* Colour roles — components use these, never the palette directly.
      Default design: all Seagrass on black/white (data-design="new" remaps them). */
   --accent: var(--seagrass);
@@ -231,6 +235,10 @@ textarea {
   display: none;
 }
 
+.standalone {
+  --top-inset: calc(env(safe-area-inset-top, 0px) + 28px);
+}
+
 .standalone .status-strip {
   position: fixed;
   top: 0;
@@ -238,7 +246,7 @@ textarea {
   left: 0;
   z-index: 45;
   display: block;
-  height: max(12px, env(safe-area-inset-top));
+  height: max(12px, var(--top-inset));
   background: var(--bg);
   pointer-events: none;
 }

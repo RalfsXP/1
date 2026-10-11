@@ -70,7 +70,7 @@ const showMenuButton = computed(() => route.name !== 'whiteboard')
   height: 100dvh;
   overflow: hidden;
   /* = phone top bar height: top padding + 40 px row + 8 px bottom padding + 1 px border */
-  padding-top: calc(max(8px, env(safe-area-inset-top)) + 49px);
+  padding-top: calc(max(8px, var(--top-inset)) + 49px);
 }
 
 .topbar {
@@ -82,8 +82,8 @@ const showMenuButton = computed(() => route.name !== 'whiteboard')
   display: flex;
   align-items: center;
   gap: 8px;
-  height: calc(max(8px, env(safe-area-inset-top)) + 49px);
-  padding: max(8px, env(safe-area-inset-top)) 16px 8px max(16px, env(safe-area-inset-left));
+  height: calc(max(8px, var(--top-inset)) + 49px);
+  padding: max(8px, var(--top-inset)) 16px 8px max(16px, env(safe-area-inset-left));
   border-bottom: 1px solid var(--line);
   background: var(--bg);
 }

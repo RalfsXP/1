@@ -595,11 +595,11 @@ input[aria-invalid='true'] {
 
   .form-side {
     flex: 1;
-    padding: calc(66px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
+    padding: calc(66px + var(--top-inset)) 16px calc(24px + env(safe-area-inset-bottom));
   }
 
   .form-top {
-    padding: max(16px, env(safe-area-inset-top)) 16px 0;
+    padding: max(16px, var(--top-inset)) 16px 0;
   }
 
   .form-wrap {
