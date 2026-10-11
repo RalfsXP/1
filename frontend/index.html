@@ -17,8 +17,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Merkis">
     <!-- App-like: no pinch or double-tap zoom (inputs are ≥16px, so iOS never needs to zoom them). -->
-    <!-- No viewport-fit=cover: iOS 26 Safari blurs/covers anything drawn under its status bar and bottom
-         toolbar, so the page stays between them (env(safe-area-*) is then 0; layouts keep max() fallbacks). -->
+    <!-- No viewport-fit=cover in a Safari tab: iOS 26 Safari covers anything drawn under its bottom toolbar.
+         Opened from the Home Screen (iOS 26 opens those as web apps) the script below adds it, so the opaque
+         top bar can reach under the clock — that's what stops iOS's blur over the top of the page. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#000000">
     <meta name="description" content="Merkis.app">
@@ -32,6 +33,12 @@
           theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
         }
         document.documentElement.dataset.theme = theme
+        // Home Screen web app: draw under the status bar; .standalone styles cover it with an opaque strip.
+        if (window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches) {
+          document.documentElement.classList.add('standalone')
+          var vp = document.querySelector('meta[name="viewport"]')
+          if (vp) vp.setAttribute('content', vp.getAttribute('content') + ', viewport-fit=cover')
+        }
         // Design (Settings → Design): the default one needs no attribute.
         try {
           var design = localStorage.getItem('merkis-design')

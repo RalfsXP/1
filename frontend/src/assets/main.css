@@ -163,7 +163,9 @@ body {
   overscroll-behavior: none;
 }
 
+/* An opaque root: iOS 26 Safari falls back to the root colour for its bars (never transparent). */
 html {
+  background-color: var(--bg);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
@@ -220,6 +222,25 @@ textarea {
   a {
     -webkit-user-drag: none;
   }
+}
+
+/* Home Screen web app (html.standalone, set pre-paint): a solid strip under the clock / Dynamic Island.
+   iOS 26 blurs the top of the page unless an opaque fixed box covers the top edge (no backdrop-filter);
+   pages without their own fixed top bar (landing, login) get it from this strip. */
+.status-strip {
+  display: none;
+}
+
+.standalone .status-strip {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 45;
+  display: block;
+  height: max(12px, env(safe-area-inset-top));
+  background: var(--bg);
+  pointer-events: none;
 }
 
 /* One focus ring for everything keyboard-focusable. */
