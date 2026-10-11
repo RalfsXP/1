@@ -17,7 +17,9 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Merkis">
     <!-- App-like: no pinch or double-tap zoom (inputs are ≥16px, so iOS never needs to zoom them). -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <!-- No viewport-fit=cover: iOS 26 Safari blurs/covers anything drawn under its status bar and bottom
+         toolbar, so the page stays between them (env(safe-area-*) is then 0; layouts keep max() fallbacks). -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#000000">
     <meta name="description" content="Merkis.app">
     <title>Merkis.app</title>
