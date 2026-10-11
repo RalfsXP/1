@@ -1,7 +1,9 @@
 <script setup>
 import { computed, reactive, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { EyeIcon, EyeSlashIcon, InformationCircleIcon } from '@heroicons/vue/24/outline'
 import AppLogo from '@/components/AppLogo.vue'
+import DeviceScene from '@/components/DeviceScene.vue'
 import LanguageSwitch from '@/components/LanguageSwitch.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import { login, register } from '@/lib/auth'
@@ -86,19 +88,17 @@ async function submit() {
   <div class="auth-page" :class="[mode, { swapping }]">
     <!-- Pinned to the page, not a panel, so it stays put while the panels swap. -->
     <header class="form-top">
-      <RouterLink to="/" class="back">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
-        {{ $t('auth.back') }}
-      </RouterLink>
+      <!-- Same corner as the landing page: the wordmark, which also leads back home. -->
+      <RouterLink to="/" class="home" :aria-label="$t('auth.back')"><AppLogo /></RouterLink>
       <div class="controls">
         <LanguageSwitch />
         <ThemeToggle />
       </div>
     </header>
 
-    <!-- Decorative side -->
+    <!-- Decorative side: the landing page's floating laptop + phone. -->
     <section class="art" aria-hidden="true">
-      <div class="art-logo"><AppLogo /></div>
+      <DeviceScene layout="auth" />
     </section>
 
     <!-- Form side -->
@@ -126,7 +126,7 @@ async function submit() {
                 :aria-describedby="errors.name ? 'name-error' : undefined"
               />
               <p v-if="errors.name" id="name-error" class="field-error">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7.5v5.5M12 16.5v.01" /></svg>
+                <InformationCircleIcon aria-hidden="true" />
                 {{ errors.name }}
               </p>
             </div>
@@ -144,7 +144,7 @@ async function submit() {
                 :aria-describedby="errors.email ? 'email-error' : undefined"
               />
               <p v-if="errors.email" id="email-error" class="field-error">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7.5v5.5M12 16.5v.01" /></svg>
+                <InformationCircleIcon aria-hidden="true" />
                 {{ errors.email }}
               </p>
             </div>
@@ -168,17 +168,12 @@ async function submit() {
                   :aria-pressed="showPassword"
                   @click="showPassword = !showPassword"
                 >
-                  <svg v-if="!showPassword" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                  <svg v-else viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M3 3l18 18M10.6 5.6A10 10 0 0 1 12 5.5c6 0 9.5 6.5 9.5 6.5a17 17 0 0 1-3 3.8M6.5 7.4A17 17 0 0 0 2.5 12S6 18.5 12 18.5a9.6 9.6 0 0 0 4.4-1" />
-                  </svg>
+                  <EyeIcon v-if="!showPassword" aria-hidden="true" />
+                  <EyeSlashIcon v-else aria-hidden="true" />
                 </button>
               </div>
               <p v-if="errors.password" id="password-error" class="field-error">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7.5v5.5M12 16.5v.01" /></svg>
+                <InformationCircleIcon aria-hidden="true" />
                 {{ errors.password }}
               </p>
               <div v-if="isRegister" class="strength">
@@ -243,7 +238,10 @@ async function submit() {
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
-  background: var(--bg);
+  /* Same glow as the landing page. */
+  background:
+    radial-gradient(48rem 32rem at 50% 60%, var(--glow), transparent 70%),
+    var(--bg);
 }
 
 /* ---------- Split layout + swap ---------- */
@@ -295,16 +293,11 @@ async function submit() {
   }
 }
 
-/* ---------- Art side: the logo, nothing else ---------- */
+/* ---------- Art side: the device scene ---------- */
 .art {
   display: grid;
   place-items: center;
-  padding: 32px;
-}
-
-.art-logo {
-  width: min(360px, 64%);
-  aspect-ratio: 998 / 828;
+  padding: 96px 40px 40px;
 }
 
 /* ---------- Form side ---------- */
@@ -314,7 +307,7 @@ async function submit() {
   padding: 82px 40px 24px;
 }
 
-/* Back on the left, language + theme on the right, regardless of panel order. */
+/* Wordmark (home) on the left, language + theme on the right, regardless of panel order. */
 .form-top {
   position: absolute;
   top: 0;
@@ -338,35 +331,15 @@ async function submit() {
   gap: 8px;
 }
 
-.back {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--muted);
-  font-size: 0.85rem;
-  font-weight: 700;
-  text-decoration: none;
-  transition: color 0.2s;
+.home {
+  display: block;
+  width: 132px;
+  height: 40px;
+  border-radius: 6px;
 }
 
-.back:hover {
-  color: var(--seagrass);
-}
-
-.back svg {
-  width: 16px;
-  height: 16px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.back:focus-visible {
-  outline: 2px solid var(--seagrass);
-  outline-offset: 4px;
-  border-radius: 4px;
+.home:focus-visible {
+  outline-offset: 6px;
 }
 
 .form-wrap {
@@ -468,11 +441,6 @@ input[aria-invalid='true'] {
 .reveal svg {
   width: 18px;
   height: 18px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 
 .field-error {
@@ -487,12 +455,10 @@ input[aria-invalid='true'] {
 
 .field-error svg {
   flex-shrink: 0;
-  width: 14px;
-  height: 14px;
-  fill: none;
-  stroke: var(--seagrass);
-  stroke-width: 2.2;
-  stroke-linecap: round;
+  width: 16px;
+  height: 16px;
+  color: var(--seagrass);
+  stroke-width: 2;
 }
 
 /* Strength meter: muted label + Seagrass bar that fills as the password improves. */
@@ -617,18 +583,19 @@ input[aria-invalid='true'] {
     animation: none;
   }
 
-  /* Back + theme toggle sit in the top row; the logo below them. */
+  /* Phones: header + form only; the device scene would push the form off screen. */
   .art {
-    padding: 72px 16px 0;
+    display: none;
   }
 
-  .art-logo {
-    width: 150px;
+  .home {
+    width: 112px;
+    height: 34px;
   }
 
   .form-side {
     flex: 1;
-    padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
+    padding: calc(66px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));
   }
 
   .form-top {

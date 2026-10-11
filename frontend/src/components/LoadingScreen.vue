@@ -35,10 +35,18 @@ import LogoMark from './LogoMark.vue'
   height: 132px;
 }
 
+/* The "m." breathes inside the orbiting ring (a spinning letter reads oddly). */
 .mark {
-  width: 72px;
-  height: 72px;
-  animation: spin 1.15s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+  width: 64px;
+  height: 34px;
+  animation: breathe 1.4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  50% {
+    transform: scale(0.88);
+    opacity: 0.75;
+  }
 }
 
 /* A thin Seagrass arc orbiting the mark. */
@@ -69,7 +77,7 @@ import LogoMark from './LogoMark.vue'
 
 @media (prefers-reduced-motion: reduce) {
   .mark {
-    animation-duration: 2.4s;
+    animation: none;
   }
 }
 </style>
