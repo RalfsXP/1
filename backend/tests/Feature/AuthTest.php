@@ -2,8 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Mail\WelcomeMail;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class AuthTest extends TestCase
@@ -21,6 +23,8 @@ class AuthTest extends TestCase
 
     public function test_a_user_can_register_and_is_logged_in(): void
     {
+        Mail::fake();
+
         $response = $this->spa()->postJson('/api/register', [
             'name' => 'Ralfs',
             'email' => 'ralfs@example.com',
@@ -85,5 +89,60 @@ class AuthTest extends TestCase
         $this->actingAs($user, 'web')->spa()->postJson('/api/logout')->assertNoContent();
 
         $this->assertGuest('web');
+    }
+
+    public function test_registration_saves_the_locale_and_sends_a_welcome_email_in_it(): void
+    {
+        Mail::fake();
+
+        $this->spa()->postJson('/api/register', [
+            'name' => 'Ralfs',
+            'email' => 'ralfs@example.com',
+            'password' => 'secret123',
+            'password_confirmation' => 'secret123',
+            'locale' => 'lv',
+        ])->assertCreated()->assertJsonPath('locale', 'lv');
+
+        Mail::assertSent(WelcomeMail::class, function (WelcomeMail $mail) {
+            return $mail->hasTo('ralfs@example.com') && $mail->locale === 'lv';
+        });
+    }
+
+    public function test_welcome_email_renders_in_latvian_by_default(): void
+    {
+        $user = User::factory()->create(['name' => 'Ralfs', 'locale' => 'lv']);
+
+        $html = (new WelcomeMail($user))->locale('lv')->render();
+
+        $this->assertStringContainsString('Laipni lūdzam, Ralfs!', $html);
+        $this->assertStringContainsString('/email/logo.png', $html);
+    }
+
+    public function test_a_user_can_change_their_saved_locale(): void
+    {
+        $user = User::factory()->create(['locale' => 'lv']);
+
+        $this->actingAs($user, 'web')->spa()
+            ->patchJson('/api/user/locale', ['locale' => 'en'])
+            ->assertOk()
+            ->assertJsonPath('locale', 'en');
+
+        $this->assertSame('en', $user->fresh()->locale);
+
+        $this->actingAs($user, 'web')->spa()
+            ->patchJson('/api/user/locale', ['locale' => 'de'])
+            ->assertUnprocessable();
+    }
+
+    public function test_validation_messages_follow_the_accept_language_header(): void
+    {
+        $this->spa()->withHeader('Accept-Language', 'lv')
+            ->postJson('/api/login', ['email' => '', 'password' => ''])
+            ->assertUnprocessable()
+            ->assertJsonPath('errors.email.0', 'Lauks e-pasts ir obligāts.');
+
+        $this->spa()->withHeader('Accept-Language', 'en')
+            ->postJson('/api/login', ['email' => '', 'password' => ''])
+            ->assertJsonPath('errors.email.0', 'The email field is required.');
     }
 }

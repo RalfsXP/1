@@ -39,6 +39,14 @@
 html,
 body {
   height: 100%;
+  /* No rubber-band bounce or pull-to-refresh: the app should feel fixed in place. */
+  overscroll-behavior: none;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -61,6 +69,12 @@ input,
 select,
 textarea {
   font-family: inherit;
+}
+
+/* Remove the 300ms double-tap-zoom delay on buttons and links. */
+button,
+a {
+  touch-action: manipulation;
 }
 
 ::selection {

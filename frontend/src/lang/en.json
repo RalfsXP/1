@@ -1,0 +1,47 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "language": "Language",
+    "account": "Account",
+    "themeToLight": "Switch to light mode",
+    "themeToDark": "Switch to dark mode",
+    "themeLight": "Light mode",
+    "themeDark": "Dark mode",
+    "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+  },
+  "landing": {
+    "login": "Log in",
+    "signup": "Sign up"
+  },
+  "auth": {
+    "back": "Back",
+    "loginTitle": "Welcome back",
+    "loginLead": "Log in to continue to Merkis.",
+    "registerTitle": "Create your account",
+    "registerLead": "Sign up to start using Merkis.",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "strength": "Strength",
+    "strengthAria": "Password strength",
+    "strengthLevels": ["Empty", "Weak", "Weak", "Fair", "Good", "Strong"],
+    "submitLogin": "Log in",
+    "submittingLogin": "Logging in…",
+    "submitRegister": "Create account",
+    "submittingRegister": "Creating account…",
+    "haveAccount": "Already have an account?",
+    "noAccount": "New to Merkis?",
+    "switchToLogin": "Log in",
+    "switchToRegister": "Sign up",
+    "errorThrottle": "Too many attempts. Please wait a minute and try again.",
+    "errorGeneric": "Something went wrong. Please try again."
+  },
+  "home": {
+    "welcome": "Welcome",
+    "welcomeName": "Welcome, {name}",
+    "logout": "Log out"
+  }
+}

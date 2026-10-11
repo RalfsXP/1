@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\WelcomeMail;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
@@ -25,12 +28,23 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Password::min(8)],
+            'locale' => ['nullable', Rule::in(config('app.supported_locales'))],
         ]);
 
-        $user = User::create($data);
+        $user = User::create([
+            ...$data,
+            'locale' => $data['locale'] ?? app()->getLocale(),
+        ]);
 
         Auth::guard('web')->login($user);
         $request->session()->regenerate();
+
+        // A mail outage shouldn't block sign-up; log it and carry on.
+        try {
+            Mail::to($user)->send(new WelcomeMail($user));
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         return response()->json($user, 201);
     }
@@ -65,6 +79,20 @@ class AuthController extends Controller
 
     public function user(Request $request): JsonResponse
     {
+        return response()->json($request->user());
+    }
+
+    /**
+     * Save the interface language so it follows the user to other devices.
+     */
+    public function updateLocale(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'locale' => ['required', Rule::in(config('app.supported_locales'))],
+        ]);
+
+        $request->user()->update($data);
+
         return response()->json($request->user());
     }
 }

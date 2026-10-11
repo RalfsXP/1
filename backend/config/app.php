@@ -82,6 +82,12 @@ return [
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
+    // Languages the app is translated into; the first one is the default.
+    'supported_locales' => ['lv', 'en'],
+
+    // Public address of the Vue app, used for links and images in emails.
+    'frontend_url' => env('FRONTEND_URL', 'https://merkis.app'),
+
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
     /*

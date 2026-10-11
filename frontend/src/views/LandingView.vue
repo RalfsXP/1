@@ -1,6 +1,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import AppLogo from '@/components/AppLogo.vue'
+import LanguageSwitch from '@/components/LanguageSwitch.vue'
 import LiveClock from '@/components/LiveClock.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import { withLoader } from '@/lib/loader'
@@ -15,12 +16,15 @@ const open = (name) => withLoader(() => router.push({ name }))
   <div class="page">
     <LiveClock class="clock" />
 
-    <nav class="auth" aria-label="Konts">
-      <button type="button" class="btn btn-ghost" @click="open('login')">Log in</button>
-      <button type="button" class="btn btn-primary" @click="open('register')">Sign up</button>
+    <nav class="auth" :aria-label="$t('common.account')">
+      <button type="button" class="btn btn-ghost" @click="open('login')">{{ $t('landing.login') }}</button>
+      <button type="button" class="btn btn-primary" @click="open('register')">{{ $t('landing.signup') }}</button>
     </nav>
 
-    <ThemeToggle class="theme-toggle" />
+    <div class="controls">
+      <LanguageSwitch />
+      <ThemeToggle />
+    </div>
 
     <main class="stage-wrap">
       <h1 class="visually-hidden">Merkis.app</h1>
@@ -53,13 +57,14 @@ const open = (name) => withLoader(() => router.push({ name }))
   grid-template-columns: 1fr auto auto;
   grid-template-rows: auto 1fr;
   grid-template-areas:
-    'clock auth toggle'
+    'clock auth controls'
     'stage stage stage';
   align-items: center;
   column-gap: 12px;
   padding: 24px 32px 0;
-  min-height: 100vh;
-  min-height: 100dvh;
+  /* Exactly one screen tall: the landing page never scrolls. */
+  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   background:
     radial-gradient(50rem 32rem at 50% 58%, var(--glow), transparent 70%),
@@ -78,8 +83,11 @@ const open = (name) => withLoader(() => router.push({ name }))
   gap: 8px;
 }
 
-.theme-toggle {
-  grid-area: toggle;
+.controls {
+  grid-area: controls;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* ---------- Devices ---------- */
@@ -205,24 +213,38 @@ const open = (name) => withLoader(() => router.push({ name }))
 
 /* ---------- Mobile ---------- */
 @media (max-width: 640px) {
+  /* Devices + buttons form one block, sitting a little above centre. */
   .page {
     grid-template-columns: 1fr auto;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto 1fr auto auto 1.4fr;
     grid-template-areas:
-      'clock toggle'
+      'clock controls'
+      '. .'
       'stage stage'
-      'auth auth';
-    padding: 16px 16px 0;
+      'auth auth'
+      '. .';
+    padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+  }
+
+  .stage-wrap {
+    padding: 0;
+  }
+
+  .stage {
+    width: 100%;
   }
 
   .auth {
     justify-content: center;
-    padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    gap: 12px;
+    padding-top: 36px;
   }
 
-
-  .stage-wrap {
-    padding: 1rem 0 2rem;
+  .auth .btn {
+    flex: 1 1 0;
+    max-width: 180px;
+    height: 50px;
+    font-size: 0.95rem;
   }
 
   /* Give the phone more room on small screens so its logo stays readable. */
