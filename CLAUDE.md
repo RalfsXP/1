@@ -4,7 +4,7 @@
 > **Keep it current:** every change that alters behaviour, structure, env vars, design rules or the version MUST update this file in the same change (see "Maintaining this file"). Keep it dense — it is loaded every session, so every line costs tokens.
 
 ## What it is
-Mērķis = Latvian for "goal". A minimal planner web app, live at **https://merkis.app**. Current version: **v1.3** (`frontend/VERSION`). Owner: Ralfs (GitHub `RalfsXP/1`). Landing, auth, and the signed-in planner: side nav, Overview dashboard (/home), Calendar, Daily/Weekly/Monthly/Yearly/Custom-period goals (priorities, recurrence, completion per occurrence, time left, custom badges), Settings, Site health (all users; admins see internals + can run migrations), Whiteboards (Fabric.js).
+Mērķis = Latvian for "goal". A minimal planner web app, live at **https://merkis.app**. Current version: **v1.4** (`frontend/VERSION`). Owner: Ralfs (GitHub `RalfsXP/1`). Landing, auth, and the signed-in planner: side nav, Overview dashboard (/home), Calendar, Daily/Weekly/Monthly/Yearly/Custom-period goals (priorities, recurrence, completion per occurrence, time left, custom badges), Settings, Site health (all users; admins see internals + can run migrations), Whiteboards (Fabric.js).
 
 ## Stack & hosting (all free tier except the domain)
 | Part | Tech | Where |
@@ -18,9 +18,12 @@ Mērķis = Latvian for "goal". A minimal planner web app, live at **https://merk
 Request flow: browser → merkis.app → `frontend/vercel.json` rewrites `/api/*` and `/sanctum/*` to the backend → same origin, so no CORS and cookies just work. Never call the backend URL directly from the browser.
 
 ## Design rules (non-negotiable — the owner checks these)
-- **Only 3 colours:** Black `#000000`, Seagrass `#66a182`, White `#ffffff`. Greys are allowed **only** as black/white mixes (`color-mix`) for muted text and lines. No other hues — not even red for errors (errors = normal text + Seagrass ⓘ icon).
+- **Designs (v1.4):** three switchable palettes, `data-design` on `<html>` (none = default), chosen in Settings and saved on the user (`users.design`, PATCH /api/user/design) + localStorage `merkis-design` (pre-painted in index.html):
+  default = Black/Seagrass/White · `new` = Imperial Blue #0a2463, Blue Bell #3e92cc, Ghost White #fffaff, Magenta Bloom #d8315b, Carbon Black #1e1b18 · `ocean` = Sky #8ecae6, Blue Green #219ebc, Deep Space #023047, Amber #ffb703, Orange #fb8500.
+  Components use ONLY role tokens — `--accent` / `--on-accent` (main actions + text on them), `--highlight` / `--on-highlight` (today, clock, logo ē/ķ marks), `--link`, plus `--bg --fg --muted --line --surface…` — never `--seagrass` or a palette colour directly. A new design = one `:root[data-design=x]` block + its light variant in main.css + config/app.php `designs` + DESIGNS in design.js + preview dots in DesignSwitch.
+- **Default design: only 3 colours:** Black `#000000`, Seagrass `#66a182`, White `#ffffff`. Greys are allowed **only** as black/white mixes (`color-mix`) for muted text and lines. No other hues — not even red for errors (errors = normal text + Seagrass ⓘ icon).
 - **Sole exception (owner-approved v1.2/v1.3):** priority flags (`--flag-low/high/important` = green/yellow/red), user-picked goal badge colours (presets in `SWATCHES` + free `<input type=color>`) and whiteboard content (ink + `SWATCHES`). Never use these hues for app chrome.
-- Tokens live in `frontend/src/assets/main.css` (`--black --seagrass --white`, derived `--bg --fg --muted --line --frame --frame-edge --screen --glow --surface --backdrop`, flags). Use tokens, never raw hex in components. Badge text colour comes from `readableOn(hex)` (black/white by luminance).
+- Tokens live in `frontend/src/assets/main.css` (palettes, roles `--accent --on-accent --highlight --on-highlight --link`, derived `--bg --fg --muted --line --frame --frame-edge --screen --glow --surface --backdrop`, flags). Use tokens, never raw hex in components. Badge text colour comes from `readableOn(hex)` (black/white by luminance).
 - **Icons: Heroicons only** (`@heroicons/vue`, 24/outline for UI, 20/solid for badges/flags). Badge icon list = `src/lib/icons.js` ⇄ `backend/config/goals.php` (keep in sync).
 - Shared UI classes in main.css — use them, don't restyle per view: `.page(.narrow|.wide)`, `.page-title`, `.section-title`, `.section-label`, `.card`, `.list`, `.empty-state`, `.btn(-ghost|-primary|-lg)`, `.icon-btn(.bare)`, `.form-field/.form-label/.input`, `.segmented(.outline)`. One global `:focus-visible` ring. (AuthView has its own scoped `.field` — don't reuse that name globally.)
 - Language switch + theme toggle live top-right in every layout (auth header, app top bar) — never in the side nav.
@@ -35,7 +38,7 @@ Request flow: browser → merkis.app → `frontend/vercel.json` rewrites `/api/*
 ```
 frontend/
   index.html            theme pre-paint script, icons, Montserrat font, viewport-fit=cover
-  VERSION               "v1.3" → shown bottom-left (AppVersion.vue; inside the side nav in the app shell)
+  VERSION               "v1.4" → shown bottom-left (AppVersion.vue; inside the side nav in the app shell)
   vercel.json           /api + /sanctum proxy to backend, SPA fallback
   public/               (icon URLs carry ?v=2 in index.html + manifest — bump on any icon change) favicon.svg (Seagrass tile + black m), favicon-32.png, favicon.ico (16/32/48), apple-touch-icon.png + icon-192/512.png
                         (black, white m + dot; maskable), site.webmanifest, email/logo.png (white wordmark), brand/ (logo-on-dark|light.svg, mark.svg — README uses these)
@@ -48,10 +51,13 @@ frontend/
                         /settings → SettingsView, /health → HealthView (every signed-in user). Nav order: Overview, Calendar, Daily…Yearly, Custom, Whiteboards;
                         Settings + Site health + Log out at the bottom
   src/lib/api.js        axios (baseURL /api, withCredentials, withXSRFToken, Accept-Language = locale)
-  src/lib/auth.js       user ref, fetchUser/login/register/logout, changeLocale (PATCH /user/locale when signed in)
+  src/lib/auth.js       user ref, fetchUser/login/register/logout, changeLocale / changeDesign (PATCH when signed in); a signed-in user's locale + design win
   src/lib/i18n.js       tiny i18n: locale ref, t(key, params), setLocale; default 'lv'; localStorage 'merkis-locale'
   src/lib/loader.js     withLoader(task, minMs=1100) → full-screen spinning LogoMark
   src/lib/theme.js      theme ref + toggleTheme (localStorage 'merkis-theme')
+  src/lib/design.js     design ref, DESIGNS, setDesign (data-design + localStorage), syncThemeColor (meta theme-color from a --bg probe; <body> fades)
+  src/lib/input.js      touchUI (hover:none + pointer:coarse), hold-hint dismissal (localStorage 'merkis-hold-hint')
+  src/lib/press.js      usePress: touch tap = click (a11y-safe), hold ≥450 ms = onHold + vibrate, swallows the click after a hold, move/scroll cancels
   src/lib/periods.js    date helpers (Monday weeks, ISO week no.), occursOn/occurrencesIn (mirror Goal::occursOn), deadlineOf, labels
   src/lib/goals.js      goal store (cache by id, cleared when the user changes; loadRange: in-flight dedupe + 30 s freshness, refreshTick on window focus;
                         merges completions outside the loaded window; setDone optimistic + stale-response guard), badgeFor, categoryStyle, SWATCHES
@@ -73,7 +79,7 @@ frontend/
                         HealthView (all users: API, DB latency/version/connections, migrations ran/total, DB size vs free limit, table rows/sizes,
                         Supabase+Vercel statuspage (fetched by the browser, CORS), config checks; OK = Seagrass check, problems = text + ⚠ — no red;
                         "Run migrations" button — admins only (report.can_migrate) — when some are pending: two taps, POST /api/admin/migrate, shows artisan output)
-  src/components/       DeviceScene (shared floating 3D laptop/tablet/phone; layouts landing | auth; sizes in stage cqw), DemoScreen (static miniature of the app in cqw — variant desktop=Overview, tablet=Calendar, phone=today; demo.* strings;
+  src/components/       DesignSwitch (Settings slider, sliding thumb, palette dots), HoldHint (touch only, dismiss once), DeviceScene (shared floating 3D laptop/tablet/phone; layouts landing | auth; sizes in stage cqw), DemoScreen (static miniature of the app in cqw — variant desktop=Overview, tablet=Calendar, phone=today; demo.* strings;
                         root classes are v-* because a parent's scoped .phone/.tablet would hit a child root), AppLogo (wordmark SVG), LogoMark (m. SVG), LiveClock (top bar, every page), ThemeToggle, LanguageSwitch,
                         LoadingScreen (m. breathing inside an orbiting ring), AppVersion,
                         AppShell (layout/drawer), SideNav, CalendarMonth, GoalItem, GoalBadge, PriorityFlag, GoalForm,
@@ -86,7 +92,7 @@ backend/
   bootstrap/app.php     trustProxies('*'), statefulApi(), SetLocale + ServerTiming on api group
   vercel.json           regions ["dub1"] — the function must sit next to Supabase eu-west-1 (iad1 made every query ~200 ms)
   app/Http/Middleware/ServerTiming.php   `Server-Timing: app;dur, db;dur;desc="N queries"` on every API response (devtools → Network → Timing)
-  routes/api.php        GET health · POST register/login (throttle 10/min) · auth:sanctum: GET user, PATCH user/locale,
+  routes/api.php        GET health · POST register/login (throttle 10/min) · auth:sanctum: GET user, PATCH user/locale, PATCH user/design,
                         PUT user/goal-styles, POST logout, goals (GET ?from&to, POST, PATCH, DELETE), PUT|DELETE goals/{goal}/completions/{Y-m-d}
   app/Http/Controllers/Api/GoalController.php   range query (+ PHP overlap filter), normalise (snap dates, drop N/A recurrence/due_at), per-occurrence completions; other users' goals → 404
   app/Http/Controllers/Api/GoalStyleController.php  per-category default badge {color, icon} → users.goal_styles
@@ -101,14 +107,14 @@ backend/
   app/Http/Controllers/Api/AuthController.php   register (saves locale, sends WelcomeMail in try/catch) · login · logout · user · updateLocale
   app/Http/Middleware/SetLocale.php             app locale from Accept-Language (lv|en)
   app/Mail/WelcomeMail.php + resources/views/emails/welcome(.blade|-text.blade).php
-  app/Models/User.php   fillable locale, goal_styles (json); appends is_admin (email ∈ ADMIN_EMAILS); hasMany goals; HasLocalePreference → mail auto-localised
+  app/Models/User.php   fillable locale, design, goal_styles (json); appends is_admin (email ∈ ADMIN_EMAILS); hasMany goals; HasLocalePreference → mail auto-localised
   lang/lv/{auth,validation,mail}.php, lang/en/{mail,validation}.php   (EN validation = framework file + our attribute names)
-  config/app.php        supported_locales ['lv','en'], frontend_url
+  config/app.php        supported_locales ['lv','en'], designs ['default','new','ocean'], frontend_url
   tests/Feature/AuthTest.php   10 tests: auth flow, locale, welcome mail, LV validation
   tests/Feature/GoalTest.php   13 tests: CRUD, snapping, range/recurrence listing (incl. across New Year), custom periods, per-occurrence completion, ownership, styles
   tests/Feature/SystemHealthTest.php   4 tests: non-admin view redacted, is_admin flag, admin full report incl. no secret leakage, run pending migrations (admin only)
   tests/Feature/WhiteboardTest.php     5 tests: auth, CRUD + LV default title, list without data, ownership 404, size/preview limits
-  tests/Feature/DemoSeederTest.php     2 tests: full demo account, re-runnable, refuses without DEMO_PASSWORD (36 total in suite)
+  tests/Feature/DemoSeederTest.php     2 tests: full demo account, re-runnable, refuses without DEMO_PASSWORD (37 total in suite; AuthTest has 11 incl. design)
   database/seeders/DemoSeeder.php  demo@demo.lv "Demo": habits with ~6 weeks of history, goals around today, week/month/year/custom goals,
                         badges, 2 boards — dates relative to the run day; replaces only the demo user; password from DEMO_PASSWORD (never in the repo)
 ```
@@ -151,6 +157,8 @@ APP_KEY, APP_ENV=production, APP_DEBUG=false, APP_NAME, APP_URL, FRONTEND_URL=ht
 - Browser pane hidden ⇒ Vue leave transitions never finish (they wait on rAF): closed sheets stay in the DOM. In scripted checks read the LAST `.sheet`, or reload per case.
 - AppShell's page `<Transition mode="out-in">` keeps the old view mounted while the route already changed: read route params once at setup in views (GoalsView), never reactively.
 - Slow prod = check `x-vercel-id`: the middle region code is where the PHP function ran; it must be dub1 (Supabase is eu-west-1). Each request opens a fresh DB connection, so distance multiplies.
+- Goal rows: desktop = check toggles, click edits; touch (`touchUI`) = tap anywhere toggles, hold edits (GoalItem + calendar strip badges via usePress). Don't add click-to-edit on touch.
+- BottomSheet focuses `[autofocus]` inside it if present, else the dialog.
 - Whiteboard: Fabric needs `enablePointerEvents: true`; the surface needs its own `touch-action: none` (global is `manipulation`). Never rebuild `freeDrawingBrush` in a capture-phase pointerup — Fabric then finishes the stroke on an empty brush (a dot at 0,0). Fabric 7 default origin is centre.
 - Every period (incl. 'custom') needs an entry in BOTH `DEFAULT_STYLES` (src/lib/goals.js) and `config/goals.php` — a missing one makes `readableOn(undefined)` crash the render.
 - Dates: SQLite (tests) stores dates as text → bind query dates as `toDateString()`, never Carbon. JS week numbers: round the day diff (DST makes it an hour short).
@@ -163,6 +171,7 @@ APP_KEY, APP_ENV=production, APP_DEBUG=false, APP_NAME, APP_URL, FRONTEND_URL=ht
 - Owner is learning hosting — give click-by-click steps for dashboards (Vercel/Supabase/Resend), with direct links when possible.
 
 ## Changelog
+- **v1.4** — design switch in Settings (labels Noklusējuma / V2 / V3 = ids default / new / ocean: V2 Imperial Blue + Blue Bell + Magenta, V3 Deep Space + Amber + Orange), each light + dark, saved on the account; colours refactored to role tokens; phones: tap = done, hold = edit (+ dismissible hint); whiteboards ask for a name first.
 - **v1.3** — speed: API moved to dub1 next to Supabase, Server-Timing header, health endpoint ~15 → 5 queries with platform status fetched by the browser, deduplicated/cached goal loads + refresh on focus, Resend HTTP mailer; Whiteboards (Fabric.js: pen, eraser, text, sticky notes, shapes, arrows, zoom/pan, undo, autosave, previews); overdue tile also counts repeating goals missed in the last 7 days; goal cache cleared on account switch; DemoSeeder for a presentable demo account; boards without a preview get one on first open.
 - **v1.2** — planner: side nav (drawer on phones), calendar home (badges/dots, week numbers, swipe, day panel), Daily/Weekly/Monthly/Yearly goal pages, priorities with green/yellow/red flags, recurring goals (every period or chosen weekdays) completed per occurrence, time-left countdowns + optional earlier deadline, per-category and per-goal badge colour/icon, Heroicons everywhere (auth + theme toggle icons migrated). Completion timestamps per occurrence → "Finished 4 days early · Wed 7 Oct" / late / on time; progress meters; full-width colour chips in calendar cells; calm done rows; sheet grabber + drag-to-close. Overview dashboard at /home, calendar moved to /calendar, Settings page (category badges, theme, language), custom brand date picker (whole-week/month highlight), custom-period goals (start–end, shown as bands in the calendar). Audit pass: controls top-right like auth, picker shades repeat series, form keeps the picked day across type switches, deadline capped to the period, until in period units, calendar selection follows month paging, New-Year/custom completion fixes, a11y (labels, focus trap, inert drawer), shared page classes. Overview tiles 3×2 incl. yesterday + overdue with green check when done; zoom disabled on phones. Site health page for admins (ADMIN_EMAILS). Date pickers verified for create + edit of every period type; fixed custom end being wiped on edit. New logo: "mērķis" wordmark (vector, generated) + m. mark, new favicons/app icons/email logo; Run migrations button on Site health; Overview: clock in the top bar, no separate date line under the greeting. Site health visible to all signed-in users (internals redacted for non-admins). Landing remade as a 3D laptop/tablet/phone scene with live demo screens; login/register match it (shared DeviceScene); mobile landing without tablet, buttons under the scene.
 - **v1.1** — mobile polish (no-scroll landing, 50px buttons, 16px inputs, safe areas); LV/EN switcher with locale saved on user (`users.locale`, PATCH /api/user/locale, Accept-Language → localized server messages); Latvian/English HTML welcome email via Resend; auth header pinned during panel swap.

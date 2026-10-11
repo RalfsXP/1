@@ -52,7 +52,7 @@ const percent = computed(() => (props.total ? Math.round((props.done / props.tot
   display: block;
   height: 100%;
   border-radius: 3px;
-  background: var(--seagrass);
+  background: var(--accent);
   transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 </style>

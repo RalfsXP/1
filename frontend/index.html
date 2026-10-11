@@ -25,6 +25,11 @@
           theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
         }
         document.documentElement.dataset.theme = theme
+        // Design (Settings → Design): the default one needs no attribute.
+        try {
+          var design = localStorage.getItem('merkis-design')
+          if (design === 'new' || design === 'ocean') document.documentElement.dataset.design = design
+        } catch (e) {}
       })()
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">

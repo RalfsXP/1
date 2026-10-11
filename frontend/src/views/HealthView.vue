@@ -349,9 +349,9 @@ const icons = {
 }
 
 .summary.ok {
-  border-color: var(--seagrass);
-  background: var(--seagrass);
-  color: var(--black);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .summary-icon {
@@ -400,7 +400,7 @@ const icons = {
 }
 
 .status.ok {
-  color: var(--seagrass);
+  color: var(--accent);
 }
 
 .status.warning,
@@ -498,7 +498,7 @@ const icons = {
 .run-status svg {
   width: 18px;
   height: 18px;
-  color: var(--seagrass);
+  color: var(--accent);
 }
 
 .run-result pre {
@@ -524,7 +524,7 @@ const icons = {
   display: block;
   height: 100%;
   border-radius: 4px;
-  background: var(--seagrass);
+  background: var(--accent);
 }
 
 .table {

@@ -118,7 +118,8 @@
     "emptyDay": "Nekas nav ieplānots.",
     "dates": "Datumi",
     "time": "Laiks",
-    "toggle": "Izpildīts: {title}"
+    "toggle": "Izpildīts: {title}",
+    "holdHint": "Pieskaries — izpildīts · Turi — rediģēt"
   },
   "calendar": {
     "today": "Šodien",
@@ -147,6 +148,12 @@
     "languages": {
       "lv": "Latviešu",
       "en": "English"
+    },
+    "design": "Dizains",
+    "designs": {
+      "default": "Noklusējuma",
+      "new": "V2",
+      "ocean": "V3"
     }
   },
   "dashboard": {
@@ -296,6 +303,8 @@
     "size": "Biezums",
     "sizes": ["Plāns", "Vidējs", "Biezs"],
     "deleteSelection": "Dzēst atlasīto",
-    "notePlaceholder": "Piezīme"
+    "notePlaceholder": "Piezīme",
+    "create": "Izveidot",
+    "untitled": "Tāfele bez nosaukuma"
   }
 }

@@ -285,7 +285,7 @@ function onTouchEnd(e) {
 }
 
 .nav:hover {
-  color: var(--seagrass);
+  color: var(--accent);
 }
 
 .nav svg {
@@ -348,21 +348,21 @@ function onTouchEnd(e) {
 }
 
 .cell.today .num {
-  box-shadow: inset 0 0 0 1.5px var(--seagrass);
+  box-shadow: inset 0 0 0 1.5px var(--highlight);
   font-weight: 800;
 }
 
 /* Bands: selection (strong), later repeats (medium), hover preview (faint). */
 .cell.sel {
-  background: color-mix(in srgb, var(--seagrass) 34%, transparent);
+  background: color-mix(in srgb, var(--accent) 34%, transparent);
 }
 
 .cell.series {
-  background: color-mix(in srgb, var(--seagrass) 18%, transparent);
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 .cell.pre {
-  background: color-mix(in srgb, var(--seagrass) 10%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
 }
 
 .cell.round-l {
@@ -376,8 +376,8 @@ function onTouchEnd(e) {
 }
 
 .cell.dot .num {
-  background: var(--seagrass);
-  color: var(--black);
+  background: var(--accent);
+  color: var(--on-accent);
   font-weight: 800;
 }
 
@@ -388,7 +388,7 @@ function onTouchEnd(e) {
 }
 
 .month:hover {
-  border-color: var(--seagrass);
+  border-color: var(--accent);
 }
 
 .month {
@@ -405,23 +405,23 @@ function onTouchEnd(e) {
 
 .month.sel {
   border-color: transparent;
-  background: color-mix(in srgb, var(--seagrass) 34%, transparent);
+  background: color-mix(in srgb, var(--accent) 34%, transparent);
 }
 
 .month.series {
   border-color: transparent;
-  background: color-mix(in srgb, var(--seagrass) 18%, transparent);
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 .month:focus-visible,
 .cell:focus-visible {
-  outline: 2px solid var(--seagrass);
+  outline: 2px solid var(--accent);
   outline-offset: -2px;
   border-radius: 12px;
 }
 
 .month.current {
-  box-shadow: inset 0 0 0 1.5px var(--seagrass);
+  box-shadow: inset 0 0 0 1.5px var(--accent);
 }
 
 .summary {
@@ -429,7 +429,7 @@ function onTouchEnd(e) {
   gap: 2px;
   min-height: 1.2em;
   margin: 2px 4px 0;
-  color: var(--seagrass);
+  color: var(--accent);
   font-size: 0.8rem;
   font-weight: 700;
 }

@@ -60,6 +60,7 @@ return [
         'email' => 'e-pasts',
         'password' => 'parole',
         'locale' => 'valoda',
+        'design' => 'dizains',
         'title' => 'nosaukums',
         'notes' => 'piezīmes',
         'period' => 'periods',

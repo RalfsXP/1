@@ -4,6 +4,28 @@
   --seagrass: #66a182;
   --white: #ffffff;
 
+  /* New design palette (used under data-design="new" and by the Settings preview) */
+  --imperial: #0a2463;
+  --bluebell: #3e92cc;
+  --ghost: #fffaff;
+  --magenta: #d8315b;
+  --carbon: #1e1b18;
+
+  /* Ocean design palette (data-design="ocean") */
+  --sky: #8ecae6;
+  --bluegreen: #219ebc;
+  --deepspace: #023047;
+  --amber: #ffb703;
+  --orange: #fb8500;
+
+  /* Colour roles — components use these, never the palette directly.
+     Default design: all Seagrass on black/white (data-design="new" remaps them). */
+  --accent: var(--seagrass);
+  --on-accent: var(--black);
+  --highlight: var(--seagrass);
+  --on-highlight: var(--black);
+  --link: var(--seagrass);
+
   /* Dark theme (default) */
   --bg: var(--black);
   --fg: var(--white);
@@ -41,6 +63,91 @@
   --flag-important: #dc2626;
 
   color-scheme: light;
+}
+
+/* ---------- New design (Settings → Design; data-design="new" on <html>) ----------
+   Palette: Imperial Blue #0a2463 · Blue Bell #3e92cc · Ghost White #fffaff ·
+   Magenta Bloom #d8315b · Carbon Black #1e1b18 — greys are mixes of these.
+   Dark: navy surface, Blue Bell actions (Carbon text, ~5:1). Light: Ghost White
+   surface, Imperial Blue actions (Ghost White text, ~14:1). Magenta = highlights. */
+:root[data-design='new'] {
+  --black: var(--carbon);
+  --white: var(--ghost);
+
+  --bg: color-mix(in srgb, var(--imperial) 55%, var(--black));
+  --fg: var(--white);
+  --muted: color-mix(in srgb, var(--white) 62%, var(--bg));
+  --line: color-mix(in srgb, var(--white) 16%, var(--bg));
+  --frame: color-mix(in srgb, var(--white) 14%, var(--bg));
+  --frame-edge: color-mix(in srgb, var(--white) 24%, var(--bg));
+  --screen: var(--bg);
+  --glow: color-mix(in srgb, var(--bluebell) 30%, transparent);
+  --surface: color-mix(in srgb, var(--bluebell) 9%, var(--bg));
+  --backdrop: color-mix(in srgb, var(--black) 60%, transparent);
+
+  --accent: var(--bluebell);
+  --on-accent: var(--black);
+  --highlight: var(--magenta);
+  --on-highlight: var(--white);
+  --link: var(--bluebell);
+  --flag-important: var(--magenta);
+}
+
+:root[data-design='new'][data-theme='light'] {
+  --bg: var(--white);
+  --fg: var(--black);
+  --muted: color-mix(in srgb, var(--black) 58%, var(--white));
+  --line: color-mix(in srgb, var(--imperial) 14%, var(--white));
+  --frame: var(--imperial);
+  --frame-edge: color-mix(in srgb, var(--imperial) 78%, var(--white));
+  --screen: var(--white);
+  --glow: color-mix(in srgb, var(--bluebell) 22%, transparent);
+  --surface: color-mix(in srgb, var(--imperial) 4%, var(--white));
+  --backdrop: color-mix(in srgb, var(--black) 40%, transparent);
+
+  --accent: var(--imperial);
+  --on-accent: var(--white);
+  --link: var(--bluebell);
+}
+
+:root[data-design='ocean'] {
+  /* Ocean: Deep Space Blue night, Amber actions (Deep Space text ~8:1), Princeton Orange highlights,
+     Sky Blue links, Blue Green tints. Greys are mixes of these. */
+  --black: var(--deepspace);
+  --white: color-mix(in srgb, var(--sky) 10%, #ffffff);
+
+  --bg: color-mix(in srgb, var(--deepspace) 72%, #000000);
+  --fg: var(--white);
+  --muted: color-mix(in srgb, var(--sky) 62%, var(--bg));
+  --line: color-mix(in srgb, var(--sky) 16%, var(--bg));
+  --frame: color-mix(in srgb, var(--sky) 14%, var(--bg));
+  --frame-edge: color-mix(in srgb, var(--sky) 26%, var(--bg));
+  --screen: var(--bg);
+  --glow: color-mix(in srgb, var(--bluegreen) 32%, transparent);
+  --surface: color-mix(in srgb, var(--bluegreen) 11%, var(--bg));
+  --backdrop: color-mix(in srgb, #000000 60%, transparent);
+
+  --accent: var(--amber);
+  --on-accent: var(--deepspace);
+  --highlight: var(--orange);
+  --on-highlight: var(--deepspace);
+  --link: var(--sky);
+  --flag-important: var(--orange);
+}
+
+:root[data-design='ocean'][data-theme='light'] {
+  --bg: color-mix(in srgb, var(--sky) 12%, #ffffff);
+  --fg: var(--deepspace);
+  --muted: color-mix(in srgb, var(--deepspace) 62%, var(--bg));
+  --line: color-mix(in srgb, var(--deepspace) 13%, var(--bg));
+  --frame: var(--deepspace);
+  --frame-edge: color-mix(in srgb, var(--deepspace) 78%, var(--bg));
+  --screen: var(--bg);
+  --glow: color-mix(in srgb, var(--sky) 45%, transparent);
+  --surface: color-mix(in srgb, var(--sky) 22%, #ffffff);
+  --backdrop: color-mix(in srgb, var(--deepspace) 40%, transparent);
+
+  --link: var(--bluegreen);
 }
 
 *,
@@ -94,13 +201,13 @@ textarea {
 
 /* One focus ring for everything keyboard-focusable. */
 :focus-visible {
-  outline: 2px solid var(--seagrass);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
 ::selection {
-  background: var(--seagrass);
-  color: var(--black);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .visually-hidden {
@@ -136,7 +243,7 @@ textarea {
 }
 
 .btn:focus-visible {
-  outline: 2px solid var(--seagrass);
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
 
@@ -152,20 +259,20 @@ textarea {
 }
 
 .btn-ghost:hover {
-  border-color: var(--seagrass);
-  color: var(--seagrass);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 /* Black on Seagrass in both themes: ~7:1 contrast, white would be ~3:1. */
 .btn-primary {
-  border: 1px solid var(--seagrass);
-  background: var(--seagrass);
-  color: var(--black);
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--seagrass) 85%, var(--white));
-  border-color: color-mix(in srgb, var(--seagrass) 85%, var(--white));
+  background: color-mix(in srgb, var(--accent) 85%, var(--white));
+  border-color: color-mix(in srgb, var(--accent) 85%, var(--white));
 }
 
 .btn-lg {
@@ -191,8 +298,8 @@ textarea {
 }
 
 .icon-btn:hover {
-  border-color: var(--seagrass);
-  color: var(--seagrass);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .icon-btn:active {
@@ -200,7 +307,7 @@ textarea {
 }
 
 .icon-btn:focus-visible {
-  outline: 2px solid var(--seagrass);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -322,7 +429,7 @@ textarea {
 }
 
 .input:focus {
-  border-color: var(--seagrass);
+  border-color: var(--accent);
   outline: none;
 }
 
@@ -363,19 +470,19 @@ textarea.input {
 }
 
 .segmented button[aria-pressed='true'] {
-  background: var(--seagrass);
-  color: var(--black);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 /* Outline variant: keeps coloured content (priority flags) readable when selected. */
 .segmented.outline button[aria-pressed='true'] {
   background: transparent;
-  box-shadow: inset 0 0 0 2px var(--seagrass);
+  box-shadow: inset 0 0 0 2px var(--accent);
   color: var(--fg);
 }
 
 .segmented button:focus-visible {
-  outline: 2px solid var(--seagrass);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 

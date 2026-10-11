@@ -33,8 +33,8 @@ import { theme, toggleTheme } from '@/lib/theme'
 }
 
 .theme-toggle:hover {
-  border-color: var(--seagrass);
-  color: var(--seagrass);
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .theme-toggle:active {
@@ -42,7 +42,7 @@ import { theme, toggleTheme } from '@/lib/theme'
 }
 
 .theme-toggle:focus-visible {
-  outline: 2px solid var(--seagrass);
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
 

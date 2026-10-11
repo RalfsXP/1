@@ -50,7 +50,9 @@ class StickyNote extends Textbox {
 }
 classRegistry.setClass(StickyNote)
 
-const SEAGRASS = '#66a182'
+/** UI colour (handles, cursors) from the active design; note colours are content and stay put. */
+const accent = () => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#66a182'
+const NOTE_DEFAULT = SWATCHES[0]
 const INK_LIGHT = '#000000'
 const INK_DARK = '#ffffff'
 const SIZES = [
@@ -234,9 +236,9 @@ function bounds(objects) {
 
 function styleObject(o) {
   o.set({
-    borderColor: SEAGRASS,
-    cornerColor: SEAGRASS,
-    cornerStrokeColor: SEAGRASS,
+    borderColor: accent(),
+    cornerColor: accent(),
+    cornerStrokeColor: accent(),
     cornerStyle: 'circle',
     transparentCorners: false,
     cornerSize: 12,
@@ -281,7 +283,7 @@ watch(color, (c) => {
   const value = paint(c)
   targets.forEach((o) => {
     if (isNote(o)) {
-      const bg = c === 'ink' ? SEAGRASS : c
+      const bg = c === 'ink' ? NOTE_DEFAULT : c
       o.set({ backgroundColor: bg, fill: noteText(bg) })
     } else if (o instanceof IText) o.set('fill', value)
     else o.set('stroke', value)
@@ -313,8 +315,8 @@ function placeText(p) {
     fontWeight: 700,
     fontSize: SIZES[size.value].text,
     fill: paint(color.value),
-    cursorColor: SEAGRASS,
-    editingBorderColor: SEAGRASS,
+    cursorColor: accent(),
+    editingBorderColor: accent(),
   })
   canvas.add(text)
   pinTopLeft(text, p.x, p.y)
@@ -322,7 +324,7 @@ function placeText(p) {
 }
 
 function placeNote(p) {
-  const bg = color.value === 'ink' ? SEAGRASS : color.value
+  const bg = color.value === 'ink' ? NOTE_DEFAULT : color.value
   const note = new StickyNote(t('whiteboard.notePlaceholder'), {
     width: 200,
     fontFamily: 'Montserrat',
@@ -333,7 +335,7 @@ function placeNote(p) {
     backgroundColor: bg,
     padding: 14,
     cursorColor: noteText(bg),
-    editingBorderColor: SEAGRASS,
+    editingBorderColor: accent(),
   })
   canvas.add(note)
   pinTopLeft(note, p.x + 14, p.y + 14)
@@ -604,8 +606,8 @@ onMounted(() => {
     preserveObjectStacking: true,
     // Pointer events: one code path for mouse, finger and stylus (Apple Pencil).
     enablePointerEvents: true,
-    selectionColor: 'rgba(102, 161, 130, 0.12)',
-    selectionBorderColor: SEAGRASS,
+    selectionColor: `${accent()}1f`,
+    selectionBorderColor: accent(),
     selectionLineWidth: 1.5,
   })
   bindCanvas()
@@ -836,7 +838,7 @@ onBeforeUnmount(() => {
 }
 
 .zoom:hover {
-  color: var(--seagrass);
+  color: var(--accent);
 }
 
 .zoom svg {
@@ -867,12 +869,12 @@ onBeforeUnmount(() => {
 }
 
 .tool:hover {
-  color: var(--seagrass);
+  color: var(--accent);
 }
 
 .tool[aria-pressed='true'] {
-  background: var(--seagrass);
-  color: var(--black);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .tool svg {

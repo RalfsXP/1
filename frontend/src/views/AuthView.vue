@@ -397,8 +397,8 @@ input {
 
 input:focus {
   outline: none;
-  border-color: var(--seagrass);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--seagrass) 22%, transparent);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 
 input[aria-invalid='true'] {
@@ -431,11 +431,11 @@ input[aria-invalid='true'] {
 }
 
 .reveal:hover {
-  color: var(--seagrass);
+  color: var(--accent);
 }
 
 .reveal:focus-visible {
-  outline: 2px solid var(--seagrass);
+  outline: 2px solid var(--accent);
 }
 
 .reveal svg {
@@ -457,7 +457,7 @@ input[aria-invalid='true'] {
   flex-shrink: 0;
   width: 16px;
   height: 16px;
-  color: var(--seagrass);
+  color: var(--accent);
   stroke-width: 2;
 }
 
@@ -486,7 +486,7 @@ input[aria-invalid='true'] {
 .strength-fill {
   height: 100%;
   border-radius: inherit;
-  background: var(--seagrass);
+  background: var(--accent);
   transition: width 0.25s ease;
 }
 
@@ -494,7 +494,7 @@ input[aria-invalid='true'] {
   margin: -12px 0 20px;
   padding: 10px 14px;
   border: 1px solid var(--line);
-  border-left: 3px solid var(--seagrass);
+  border-left: 3px solid var(--accent);
   border-radius: 12px;
   background: var(--field-bg);
   color: var(--fg);
@@ -511,8 +511,8 @@ input[aria-invalid='true'] {
 .btn-spinner {
   width: 14px;
   height: 14px;
-  border: 2px solid color-mix(in srgb, var(--black) 25%, transparent);
-  border-top-color: var(--black);
+  border: 2px solid color-mix(in srgb, var(--on-accent) 25%, transparent);
+  border-top-color: var(--on-accent);
   border-radius: 50%;
   animation: btn-spin 0.7s linear infinite;
 }
@@ -532,7 +532,7 @@ input[aria-invalid='true'] {
 }
 
 .switch a {
-  color: var(--seagrass);
+  color: var(--accent);
   font-weight: 800;
   text-decoration: none;
 }

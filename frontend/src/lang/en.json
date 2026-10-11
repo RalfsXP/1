@@ -118,7 +118,8 @@
     "emptyDay": "Nothing planned.",
     "dates": "Dates",
     "time": "Time",
-    "toggle": "Completed: {title}"
+    "toggle": "Completed: {title}",
+    "holdHint": "Tap — done · Hold — edit"
   },
   "calendar": {
     "today": "Today",
@@ -147,6 +148,12 @@
     "languages": {
       "lv": "Latviešu",
       "en": "English"
+    },
+    "design": "Design",
+    "designs": {
+      "default": "Default",
+      "new": "V2",
+      "ocean": "V3"
     }
   },
   "dashboard": {
@@ -296,6 +303,8 @@
     "size": "Size",
     "sizes": ["Thin", "Medium", "Thick"],
     "deleteSelection": "Delete selection",
-    "notePlaceholder": "Note"
+    "notePlaceholder": "Note",
+    "create": "Create",
+    "untitled": "Untitled board"
   }
 }

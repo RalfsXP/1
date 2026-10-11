@@ -5,6 +5,7 @@ import { PlusIcon } from '@heroicons/vue/24/outline'
 import CalendarMonth from '@/components/CalendarMonth.vue'
 import GoalForm from '@/components/GoalForm.vue'
 import GoalItem from '@/components/GoalItem.vue'
+import HoldHint from '@/components/HoldHint.vue'
 import ProgressMeter from '@/components/ProgressMeter.vue'
 import { loadRange, occurrencesBetween, refreshTick, setDone } from '@/lib/goals'
 import { PERIODS, PERIOD_TO_ROUTE, periodEnd, periodLabel, periodStart, toISO } from '@/lib/periods'
@@ -80,6 +81,7 @@ const openWeek = (monday) => router.push({ name: 'goals', params: { period: 'wee
       @select="selected = $event"
       @open-week="openWeek"
       @open="edit"
+      @toggle="toggle"
     />
 
     <section class="day" :aria-label="periodLabel('day', selected)">
@@ -91,6 +93,7 @@ const openWeek = (monday) => router.push({ name: 'goals', params: { period: 'wee
       </header>
 
       <ProgressMeter :done="dayItems.filter((o) => o.done).length" :total="dayItems.length" />
+      <HoldHint v-if="dayItems.length" />
 
       <p v-if="!groups.length" class="empty-state">{{ $t('goal.emptyDay') }}</p>
 
@@ -129,13 +132,13 @@ const openWeek = (monday) => router.push({ name: 'goals', params: { period: 'wee
 }
 
 .add {
-  border-color: var(--seagrass);
-  background: var(--seagrass);
-  color: var(--black);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .add:hover {
-  color: var(--black);
+  color: var(--on-accent);
 }
 
 .group {
@@ -144,7 +147,7 @@ const openWeek = (monday) => router.push({ name: 'goals', params: { period: 'wee
 }
 
 .group-title:hover {
-  color: var(--seagrass);
+  color: var(--accent);
 }
 
 /* Side-by-side only when the calendar keeps enough room for readable badges. */

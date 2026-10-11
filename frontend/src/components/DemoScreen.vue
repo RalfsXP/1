@@ -248,8 +248,8 @@ const navLabels = ['nav.home', 'nav.calendar', 'periods.day', 'periods.week', 'p
 }
 
 .nav.active {
-  background: var(--seagrass);
-  color: var(--black);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .main {
@@ -267,7 +267,7 @@ const navLabels = ['nav.home', 'nav.calendar', 'periods.day', 'periods.week', 'p
 }
 
 .clock {
-  color: var(--seagrass);
+  color: var(--accent);
   font-size: 1.15cqw;
   font-weight: 800;
 }
@@ -275,8 +275,8 @@ const navLabels = ['nav.home', 'nav.calendar', 'periods.day', 'periods.week', 'p
 .pill {
   padding: 0.35cqw 0.8cqw;
   border-radius: 99px;
-  background: var(--seagrass);
-  color: var(--black);
+  background: var(--accent);
+  color: var(--on-accent);
   font-size: 0.9cqw;
   font-weight: 800;
 }
@@ -311,9 +311,9 @@ const navLabels = ['nav.home', 'nav.calendar', 'periods.day', 'periods.week', 'p
 }
 
 .tile.complete {
-  border-color: var(--seagrass);
-  background: var(--seagrass);
-  color: var(--black);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .tile-label {
@@ -327,7 +327,7 @@ const navLabels = ['nav.home', 'nav.calendar', 'periods.day', 'periods.week', 'p
 
 .tile.complete .tile-label,
 .tile.complete i {
-  color: color-mix(in srgb, var(--black) 70%, var(--seagrass));
+  color: color-mix(in srgb, var(--on-accent) 70%, var(--accent));
 }
 
 .tile-row {
@@ -354,8 +354,8 @@ const navLabels = ['nav.home', 'nav.calendar', 'periods.day', 'periods.week', 'p
   width: 3cqw;
   height: 3cqw;
   border-radius: 50%;
-  background: var(--black);
-  color: var(--seagrass);
+  background: var(--on-accent);
+  color: var(--accent);
 }
 
 .check svg {
@@ -379,7 +379,7 @@ const navLabels = ['nav.home', 'nav.calendar', 'periods.day', 'periods.week', 'p
 }
 
 .ring .fill {
-  stroke: var(--seagrass);
+  stroke: var(--accent);
   stroke-linecap: round;
 }
 
@@ -415,11 +415,11 @@ const navLabels = ['nav.home', 'nav.calendar', 'periods.day', 'periods.week', 'p
   align-self: end;
   width: 1.6cqw;
   border-radius: 0.4cqw 0.4cqw 0 0;
-  background: color-mix(in srgb, var(--seagrass) 55%, transparent);
+  background: color-mix(in srgb, var(--link) 55%, transparent);
 }
 
 .bar-col.today .bar-fill {
-  background: var(--seagrass);
+  background: var(--accent);
 }
 
 .bar-col em {
@@ -549,8 +549,8 @@ const navLabels = ['nav.home', 'nav.calendar', 'periods.day', 'periods.week', 'p
 }
 
 .cell.today .num {
-  background: var(--seagrass);
-  color: var(--black);
+  background: var(--highlight);
+  color: var(--on-highlight);
   font-weight: 800;
 }
 
@@ -579,7 +579,7 @@ const navLabels = ['nav.home', 'nav.calendar', 'periods.day', 'periods.week', 'p
   bottom: 0.8cqw;
   left: -0.6cqw;
   height: 0.6cqw;
-  background: var(--seagrass);
+  background: var(--accent);
 }
 
 .cell.first .band {
@@ -642,9 +642,9 @@ const navLabels = ['nav.home', 'nav.calendar', 'periods.day', 'periods.week', 'p
 }
 
 .done .tick {
-  border-color: var(--seagrass);
-  background: var(--seagrass);
-  color: var(--black);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .tick svg {
@@ -765,7 +765,7 @@ const navLabels = ['nav.home', 'nav.calendar', 'periods.day', 'periods.week', 'p
   display: block;
   width: 50%;
   height: 100%;
-  background: var(--seagrass);
+  background: var(--accent);
 }
 
 .v-phone .item {
@@ -811,8 +811,8 @@ const navLabels = ['nav.home', 'nav.calendar', 'periods.day', 'periods.week', 'p
   width: 15cqw;
   height: 15cqw;
   border-radius: 50%;
-  background: var(--seagrass);
-  color: var(--black);
+  background: var(--accent);
+  color: var(--on-accent);
   font-size: 9cqw;
   font-weight: 500;
   box-shadow: 0 2cqw 5cqw color-mix(in srgb, var(--black) 35%, transparent);

@@ -45,16 +45,16 @@ import { LOCALES, locale } from '@/lib/i18n'
 }
 
 .lang-option:hover {
-  color: var(--seagrass);
+  color: var(--accent);
 }
 
 .lang-option.active {
-  background: var(--seagrass);
-  color: var(--black);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .lang-option:focus-visible {
-  outline: 2px solid var(--seagrass);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 </style>

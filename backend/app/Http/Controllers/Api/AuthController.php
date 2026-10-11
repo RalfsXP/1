@@ -29,11 +29,13 @@ class AuthController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Password::min(8)],
             'locale' => ['nullable', Rule::in(config('app.supported_locales'))],
+            'design' => ['nullable', Rule::in(config('app.designs'))],
         ]);
 
         $user = User::create([
             ...$data,
             'locale' => $data['locale'] ?? app()->getLocale(),
+            'design' => $data['design'] ?? 'default',
         ]);
 
         Auth::guard('web')->login($user);
@@ -89,6 +91,20 @@ class AuthController extends Controller
     {
         $data = $request->validate([
             'locale' => ['required', Rule::in(config('app.supported_locales'))],
+        ]);
+
+        $request->user()->update($data);
+
+        return response()->json($request->user());
+    }
+
+    /**
+     * Save the interface design so it follows the user to other devices.
+     */
+    public function updateDesign(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'design' => ['required', Rule::in(config('app.designs'))],
         ]);
 
         $request->user()->update($data);

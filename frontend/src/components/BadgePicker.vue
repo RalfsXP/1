@@ -139,12 +139,12 @@ const rainbow = computed(() => ({ background: `conic-gradient(${[...SWATCHES, SW
 }
 
 .icon-choice:hover {
-  border-color: var(--seagrass);
+  border-color: var(--accent);
 }
 
 .icon-choice[aria-pressed='true'] {
-  border-color: var(--seagrass);
-  background: var(--seagrass);
-  color: var(--black);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 </style>

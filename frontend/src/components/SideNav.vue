@@ -128,16 +128,16 @@ function signOut() {
 }
 
 .link:hover {
-  color: var(--seagrass);
+  color: var(--accent);
 }
 
 .link.active {
-  background: var(--seagrass);
-  color: var(--black);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .link:focus-visible {
-  outline: 2px solid var(--seagrass);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 

@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { PencilSquareIcon, PlusIcon, TrashIcon } from '@heroicons/vue/24/outline'
+import BottomSheet from '@/components/BottomSheet.vue'
 import { locale, t } from '@/lib/i18n'
 import { createBoard, deleteBoard, listBoards, saveBoard } from '@/lib/whiteboards'
 
@@ -17,10 +18,20 @@ listBoards()
   .then((list) => (boards.value = list))
   .catch(() => (failed.value = true))
 
+/* "New board" asks for a name first; an empty name gets the server default. */
+const naming = ref(false)
+const newTitle = ref('')
+
+function askName() {
+  newTitle.value = ''
+  naming.value = true
+}
+
 async function create() {
   creating.value = true
   try {
-    const board = await createBoard()
+    const board = await createBoard(newTitle.value.trim() || null)
+    naming.value = false
     await router.push({ name: 'whiteboard', params: { id: board.id } })
   } catch {
     failed.value = true
@@ -61,7 +72,7 @@ function edited(iso) {
   <div class="page wide">
     <header class="head">
       <h1 class="page-title">{{ $t('whiteboard.title') }}</h1>
-      <button type="button" class="btn btn-primary new" :disabled="creating" @click="create">
+      <button type="button" class="btn btn-primary new" :disabled="creating" @click="askName">
         <PlusIcon aria-hidden="true" />{{ $t('whiteboard.new') }}
       </button>
     </header>
@@ -70,7 +81,7 @@ function edited(iso) {
 
     <div v-else-if="boards && !boards.length" class="empty-state">
       <span>{{ $t('whiteboard.empty') }}</span>
-      <button type="button" class="btn btn-primary" :disabled="creating" @click="create">{{ $t('whiteboard.new') }}</button>
+      <button type="button" class="btn btn-primary" :disabled="creating" @click="askName">{{ $t('whiteboard.new') }}</button>
     </div>
 
     <ul v-else-if="boards" class="grid">
@@ -107,10 +118,35 @@ function edited(iso) {
         </button>
       </li>
     </ul>
+
+    <BottomSheet :open="naming" :title="$t('whiteboard.new')" @close="naming = false">
+      <form class="name-form" @submit.prevent="create">
+        <label class="form-field">
+          <span class="form-label">{{ $t('whiteboard.boardTitle') }}</span>
+          <input
+            v-model="newTitle"
+            autofocus
+            class="input"
+            type="text"
+            maxlength="120"
+            enterkeyhint="done"
+            :placeholder="$t('whiteboard.untitled')"
+          />
+        </label>
+        <button type="submit" class="btn btn-primary btn-lg" :disabled="creating">
+          {{ creating ? $t('goal.saving') : $t('whiteboard.create') }}
+        </button>
+      </form>
+    </BottomSheet>
   </div>
 </template>
 
 <style scoped>
+.name-form {
+  display: grid;
+  gap: 18px;
+}
+
 .head {
   display: flex;
   align-items: center;
@@ -148,7 +184,7 @@ function edited(iso) {
 }
 
 .board:hover {
-  border-color: var(--seagrass);
+  border-color: var(--accent);
 }
 
 /* Previews are always rendered on white (ink stored as black), like paper. */

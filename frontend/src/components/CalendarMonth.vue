@@ -4,6 +4,8 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/outline'
 import { FlagIcon } from '@heroicons/vue/20/solid'
 import GoalBadge from '@/components/GoalBadge.vue'
 import { badgeFor } from '@/lib/goals'
+import { touchUI } from '@/lib/input'
+import { usePress } from '@/lib/press'
 import { t } from '@/lib/i18n'
 import { todayISO } from '@/lib/timeLeft'
 import { addDays, isoWeek, monthLabel, periodEnd, periodLabel, periodStart, shiftPeriod, toISO } from '@/lib/periods'
@@ -19,7 +21,11 @@ const props = defineProps({
   selected: { type: String, required: true },
   occurrences: { type: Array, required: true },
 })
-const emit = defineEmits(['update:month', 'select', 'open-week', 'open'])
+const emit = defineEmits(['update:month', 'select', 'open-week', 'open', 'toggle'])
+
+// Strip badges: desktop click edits; touch tap ticks off, hold edits (same as goal rows).
+const press = usePress({ onTap: (occ) => emit('toggle', occ), onHold: (occ) => emit('open', occ) })
+const onBadge = (e, occ) => (touchUI.value ? press.click(e, occ) : emit('open', occ))
 
 const direction = ref('next')
 
@@ -116,7 +122,19 @@ function onTouchEnd(e) {
     </header>
 
     <div v-if="strip.length" class="strip">
-      <button v-for="occ in strip" :key="occ.key" type="button" class="strip-item" @click="emit('open', occ)">
+      <button
+        v-for="occ in strip"
+        :key="occ.key"
+        type="button"
+        class="strip-item"
+        :class="{ pressing: press.pressing.value === occ }"
+        @pointerdown="touchUI && press.down($event, occ)"
+        @pointermove="press.move"
+        @pointerup="press.up"
+        @pointercancel="press.up"
+        @contextmenu="touchUI && $event.preventDefault()"
+        @click="onBadge($event, occ)"
+      >
         <GoalBadge :title="occ.goal.title" v-bind="badgeFor(occ.goal)" :done="occ.done" />
       </button>
     </div>
@@ -259,6 +277,17 @@ function onTouchEnd(e) {
   opacity: 0.85;
 }
 
+.strip-item.pressing {
+  transform: scale(0.94);
+  opacity: 0.8;
+  transition: transform 0.45s linear, opacity 0.45s linear;
+}
+
+.strip-item {
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
 .strip-item:active {
   transform: scale(0.97);
 }
@@ -306,7 +335,7 @@ function onTouchEnd(e) {
 
 .wk-btn:hover,
 .wk-btn:focus-visible {
-  color: var(--seagrass);
+  color: var(--accent);
 }
 
 .wk-marks {
@@ -353,11 +382,11 @@ function onTouchEnd(e) {
 }
 
 .cell.selected {
-  border-color: var(--seagrass);
+  border-color: var(--accent);
 }
 
 .cell:focus-visible {
-  outline: 2px solid var(--seagrass);
+  outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
 
@@ -373,8 +402,8 @@ function onTouchEnd(e) {
 }
 
 .today .num {
-  background: var(--seagrass);
-  color: var(--black);
+  background: var(--highlight);
+  color: var(--on-highlight);
   font-weight: 800;
 }
 

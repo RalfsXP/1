@@ -18,6 +18,6 @@
 }
 
 .dot {
-  fill: var(--seagrass);
+  fill: var(--highlight);
 }
 </style>

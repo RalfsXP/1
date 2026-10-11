@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ChevronLeftIcon, ChevronRightIcon, PlusIcon } from '@heroicons/vue/24/outline'
 import GoalForm from '@/components/GoalForm.vue'
 import GoalItem from '@/components/GoalItem.vue'
+import HoldHint from '@/components/HoldHint.vue'
 import ProgressMeter from '@/components/ProgressMeter.vue'
 import { loadRange, occurrencesBetween, refreshTick, setDone } from '@/lib/goals'
 import { ROUTE_TO_PERIOD, addDays, parseISO, periodEnd, periodLabel, periodStart, shiftPeriod, toISO } from '@/lib/periods'
@@ -84,6 +85,7 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
     </div>
 
     <ProgressMeter :done="done.length" :total="occurrences.length" />
+    <HoldHint v-if="occurrences.length" />
 
     <p v-if="!occurrences.length" class="empty-state">{{ $t('goal.empty') }}</p>
 
@@ -160,7 +162,7 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
   border: 0;
   border-radius: 999px;
   background: none;
-  color: var(--seagrass);
+  color: var(--accent);
   font-size: 0.75rem;
   font-weight: 700;
   cursor: pointer;
@@ -191,8 +193,8 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
   height: 58px;
   border: 0;
   border-radius: 50%;
-  background: var(--seagrass);
-  color: var(--black);
+  background: var(--accent);
+  color: var(--on-accent);
   box-shadow: 0 8px 24px color-mix(in srgb, var(--black) 35%, transparent);
   cursor: pointer;
   transition: transform 0.2s;

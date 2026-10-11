@@ -324,13 +324,13 @@ async function remove() {
 }
 
 .day-chip:hover {
-  border-color: var(--seagrass);
+  border-color: var(--accent);
 }
 
 .day-chip[aria-pressed='true'] {
-  border-color: var(--seagrass);
-  background: var(--seagrass);
-  color: var(--black);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .toggle {
@@ -347,7 +347,7 @@ async function remove() {
   width: 20px;
   height: 20px;
   margin: 0;
-  accent-color: var(--seagrass);
+  accent-color: var(--accent);
 }
 
 .badge-row {
@@ -392,7 +392,7 @@ async function remove() {
   flex-shrink: 0;
   width: 18px;
   height: 18px;
-  color: var(--seagrass);
+  color: var(--accent);
 }
 
 .actions {

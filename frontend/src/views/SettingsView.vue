@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChevronDownIcon, InformationCircleIcon } from '@heroicons/vue/24/outline'
 import BadgePicker from '@/components/BadgePicker.vue'
+import DesignSwitch from '@/components/DesignSwitch.vue'
 import GoalBadge from '@/components/GoalBadge.vue'
 import { changeLocale, logout, user } from '@/lib/auth'
 import { categoryStyle, saveCategoryStyle } from '@/lib/goals'
@@ -88,6 +89,10 @@ function signOut() {
         <h2 class="section-title">{{ $t('settings.appearance') }}</h2>
       </header>
       <div class="pref">
+        <span class="form-label">{{ $t('settings.design') }}</span>
+        <DesignSwitch />
+      </div>
+      <div class="pref">
         <span class="form-label">{{ $t('settings.theme') }}</span>
         <div class="segmented" role="group" :aria-label="$t('settings.theme')">
           <button type="button" :aria-pressed="theme === 'light'" @click="setTheme('light')">{{ $t('common.themeLight') }}</button>
@@ -147,7 +152,7 @@ function signOut() {
 }
 
 .row.open {
-  border-color: var(--seagrass);
+  border-color: var(--accent);
 }
 
 .row-head {
@@ -165,7 +170,7 @@ function signOut() {
 }
 
 .row-head:focus-visible {
-  outline: 2px solid var(--seagrass);
+  outline: 2px solid var(--accent);
   outline-offset: -2px;
   border-radius: 18px;
 }
@@ -199,7 +204,7 @@ function signOut() {
 .error svg {
   width: 18px;
   height: 18px;
-  color: var(--seagrass);
+  color: var(--accent);
 }
 
 .pref {

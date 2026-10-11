@@ -18,6 +18,7 @@ Route::middleware('throttle:10,1')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::patch('/user/locale', [AuthController::class, 'updateLocale']);
+    Route::patch('/user/design', [AuthController::class, 'updateDesign']);
     Route::put('/user/goal-styles', [GoalStyleController::class, 'update']);
     Route::get('/admin/health', SystemHealthController::class);
     Route::post('/admin/migrate', [SystemHealthController::class, 'migrate'])->middleware('throttle:3,1');

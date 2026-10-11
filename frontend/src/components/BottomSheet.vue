@@ -42,7 +42,9 @@ watch(
       returnFocus = document.activeElement
       addEventListener('keydown', onKey)
       await nextTick()
-      sheet.value?.focus({ preventScroll: true })
+      // A field marked autofocus (e.g. "name your board") gets the keyboard; otherwise the dialog.
+      const target = sheet.value?.querySelector('[autofocus]') ?? sheet.value
+      target?.focus({ preventScroll: true })
     } else {
       removeEventListener('keydown', onKey)
       returnFocus?.focus?.({ preventScroll: true })

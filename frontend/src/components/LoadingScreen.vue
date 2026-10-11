@@ -54,8 +54,8 @@ import LogoMark from './LogoMark.vue'
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 2px solid color-mix(in srgb, var(--seagrass) 18%, transparent);
-  border-top-color: var(--seagrass);
+  border: 2px solid color-mix(in srgb, var(--accent) 18%, transparent);
+  border-top-color: var(--accent);
   animation: spin 0.9s linear infinite;
 }
 

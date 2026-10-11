@@ -134,6 +134,25 @@ class AuthTest extends TestCase
             ->assertUnprocessable();
     }
 
+    public function test_a_user_can_save_their_design_and_it_is_validated(): void
+    {
+        $user = User::factory()->create();
+        $this->assertSame('default', $user->fresh()->design);
+
+        $this->actingAs($user)->spa()->patchJson('/api/user/design', ['design' => 'new'])
+            ->assertOk()
+            ->assertJsonPath('design', 'new');
+
+        $this->actingAs($user)->spa()->patchJson('/api/user/design', ['design' => 'ocean'])
+            ->assertOk()
+            ->assertJsonPath('design', 'ocean');
+
+        $this->actingAs($user)->spa()->withHeader('Accept-Language', 'lv')
+            ->patchJson('/api/user/design', ['design' => 'neon'])
+            ->assertUnprocessable()
+            ->assertJsonPath('errors.design.0', 'Izvēlētā dizains vērtība nav derīga.');
+    }
+
     public function test_validation_messages_follow_the_accept_language_header(): void
     {
         $this->spa()->withHeader('Accept-Language', 'lv')

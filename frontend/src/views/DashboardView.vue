@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { ArrowRightIcon, CheckIcon, ExclamationCircleIcon } from '@heroicons/vue/24/outline'
 import GoalForm from '@/components/GoalForm.vue'
 import GoalItem from '@/components/GoalItem.vue'
+import HoldHint from '@/components/HoldHint.vue'
 import { user } from '@/lib/auth'
 import { compareOccurrences, loadRange, occurrencesBetween, refreshTick, setDone } from '@/lib/goals'
 import { PERIOD_TO_ROUTE, addDays, parseISO, periodEnd, periodStart, toISO, weekdayName } from '@/lib/periods'
@@ -199,6 +200,7 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
           {{ $t('nav.calendar') }}<ArrowRightIcon aria-hidden="true" />
         </RouterLink>
       </header>
+      <HoldHint v-if="focus.length" class="hint" />
       <ul v-if="focus.length" class="list">
         <GoalItem v-for="occ in focus" :key="occ.key" :occurrence="occ" @toggle="toggle" @edit="edit" />
       </ul>
@@ -236,7 +238,7 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
 }
 
 .tile.link:hover {
-  border-color: var(--seagrass);
+  border-color: var(--accent);
 }
 
 .tile.link:active {
@@ -287,7 +289,7 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
 }
 
 .ring-fill {
-  stroke: var(--seagrass);
+  stroke: var(--accent);
   stroke-linecap: round;
   transition: stroke-dashoffset 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -301,18 +303,18 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
 
 /* Complete: the whole tile goes Seagrass, black text (7:1), a black disc with a Seagrass check. */
 .tile.complete {
-  border-color: var(--seagrass);
-  background: var(--seagrass);
-  color: var(--black);
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .tile.complete .tile-label,
 .tile.complete .of {
-  color: color-mix(in srgb, var(--black) 70%, var(--seagrass));
+  color: color-mix(in srgb, var(--on-accent) 70%, var(--accent));
 }
 
 .tile.complete.link:hover {
-  border-color: var(--black);
+  border-color: var(--on-accent);
 }
 
 .tile-check {
@@ -322,8 +324,8 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--black);
-  color: var(--seagrass);
+  background: var(--on-accent);
+  color: var(--accent);
   animation: pop 0.35s cubic-bezier(0.2, 0.8, 0.2, 1.4);
 }
 
@@ -390,14 +392,14 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
   width: min(22px, 70%);
   min-height: 2px;
   border-radius: 4px 4px 0 0;
-  background: color-mix(in srgb, var(--seagrass) 55%, transparent);
+  background: color-mix(in srgb, var(--link) 55%, transparent);
   transition: height 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.2s;
 }
 
 .bar-slot.today .bar,
 .bar-slot:hover .bar,
 .bar-slot:focus-visible .bar {
-  background: var(--seagrass);
+  background: var(--accent);
 }
 
 .bar-label {
@@ -427,11 +429,15 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
 }
 
 /* ---------- Focus ---------- */
+.hint {
+  margin-bottom: 10px;
+}
+
 .more {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--seagrass);
+  color: var(--accent);
   font-size: 0.85rem;
   font-weight: 700;
   text-decoration: none;

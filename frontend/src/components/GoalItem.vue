@@ -6,11 +6,24 @@ import PriorityFlag from '@/components/PriorityFlag.vue'
 import { badgeFor, readableOn } from '@/lib/goals'
 import { GOAL_ICONS } from '@/lib/icons'
 import { rangeLabel } from '@/lib/periods'
+import { touchUI } from '@/lib/input'
+import { usePress } from '@/lib/press'
 import { completionInfo, now, timeLeft } from '@/lib/timeLeft'
 
-// One goal occurrence in a list: tick it off, or tap it to edit.
+/*
+ * One goal occurrence in a list.
+ * Desktop: the round check ticks it, clicking the row edits.
+ * Touch:   tapping anywhere on the row ticks it, holding it opens edit.
+ */
 const props = defineProps({ occurrence: { type: Object, required: true } })
 const emit = defineEmits(['toggle', 'edit'])
+
+const press = usePress({
+  onTap: () => emit('toggle', props.occurrence),
+  onHold: () => emit('edit', props.occurrence),
+})
+const onCheck = (e) => (touchUI.value ? press.click(e) : emit('toggle', props.occurrence))
+const onBody = (e) => (touchUI.value ? press.click(e) : emit('edit', props.occurrence))
 
 const goal = computed(() => props.occurrence.goal)
 const badge = computed(() => badgeFor(goal.value))
@@ -19,20 +32,29 @@ const finished = computed(() => (props.occurrence.done ? completionInfo(props.oc
 </script>
 
 <template>
-  <li class="item" :class="{ done: occurrence.done }">
+  <li
+    class="item"
+    :class="{ done: occurrence.done, touch: touchUI, pressing: press.pressing.value }"
+    @pointerdown="touchUI && press.down($event)"
+    @pointermove="press.move"
+    @pointerup="press.up"
+    @pointercancel="press.up"
+    @contextmenu="touchUI && $event.preventDefault()"
+  >
     <button
       type="button"
       class="check"
       :aria-pressed="occurrence.done"
       :aria-label="$t('goal.toggle', { title: goal.title })"
-      @click="emit('toggle', occurrence)"
+      @click="onCheck"
     >
       <DoneIcon v-if="occurrence.done" aria-hidden="true" />
       <span v-else class="ring" />
     </button>
 
-    <button type="button" class="body" @click="emit('edit', occurrence)">
+    <button type="button" class="body" @click="onBody">
       <span class="title">{{ goal.title }}</span>
+      <span v-if="touchUI" class="visually-hidden">{{ $t('goal.holdHint') }}</span>
       <span class="meta">
         <PriorityFlag :priority="goal.priority" />
         <ArrowPathIcon v-if="goal.repeats" class="repeat" role="img" aria-hidden="false" :aria-label="$t('goal.repeats')" />
@@ -64,6 +86,28 @@ const finished = computed(() => (props.occurrence.done ? completionInfo(props.oc
 }
 
 /* Done rows recede (no fill, muted title) but keep their status text readable. */
+/* Touch: the row is one press target; a hold fills the ring, then edit opens. */
+.item.touch {
+  -webkit-touch-callout: none;
+  user-select: none;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.item.pressing {
+  transform: scale(0.98);
+}
+
+.item.pressing .ring {
+  animation: hold-fill 450ms linear forwards;
+}
+
+@keyframes hold-fill {
+  to {
+    border-color: var(--accent);
+    box-shadow: inset 0 0 0 12px var(--accent);
+  }
+}
+
 .item.done {
   background: transparent;
 }
@@ -86,7 +130,7 @@ const finished = computed(() => (props.occurrence.done ? completionInfo(props.oc
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--seagrass);
+  color: var(--accent);
   cursor: pointer;
 }
 
@@ -104,12 +148,12 @@ const finished = computed(() => (props.occurrence.done ? completionInfo(props.oc
 }
 
 .check:hover .ring {
-  border-color: var(--seagrass);
+  border-color: var(--accent);
 }
 
 .check:focus-visible,
 .body:focus-visible {
-  outline: 2px solid var(--seagrass);
+  outline: 2px solid var(--accent);
   outline-offset: -2px;
   border-radius: 12px;
 }
@@ -147,7 +191,7 @@ const finished = computed(() => (props.occurrence.done ? completionInfo(props.oc
 }
 
 .when.early {
-  color: var(--seagrass);
+  color: var(--accent);
 }
 
 .when.soon {
