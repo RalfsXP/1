@@ -1,5 +1,5 @@
 <script setup>
-// The mark: the wordmark's "m" plus its Seagrass dot. Follows the text colour.
+// The mark: the wordmark's "m" plus its highlight-colour dot. Follows the text colour.
 </script>
 
 <template>

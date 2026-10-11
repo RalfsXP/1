@@ -139,13 +139,21 @@ class AuthTest extends TestCase
         $user = User::factory()->create();
         $this->assertSame('default', $user->fresh()->design);
 
-        $this->actingAs($user)->spa()->patchJson('/api/user/design', ['design' => 'new'])
+        $this->actingAs($user)->spa()->patchJson('/api/user/design', ['design' => 'teal'])
             ->assertOk()
-            ->assertJsonPath('design', 'new');
+            ->assertJsonPath('design', 'teal');
 
-        $this->actingAs($user)->spa()->patchJson('/api/user/design', ['design' => 'ocean'])
+        $this->actingAs($user)->spa()->patchJson('/api/user/design', ['design' => 'ember'])
             ->assertOk()
-            ->assertJsonPath('design', 'ocean');
+            ->assertJsonPath('design', 'ember');
+
+        $this->actingAs($user)->spa()->patchJson('/api/user/design', ['design' => 'default'])
+            ->assertOk()
+            ->assertJsonPath('design', 'default');
+
+        // v1.4 designs are retired.
+        $this->actingAs($user)->spa()->patchJson('/api/user/design', ['design' => 'ocean'])
+            ->assertUnprocessable();
 
         $this->actingAs($user)->spa()->withHeader('Accept-Language', 'lv')
             ->patchJson('/api/user/design', ['design' => 'neon'])

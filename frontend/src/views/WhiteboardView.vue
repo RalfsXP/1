@@ -51,7 +51,7 @@ class StickyNote extends Textbox {
 classRegistry.setClass(StickyNote)
 
 /** UI colour (handles, cursors) from the active design; note colours are content and stay put. */
-const accent = () => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#66a182'
+const accent = () => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#4c956c'
 const NOTE_DEFAULT = SWATCHES[0]
 const INK_LIGHT = '#000000'
 const INK_DARK = '#ffffff'

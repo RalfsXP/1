@@ -1,15 +1,17 @@
 import { ref } from 'vue'
 
-// Interface design: "default" (Seagrass), "new" (Imperial Blue / Blue Bell / Magenta) or
-// "ocean" (Deep Space Blue / Amber / Orange). index.html sets data-design before first paint.
-export const DESIGNS = ['default', 'new', 'ocean']
+// Interface design: "default" = V1 (Turf / Sea Green / Light Yellow / Powder Blush / Toasted Almond) or
+// "teal" = V2 (Stormy Teal / Pacific Blue / Sky Blue / Parchment / Amber Glow) or
+// "ember" = V3 (Prussian Blue / Deep Teal / Jasmine / Brick Ember / Blood Red). index.html sets data-design before first paint.
+export const DESIGNS = ['default', 'teal', 'ember']
 const STORAGE_KEY = 'merkis-design'
 
 export const design = ref(DESIGNS.includes(document.documentElement.dataset.design) ? document.documentElement.dataset.design : 'default')
 
 /** Apply a design on this device (no account save). */
 export function setDesign(next) {
-  if (!DESIGNS.includes(next)) return
+  // Retired designs (v1.4 "new" / "ocean") fall back to the default.
+  if (!DESIGNS.includes(next)) next = 'default'
   design.value = next
   if (next === 'default') delete document.documentElement.dataset.design
   else document.documentElement.dataset.design = next

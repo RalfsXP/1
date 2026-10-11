@@ -151,9 +151,9 @@
     },
     "design": "Design",
     "designs": {
-      "default": "Default",
-      "new": "V2",
-      "ocean": "V3"
+      "default": "V1",
+      "teal": "V2",
+      "ember": "V3"
     }
   },
   "dashboard": {
@@ -169,7 +169,7 @@
     "completedCount": "{n} completed",
     "yesterday": "Goals yesterday"
   },
-  "colors": ["Seagrass", "Blue", "Purple", "Pink", "Red", "Amber", "Teal", "Slate"],
+  "colors": ["Sea Green", "Pacific Blue", "Toasted Almond", "Powder Blush", "Turf Green", "Amber Glow", "Stormy Teal", "Sky Blue"],
   "icons": {
     "flag": "Flag",
     "star": "Star",

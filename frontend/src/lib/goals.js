@@ -12,15 +12,15 @@ export const PRIORITIES = ['low', 'high', 'important']
 const PRIORITY_RANK = { important: 0, high: 1, low: 2 }
 
 /** User-picked colours start from these; any hex is allowed (badges/flags are the colour exception). */
-export const SWATCHES = ['#66a182', '#3b82f6', '#a855f7', '#ec4899', '#ef4444', '#f59e0b', '#14b8a6', '#64748b']
+export const SWATCHES = ['#4c956c', '#489fb5', '#d68c45', '#ffc9b9', '#2c6e49', '#ffa62b', '#16697a', '#82c0cc']
 
 /** Built-in category look; mirrors config/goals.php default_styles (every period needs one). */
 const DEFAULT_STYLES = {
-  day: { color: '#66a182', icon: 'sun' },
-  week: { color: '#3b82f6', icon: 'bolt' },
-  month: { color: '#a855f7', icon: 'star' },
-  year: { color: '#f59e0b', icon: 'trophy' },
-  custom: { color: '#14b8a6', icon: 'flag' },
+  day: { color: '#4c956c', icon: 'sun' },
+  week: { color: '#489fb5', icon: 'bolt' },
+  month: { color: '#ffc9b9', icon: 'star' },
+  year: { color: '#ffa62b', icon: 'trophy' },
+  custom: { color: '#16697a', icon: 'flag' },
 }
 
 const cache = reactive(new Map())

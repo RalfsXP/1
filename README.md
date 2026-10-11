@@ -11,8 +11,8 @@
 <p align="center">A focused planner for daily goals.</p>
 
 <p align="center">
-  <a href="https://merkis.app"><img src="https://img.shields.io/badge/live-merkis.app-66a182?style=flat-square" alt="Live at merkis.app"></a>
-  <img src="https://img.shields.io/badge/version-v1.4.3-000000?style=flat-square" alt="Version v1.4.3">
+  <a href="https://merkis.app"><img src="https://img.shields.io/badge/live-merkis.app-4c956c?style=flat-square" alt="Live at merkis.app"></a>
+  <img src="https://img.shields.io/badge/version-v1.5-2c6e49?style=flat-square" alt="Version v1.5">
   <img src="https://img.shields.io/badge/Vue_3-42b883?style=flat-square&logo=vuedotjs&logoColor=white" alt="Vue 3">
   <img src="https://img.shields.io/badge/Laravel_13-FF2D20?style=flat-square&logo=laravel&logoColor=white" alt="Laravel 13">
   <img src="https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=white" alt="Supabase">
@@ -32,7 +32,7 @@ Merkis (from the Latvian *mērķis*, "goal") is a full-stack web application wit
 - Recurring goals: every day, chosen weekdays, or every week / month / year — each occurrence is completed separately
 - Live "time left" countdown for every goal, plus an optional earlier deadline
 - Whiteboards: freeform boards to draw, write, add sticky notes, shapes and arrows (Fabric.js), synced to your account
-- Three designs (Default, New, Ocean), each with light and dark mode, saved to your account
+- Three designs (V1 green/yellow, V2 teal/amber, V3 navy/red), each with light and dark mode, saved to your account
 - On phones: tap a goal to complete it, hold it to edit
 - Settings: default badge colour and icon per category (overridable per goal), theme and language
 - Latvian and English interface

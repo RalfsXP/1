@@ -151,9 +151,9 @@
     },
     "design": "Dizains",
     "designs": {
-      "default": "Noklusējuma",
-      "new": "V2",
-      "ocean": "V3"
+      "default": "V1",
+      "teal": "V2",
+      "ember": "V3"
     }
   },
   "dashboard": {
@@ -169,7 +169,7 @@
     "completedCount": "Izpildīti: {n}",
     "yesterday": "Mērķi vakar"
   },
-  "colors": ["Jūras zāle", "Zila", "Violeta", "Rozā", "Sarkana", "Dzintara", "Tirkīza", "Pelēka"],
+  "colors": ["Jūras zaļa", "Okeāna zila", "Mandeļu", "Pūderrozā", "Zāles zaļa", "Dzintara", "Vētras zilganzaļa", "Debeszila"],
   "icons": {
     "flag": "Karogs",
     "star": "Zvaigzne",

@@ -1,6 +1,6 @@
 <script setup>
 // The "mērķis" wordmark (Montserrat ExtraBold outlines): letters follow the text colour,
-// the macron over ē and the cedilla dot under ķ are Seagrass. Fits whatever box it's given.
+// the macron over ē and the cedilla dot under ķ are the highlight colour. Fits whatever box it's given.
 // Outlines are generated, not hand-edited; frontend/public/brand/ holds the standalone files.
 </script>
 

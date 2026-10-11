@@ -5,9 +5,9 @@ import { DESIGNS, design } from '@/lib/design'
 
 // A slider: the thumb glides to the chosen design. Each option previews its palette.
 const PREVIEW = {
-  default: ['var(--seagrass)', '#000000', '#ffffff'],
-  new: ['var(--imperial)', 'var(--bluebell)', 'var(--magenta)', 'var(--ghost)'],
-  ocean: ['var(--deepspace)', 'var(--bluegreen)', 'var(--amber)', 'var(--orange)'],
+  default: ['var(--turf)', 'var(--seagreen)', 'var(--almond)', 'var(--blush)', 'var(--cream)'],
+  teal: ['var(--teal)', 'var(--pacific)', 'var(--skyblue)', 'var(--amberglow)', 'var(--parchment)'],
+  ember: ['var(--deepteal)', 'var(--jasmine)', 'var(--ember)', 'var(--bloodred)'],
 }
 
 const index = computed(() => Math.max(0, DESIGNS.indexOf(design.value)))
@@ -107,7 +107,7 @@ const index = computed(() => Math.max(0, DESIGNS.indexOf(design.value)))
   margin-left: 0;
 }
 
-/* Phones: palette above the name, so three options fit side by side. */
+/* Phones: palette above the name, so the options fit side by side. */
 @media (max-width: 520px) {
   .switch {
     border-radius: 22px;

@@ -154,7 +154,7 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
             <template v-else>{{ tile.count }}</template>
           </span>
 
-          <!-- Everything done (or nothing late): the tile turns Seagrass with a check. -->
+          <!-- Everything done (or nothing late): the tile turns accent with a check. -->
           <span v-if="tile.complete" class="tile-check" aria-hidden="true"><CheckIcon /></span>
           <svg v-else-if="tile.kind === 'progress'" class="ring" viewBox="0 0 60 60" aria-hidden="true">
             <circle class="ring-track" cx="30" cy="30" :r="R" />
@@ -301,7 +301,7 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
   color: var(--muted);
 }
 
-/* Complete: the whole tile goes Seagrass, black text (7:1), a black disc with a Seagrass check. */
+/* Complete: the whole tile goes accent with on-accent text, an on-accent disc with an accent check. */
 .tile.complete {
   border-color: var(--accent);
   background: var(--accent);

@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 
-// "3/5" with a slim Seagrass bar: how much of a set of goals is done.
+// "3/5" with a slim accent bar: how much of a set of goals is done.
 const props = defineProps({
   done: { type: Number, required: true },
   total: { type: Number, required: true },

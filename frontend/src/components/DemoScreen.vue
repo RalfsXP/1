@@ -17,16 +17,16 @@ import { now, timeLeft, todayISO } from '@/lib/timeLeft'
  */
 const props = defineProps({ variant: { type: String, required: true } })
 
-const [SEA, BLUE, PURPLE, PINK, , AMBER, TEAL] = SWATCHES
+const [SEA, BLUE, ALMOND, BLUSH, , AMBER, TEAL] = SWATCHES
 const H = 3600 * 1000
 const left = (hours) => timeLeft(new Date(now.value + hours * H)).text
 
 const goals = computed(() => [
   { key: 'run', color: SEA, flag: 'important', done: true },
   { key: 'report', color: BLUE, flag: 'important', done: false, when: left(3) },
-  { key: 'read', color: PINK, flag: 'low', done: true },
+  { key: 'read', color: BLUSH, flag: 'low', done: true },
   { key: 'water', color: TEAL, flag: 'low', done: false, when: left(9) },
-  { key: 'gym', color: PURPLE, flag: 'high', done: false, when: left(11) },
+  { key: 'gym', color: ALMOND, flag: 'high', done: false, when: left(11) },
   { key: 'call', color: AMBER, flag: 'high', done: true },
 ])
 
@@ -65,7 +65,7 @@ const calendar = computed(() => {
       n,
       out: d.getMonth() !== m,
       today: iso === todayISO.value,
-      dots: [SEA, PINK, BLUE, PURPLE, TEAL].filter((_, i) => (n * (i + 3)) % 7 < 3).slice(0, 3),
+      dots: [SEA, BLUSH, BLUE, ALMOND, TEAL].filter((_, i) => (n * (i + 3)) % 7 < 3).slice(0, 3),
       band: iso >= bandFrom && iso <= bandTo,
       flag: n % 9 === 4,
       col: isoWeekday(d),

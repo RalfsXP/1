@@ -134,7 +134,7 @@ const icons = {
     <p v-if="failed" class="empty-state" role="alert">{{ $t('health.unreachable') }}</p>
 
     <template v-if="report">
-      <!-- Summary: Seagrass when everything passes, plain text listing what needs a look otherwise. -->
+      <!-- Summary: accent when everything passes, plain text listing what needs a look otherwise. -->
       <section class="summary" :class="{ ok: !problems.length }" aria-live="polite">
         <component :is="problems.length ? ExclamationTriangleIcon : CheckCircleIcon" class="summary-icon" aria-hidden="true" />
         <div>
@@ -384,7 +384,7 @@ const icons = {
   margin-bottom: 12px;
 }
 
-/* Status: icon + word, never colour alone. OK is Seagrass; problems stay in text colour (brand rule). */
+/* Status: icon + word, never colour alone. OK is the accent; problems stay in text colour (brand rule). */
 .status {
   display: inline-flex;
   flex-shrink: 0;

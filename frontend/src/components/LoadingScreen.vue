@@ -49,7 +49,7 @@ import LogoMark from './LogoMark.vue'
   }
 }
 
-/* A thin Seagrass arc orbiting the mark. */
+/* A thin accent arc orbiting the mark. */
 .ring {
   position: absolute;
   inset: 0;

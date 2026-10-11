@@ -4,7 +4,7 @@
 > **Keep it current:** every change that alters behaviour, structure, env vars, design rules or the version MUST update this file in the same change (see "Maintaining this file"). Keep it dense — it is loaded every session, so every line costs tokens.
 
 ## What it is
-Mērķis = Latvian for "goal". A minimal planner web app, live at **https://merkis.app**. Current version: **v1.4.3** (`frontend/VERSION`). Owner: Ralfs (GitHub `RalfsXP/1`). Landing, auth, and the signed-in planner: side nav, Overview dashboard (/home), Calendar, Daily/Weekly/Monthly/Yearly/Custom-period goals (priorities, recurrence, completion per occurrence, time left, custom badges), Settings, Site health (all users; admins see internals + can run migrations), Whiteboards (Fabric.js).
+Mērķis = Latvian for "goal". A minimal planner web app, live at **https://merkis.app**. Current version: **v1.5** (`frontend/VERSION`). Owner: Ralfs (GitHub `RalfsXP/1`). Landing, auth, and the signed-in planner: side nav, Overview dashboard (/home), Calendar, Daily/Weekly/Monthly/Yearly/Custom-period goals (priorities, recurrence, completion per occurrence, time left, custom badges), Settings, Site health (all users; admins see internals + can run migrations), Whiteboards (Fabric.js).
 
 ## Stack & hosting (all free tier except the domain)
 | Part | Tech | Where |
@@ -18,20 +18,21 @@ Mērķis = Latvian for "goal". A minimal planner web app, live at **https://merk
 Request flow: browser → merkis.app → `frontend/vercel.json` rewrites `/api/*` and `/sanctum/*` to the backend → same origin, so no CORS and cookies just work. Never call the backend URL directly from the browser.
 
 ## Design rules (non-negotiable — the owner checks these)
-- **Designs (v1.4):** three switchable palettes, `data-design` on `<html>` (none = default), chosen in Settings and saved on the user (`users.design`, PATCH /api/user/design) + localStorage `merkis-design` (pre-painted in index.html):
-  default = Black/Seagrass/White · `new` = Imperial Blue #0a2463, Blue Bell #3e92cc, Ghost White #fffaff, Magenta Bloom #d8315b, Carbon Black #1e1b18 · `ocean` = Sky #8ecae6, Blue Green #219ebc, Deep Space #023047, Amber #ffb703, Orange #fb8500.
-  Components use ONLY role tokens — `--accent` / `--on-accent` (main actions + text on them), `--highlight` / `--on-highlight` (today, clock, logo ē/ķ marks), `--link`, plus `--bg --fg --muted --line --surface…` — never `--seagrass` or a palette colour directly. A new design = one `:root[data-design=x]` block + its light variant in main.css + config/app.php `designs` + DESIGNS in design.js + preview dots in DesignSwitch.
-- **Default design: only 3 colours:** Black `#000000`, Seagrass `#66a182`, White `#ffffff`. Greys are allowed **only** as black/white mixes (`color-mix`) for muted text and lines. No other hues — not even red for errors (errors = normal text + Seagrass ⓘ icon).
-- **Sole exception (owner-approved v1.2/v1.3):** priority flags (`--flag-low/high/important` = green/yellow/red), user-picked goal badge colours (presets in `SWATCHES` + free `<input type=color>`) and whiteboard content (ink + `SWATCHES`). Never use these hues for app chrome.
+- **Designs (v1.5 — the old black/Seagrass 3-colour rule is dropped):** three palettes, `data-design` on `<html>` (none = default), chosen in Settings (labels V1 / V2 / V3) and saved on the user (`users.design`, PATCH /api/user/design) + localStorage `merkis-design` (pre-painted in index.html):
+  `default` = V1: Turf Green #2c6e49, Sea Green #4c956c, Light Yellow #fefee3, Powder Blush #ffc9b9, Toasted Almond #d68c45 · `teal` = V2: Stormy Teal #16697a, Pacific Blue #489fb5, Sky Blue #82c0cc, Parchment #ede7e3, Amber Glow #ffa62b · `ember` = V3: Prussian Blue #001427, Deep Teal #708d81, Jasmine #f4d58d, Brick Ember #bf0603, Blood Red #8d0801.
+  Dark: deep ink bg (V1 #0d1f15, V2 #0a2128), paper text, accent = Sea Green / Pacific Blue with ink text, highlight = Almond / Amber Glow, link = Blush / Sky Blue (V3 dark: Prussian bg, Brick Ember buttons with paper text, Jasmine highlight, Deep Teal links). Light: paper bg (Light Yellow / Parchment), ink text, accent = Turf / Stormy Teal with paper text, link = accent, glow = Blush / Sky Blue (V3 light: Jasmine-tinted paper, Blood Red buttons, Brick Ember highlight + links).
+  Retired v1.4 ids (`new`, `ocean`) still sit on some users → frontend `setDesign` falls back to default; the API rejects them.
+  Components use ONLY role tokens — `--accent` / `--on-accent` (main actions + text on them), `--highlight` / `--on-highlight` (today, clock, logo ē/ķ marks), `--link`, `--ink` / `--paper` (darkest/lightest; `--black` / `--white` are aliases), plus `--bg --fg --muted --line --surface…` — never a palette var (`--turf`, `--teal`…) or hex. A new design = one `:root[data-design=x]` block + its light variant in main.css + config/app.php `designs` + DESIGNS in design.js + index.html pre-paint + preview dots in DesignSwitch + `settings.designs` labels.
+- Other hues only for content: priority flags (`--flag-low/high/important`, per design), user-picked goal badge colours (palette presets in `SWATCHES` + free `<input type=color>`) and whiteboard content. Category default badges use the palette (day Sea Green, week Pacific, month Blush, year Amber, custom Teal).
 - Tokens live in `frontend/src/assets/main.css` (palettes, roles `--accent --on-accent --highlight --on-highlight --link`, derived `--bg --fg --muted --line --frame --frame-edge --screen --glow --surface --backdrop`, flags). Use tokens, never raw hex in components. Badge text colour comes from `readableOn(hex)` (black/white by luminance).
 - **Icons: Heroicons only** (`@heroicons/vue`, 24/outline for UI, 20/solid for badges/flags). Badge icon list = `src/lib/icons.js` ⇄ `backend/config/goals.php` (keep in sync).
 - Shared UI classes in main.css — use them, don't restyle per view: `.page(.narrow|.wide)`, `.page-title`, `.section-title`, `.section-label`, `.card`, `.list`, `.empty-state`, `.btn(-ghost|-primary|-lg)`, `.icon-btn(.bare)`, `.form-field/.form-label/.input`, `.segmented(.outline)`. One global `:focus-visible` ring. (AuthView has its own scoped `.field` — don't reuse that name globally.)
 - Language switch + theme toggle live top-right in every layout (auth header, app top bar) — never in the side nav.
-- Buttons on Seagrass use **black** text (7:1); white on Seagrass fails contrast.
-- **Font: Montserrat everywhere** (matches the wordmark — Montserrat ExtraBold 800). Buttons/inputs need `font-family: inherit` (global rule exists). Clock is Montserrat 800 in Seagrass.
-- Light + dark mode: `data-theme` on `<html>`, set pre-paint by the inline script in `frontend/index.html`, toggled via `src/lib/theme.js`. Light mode flips black↔white; Seagrass stays.
+- Check contrast when touching tokens: text on `--accent` / `--highlight` must stay ≥4.5:1 (that's why dark accents carry ink text and light accents paper text).
+- **Font: Montserrat everywhere** (matches the wordmark — Montserrat ExtraBold 800). Buttons/inputs need `font-family: inherit` (global rule exists). Clock is Montserrat 800 in `--highlight`.
+- Light + dark mode: `data-theme` on `<html>`, set pre-paint by the inline script in `frontend/index.html`, toggled via `src/lib/theme.js`. Light mode swaps ink↔paper and darkens the accent.
 - **Minimal UI.** Owner dislikes extra text, feature claims for things that don't exist, emojis, and "cards" around the logo. Don't add copy or decoration unasked.
-- **Logo (v1.2, owner-chosen option E):** lowercase wordmark **"mērķis"** — Montserrat 800 outlines in the text colour, with a Seagrass bar for the ē macron and a Seagrass dot for the ķ cedilla (letters are plain "merkis"). Mark = the "m" + Seagrass dot. Both are inline SVG components (`AppLogo`, `LogoMark`, `fill: currentColor` → follow the theme). Favicon = Seagrass tile + black m; home-screen icons = black + white m + Seagrass dot; email = white wordmark PNG. All generated by `frontend/scripts/build-logo.mjs` (outlines in `scripts/logo-geometry.json`) — regenerate, never hand-edit paths. The old checkmark PNG logo is gone; don't bring it back.
+- **Logo (v1.2, owner-chosen option E):** lowercase wordmark **"mērķis"** — Montserrat 800 outlines in the text colour, with a highlight-colour bar for the ē macron and dot for the ķ cedilla (letters are plain "merkis"). Mark = the "m" + dot. Both are inline SVG components (`AppLogo`, `LogoMark`, `fill: currentColor` → follow the theme). Assets (v1.5, V1 colours): favicon = Turf tile + Light Yellow m; home-screen icons = ink #0d1f15 + Light Yellow m + Almond dot; email = Light Yellow wordmark + Almond marks PNG. All generated by `frontend/scripts/build-logo.mjs` (outlines in `scripts/logo-geometry.json`) — regenerate, never hand-edit paths. The old checkmark PNG logo is gone; don't bring it back.
 - Mobile first-class (owner uses it mostly on phone): no text selection/callout on touch devices (html `user-select:none`, inputs re-enabled); no zoom (viewport `maximum-scale=1, user-scalable=no`, no `viewport-fit=cover` + global `touch-action: manipulation` + iOS `gesturestart` guard in main.js); body never scrolls (exact `100dvh`); in the app shell only `<main>` scrolls. Inputs ≥16px (iOS zoom), safe-area padding, `overscroll-behavior: none`. Breakpoints: landing 640px; auth + app shell 860px (below: fixed solid top bar + floating Menu button → MobileNav bottom sheet; above: 248px side nav); calendar day panel beside the grid only ≥1180px; sheets become dialogs ≥640px.
 
 ## Map (where things live)
@@ -39,9 +40,9 @@ Request flow: browser → merkis.app → `frontend/vercel.json` rewrites `/api/*
 frontend/
   index.html            theme + design pre-paint script, icons, Montserrat font; viewport WITHOUT viewport-fit=cover in Safari tabs — the script adds it
                         + html.standalone when opened from the Home Screen (iOS 26 opens those as web apps); App.vue .status-strip = opaque bar under the clock there
-  VERSION               "v1.4.3" → shown bottom-left (AppVersion.vue; inside the side nav in the app shell)
+  VERSION               "v1.5" → shown bottom-left (AppVersion.vue; inside the side nav in the app shell)
   vercel.json           /api + /sanctum proxy to backend, SPA fallback
-  public/               (icon URLs carry ?v=2 in index.html + manifest — bump on any icon change) favicon.svg (Seagrass tile + black m), favicon-32.png, favicon.ico (16/32/48), apple-touch-icon.png + icon-192/512.png
+  public/               (icon URLs carry ?v=3 in index.html + manifest — bump on any icon change) favicon.svg (Turf tile + Light Yellow m), favicon-32.png, favicon.ico (16/32/48), apple-touch-icon.png + icon-192/512.png
                         (black, white m + dot; maskable), site.webmanifest, email/logo.png (white wordmark), brand/ (logo-on-dark|light.svg, mark.svg — README uses these)
   scripts/build-logo.mjs  generates all of the above from Montserrat 800 outlines (deps installed --no-save; see its header)
   src/main.js           registers router + global $t (+ iOS pinch-zoom guard)
@@ -72,14 +73,14 @@ frontend/
                         buttons right under the scene, block above centre; never scrolls) · AuthView (same glow + wordmark-home/controls header;
                         art side = DeviceScene layout="auth"; login/register panels swap with slide+blur; phones: no scene, form only; strength meter)
                         DashboardView (3×2 tiles: yesterday, today, week, month, year, overdue = one-offs past deadline + repeating goals missed in the last 7 days —
-                        a finished tile turns Seagrass with a check; 7-day completions bars; focus list = late one-offs, open now, then recent misses)
+                        a finished tile turns accent with a check; 7-day completions bars; focus list = late one-offs, open now, then recent misses)
                         CalendarView (month + selected-day panel) · GoalsView (one category, period navigator — custom: past year + ahead, no navigator — FAB, completed group)
                         SettingsView (per-category default badge accordion, theme, language, account)
                         WhiteboardsView (cards: white preview, title rename, two-tap delete) · WhiteboardView (Fabric 7 + @erase2d/fabric: select, pan, pen,
                         eraser, text, StickyNote (custom Textbox class), rect/ellipse/line/arrow; ink stored black and swapped to white in dark mode;
                         wheel/trackpad/two-finger zoom+pan, Space-drag, fit; 50-step undo; 1.2 s debounced autosave with WebP preview; hotkeys V H P E T N R O L A)
                         HealthView (all users: API, DB latency/version/connections, migrations ran/total, DB size vs free limit, table rows/sizes,
-                        Supabase+Vercel statuspage (fetched by the browser, CORS), config checks; OK = Seagrass check, problems = text + ⚠ — no red;
+                        Supabase+Vercel statuspage (fetched by the browser, CORS), config checks; OK = accent check, problems = text + ⚠ — no red;
                         "Run migrations" button — admins only (report.can_migrate) — when some are pending: two taps, POST /api/admin/migrate, shows artisan output)
   src/components/       DesignSwitch (Settings slider, sliding thumb, palette dots), HoldHint (touch only, dismiss once), DeviceScene (shared floating 3D laptop/tablet/phone; layouts landing | auth; sizes in stage cqw), DemoScreen (static miniature of the app in cqw — variant desktop=Overview, tablet=Calendar, phone=today; demo.* strings;
                         root classes are v-* because a parent's scoped .phone/.tablet would hit a child root), AppLogo (wordmark SVG), LogoMark (m. SVG), LiveClock (top bar, every page), ThemeToggle, LanguageSwitch,
@@ -112,7 +113,7 @@ backend/
   app/Mail/WelcomeMail.php + resources/views/emails/welcome(.blade|-text.blade).php
   app/Models/User.php   fillable locale, design, goal_styles (json); appends is_admin (email ∈ ADMIN_EMAILS); hasMany goals; HasLocalePreference → mail auto-localised
   lang/lv/{auth,validation,mail}.php, lang/en/{mail,validation}.php   (EN validation = framework file + our attribute names)
-  config/app.php        supported_locales ['lv','en'], designs ['default','new','ocean'], frontend_url
+  config/app.php        supported_locales ['lv','en'], designs ['default','teal','ember'], frontend_url
   tests/Feature/AuthTest.php   10 tests: auth flow, locale, welcome mail, LV validation
   tests/Feature/GoalTest.php   13 tests: CRUD, snapping, range/recurrence listing (incl. across New Year), custom periods, per-occurrence completion, ownership, styles
   tests/Feature/SystemHealthTest.php   4 tests: non-admin view redacted, is_admin flag, admin full report incl. no secret leakage, run pending migrations (admin only)
@@ -177,6 +178,7 @@ APP_KEY, APP_ENV=production, APP_DEBUG=false, APP_NAME, APP_URL, FRONTEND_URL=ht
 - Owner is learning hosting — give click-by-click steps for dashboards (Vercel/Supabase/Resend), with direct links when possible.
 
 ## Changelog
+- **v1.5** — new look: the black/Seagrass 3-colour rule is dropped; three designs replace the v1.4 ones — V1 (default: Turf/Sea Green/Light Yellow/Powder Blush/Toasted Almond) and V2 (`teal`: Stormy Teal/Pacific Blue/Sky Blue/Parchment/Amber Glow) and V3 (`ember`: Prussian Blue/Deep Teal/Jasmine/Brick Ember/Blood Red), each light + dark; old `new`/`ocean` choices fall back to V1. Badge presets, category defaults, demo data, priority flags, welcome email, favicon/app icons/email logo recoloured to the palette.
 - **v1.4.3** — Home Screen web app: header starts 14 px below the status bar (`--top-inset`), so iOS 26's top blur only covers plain background.
 - **v1.4.2** — security: Supabase lints fixed — RLS on all public tables, Data API roles (anon/authenticated) revoked incl. default privileges; Rls helper for new tables; Site health `db_rls` check. Unused-index lints left (cookie sessions, array cache, sync queue → those tables are empty by design).
 - **v1.4.1** — phones: no text selection / long-press callout (except fields); fixed solid top bar; `viewport-fit=cover` only for Home Screen web apps + opaque status strip there (no iOS 26 top blur), none in Safari tabs (toolbar no longer covers sheets); opaque html background; side drawer replaced by a floating Menu button that opens the navigation as a bottom sheet.

@@ -25,7 +25,7 @@ onBeforeUnmount(() => clearInterval(timer))
 </template>
 
 <style scoped>
-/* Montserrat ExtraBold, the wordmark's typeface, in Seagrass. */
+/* Montserrat ExtraBold, the wordmark's typeface, in the highlight colour. */
 .clock {
   color: var(--highlight);
   font-family: Montserrat, ui-sans-serif, system-ui, sans-serif;

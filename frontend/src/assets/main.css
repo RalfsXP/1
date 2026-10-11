@@ -1,157 +1,175 @@
 :root {
-  /* Brand palette */
-  --black: #000000;
-  --seagrass: #66a182;
-  --white: #ffffff;
+  /* V1 palette (default design) */
+  --turf: #2c6e49;
+  --seagreen: #4c956c;
+  --cream: #fefee3;
+  --blush: #ffc9b9;
+  --almond: #d68c45;
 
-  /* New design palette (used under data-design="new" and by the Settings preview) */
-  --imperial: #0a2463;
-  --bluebell: #3e92cc;
-  --ghost: #fffaff;
-  --magenta: #d8315b;
-  --carbon: #1e1b18;
+  /* V2 palette (data-design="teal") */
+  --teal: #16697a;
+  --pacific: #489fb5;
+  --skyblue: #82c0cc;
+  --parchment: #ede7e3;
+  --amberglow: #ffa62b;
 
-  /* Ocean design palette (data-design="ocean") */
-  --sky: #8ecae6;
-  --bluegreen: #219ebc;
-  --deepspace: #023047;
-  --amber: #ffb703;
-  --orange: #fb8500;
+  /* V3 palette (data-design="ember") */
+  --prussian: #001427;
+  --deepteal: #708d81;
+  --jasmine: #f4d58d;
+  --ember: #bf0603;
+  --bloodred: #8d0801;
 
   /* Space above the top bar / headers. Home Screen web app (html.standalone): iOS 26 blurs ~the top of the
      page under the status bar, so content starts a little lower there and the blur only covers plain colour. */
   --top-inset: env(safe-area-inset-top, 0px);
 
-  /* Colour roles — components use these, never the palette directly.
-     Default design: all Seagrass on black/white (data-design="new" remaps them). */
-  --accent: var(--seagrass);
-  --on-accent: var(--black);
-  --highlight: var(--seagrass);
-  --on-highlight: var(--black);
-  --link: var(--seagrass);
+  /* Every design defines the same roles; components use ONLY these, never the palette.
+     --ink / --paper = the design's darkest + lightest colour (text on badges, shadows, previews).
+     --black / --white are kept as aliases of them for older call sites. */
 
-  /* Dark theme (default) */
-  --bg: var(--black);
-  --fg: var(--white);
-  --muted: color-mix(in srgb, var(--white) 60%, var(--black));
-  --line: color-mix(in srgb, var(--white) 16%, var(--black));
-  --frame: color-mix(in srgb, var(--white) 14%, var(--black));
-  --frame-edge: color-mix(in srgb, var(--white) 24%, var(--black));
-  --screen: var(--black);
-  --glow: color-mix(in srgb, var(--seagrass) 28%, transparent);
-  --surface: color-mix(in srgb, var(--white) 6%, var(--black));
-  --backdrop: color-mix(in srgb, var(--black) 60%, transparent);
+  /* ---------- V1 dark (default): deep Turf night, Light Yellow text,
+     Sea Green actions (ink text ~5:1), Toasted Almond highlights, Powder Blush links ---------- */
+  --ink: #0d1f15;
+  --paper: var(--cream);
 
-  /* Priority flags: the ONE place besides user-picked badge colours where other hues are allowed. */
-  --flag-low: #22c55e;
-  --flag-high: #facc15;
-  --flag-important: #ef4444;
+  --bg: var(--ink);
+  --fg: var(--paper);
+  --muted: color-mix(in srgb, var(--paper) 62%, var(--bg));
+  --line: color-mix(in srgb, var(--seagreen) 22%, var(--bg));
+  --frame: color-mix(in srgb, var(--seagreen) 20%, var(--bg));
+  --frame-edge: color-mix(in srgb, var(--seagreen) 34%, var(--bg));
+  --screen: var(--bg);
+  --glow: color-mix(in srgb, var(--seagreen) 30%, transparent);
+  --surface: color-mix(in srgb, var(--turf) 22%, var(--bg));
+  --backdrop: color-mix(in srgb, #000000 60%, transparent);
+
+  --accent: var(--seagreen);
+  --on-accent: var(--ink);
+  --highlight: var(--almond);
+  --on-highlight: var(--ink);
+  --link: var(--blush);
+
+  /* Priority flags: low / high / important. */
+  --flag-low: var(--seagreen);
+  --flag-high: #f2c14e;
+  --flag-important: #e5604d;
+
+  --black: var(--ink);
+  --white: var(--paper);
 
   color-scheme: dark;
 }
 
+/* ---------- V1 light: Light Yellow paper, Turf Green actions (yellow text ~6:1),
+   Toasted Almond highlights (ink text ~4.5:1), Powder Blush glow ---------- */
 :root[data-theme='light'] {
-  --bg: var(--white);
-  --fg: var(--black);
-  --muted: color-mix(in srgb, var(--black) 55%, var(--white));
-  --line: color-mix(in srgb, var(--black) 14%, var(--white));
-  --frame: var(--black);
-  --frame-edge: color-mix(in srgb, var(--black) 78%, var(--white));
-  --screen: var(--white);
-  --glow: color-mix(in srgb, var(--seagrass) 24%, transparent);
-  --surface: color-mix(in srgb, var(--black) 4%, var(--white));
-  --backdrop: color-mix(in srgb, var(--black) 40%, transparent);
+  --ink: #143823;
 
-  --flag-low: #16a34a;
-  --flag-high: #ca8a04;
-  --flag-important: #dc2626;
+  --bg: var(--paper);
+  --fg: var(--ink);
+  --muted: color-mix(in srgb, var(--ink) 62%, var(--bg));
+  --line: color-mix(in srgb, var(--turf) 18%, var(--bg));
+  --frame: var(--turf);
+  --frame-edge: color-mix(in srgb, var(--turf) 70%, var(--ink));
+  --screen: var(--bg);
+  --glow: color-mix(in srgb, var(--blush) 70%, transparent);
+  --surface: color-mix(in srgb, var(--seagreen) 9%, var(--bg));
+  --backdrop: color-mix(in srgb, var(--ink) 40%, transparent);
+
+  --accent: var(--turf);
+  --on-accent: var(--paper);
+  --link: var(--turf);
+
+  --flag-low: var(--turf);
+  --flag-high: #c98a12;
+  --flag-important: #c8412e;
 
   color-scheme: light;
 }
 
-/* ---------- New design (Settings → Design; data-design="new" on <html>) ----------
-   Palette: Imperial Blue #0a2463 · Blue Bell #3e92cc · Ghost White #fffaff ·
-   Magenta Bloom #d8315b · Carbon Black #1e1b18 — greys are mixes of these.
-   Dark: navy surface, Blue Bell actions (Carbon text, ~5:1). Light: Ghost White
-   surface, Imperial Blue actions (Ghost White text, ~14:1). Magenta = highlights. */
-:root[data-design='new'] {
-  --black: var(--carbon);
-  --white: var(--ghost);
+/* ---------- V2 dark (data-design="teal"): deep Stormy Teal night, Parchment text,
+   Pacific Blue actions (ink text ~5:1), Amber Glow highlights, Sky Blue links ---------- */
+:root[data-design='teal'] {
+  --ink: #0a2128;
+  --paper: var(--parchment);
 
-  --bg: color-mix(in srgb, var(--imperial) 55%, var(--black));
-  --fg: var(--white);
-  --muted: color-mix(in srgb, var(--white) 62%, var(--bg));
-  --line: color-mix(in srgb, var(--white) 16%, var(--bg));
-  --frame: color-mix(in srgb, var(--white) 14%, var(--bg));
-  --frame-edge: color-mix(in srgb, var(--white) 24%, var(--bg));
-  --screen: var(--bg);
-  --glow: color-mix(in srgb, var(--bluebell) 30%, transparent);
-  --surface: color-mix(in srgb, var(--bluebell) 9%, var(--bg));
-  --backdrop: color-mix(in srgb, var(--black) 60%, transparent);
+  --line: color-mix(in srgb, var(--pacific) 22%, var(--bg));
+  --frame: color-mix(in srgb, var(--pacific) 20%, var(--bg));
+  --frame-edge: color-mix(in srgb, var(--pacific) 34%, var(--bg));
+  --glow: color-mix(in srgb, var(--pacific) 32%, transparent);
+  --surface: color-mix(in srgb, var(--teal) 24%, var(--bg));
 
-  --accent: var(--bluebell);
-  --on-accent: var(--black);
-  --highlight: var(--magenta);
-  --on-highlight: var(--white);
-  --link: var(--bluebell);
-  --flag-important: var(--magenta);
+  --accent: var(--pacific);
+  --on-accent: var(--ink);
+  --highlight: var(--amberglow);
+  --on-highlight: var(--ink);
+  --link: var(--skyblue);
+
+  --flag-low: var(--skyblue);
+  --flag-high: var(--amberglow);
 }
 
-:root[data-design='new'][data-theme='light'] {
-  --bg: var(--white);
-  --fg: var(--black);
-  --muted: color-mix(in srgb, var(--black) 58%, var(--white));
-  --line: color-mix(in srgb, var(--imperial) 14%, var(--white));
-  --frame: var(--imperial);
-  --frame-edge: color-mix(in srgb, var(--imperial) 78%, var(--white));
-  --screen: var(--white);
-  --glow: color-mix(in srgb, var(--bluebell) 22%, transparent);
-  --surface: color-mix(in srgb, var(--imperial) 4%, var(--white));
-  --backdrop: color-mix(in srgb, var(--black) 40%, transparent);
+/* ---------- V2 light: Parchment paper, Stormy Teal actions (parchment text ~5:1),
+   Amber Glow highlights (ink text), Sky Blue glow ---------- */
+:root[data-design='teal'][data-theme='light'] {
+  --ink: #0c3640;
 
-  --accent: var(--imperial);
-  --on-accent: var(--white);
-  --link: var(--bluebell);
+  --line: color-mix(in srgb, var(--teal) 18%, var(--bg));
+  --frame: var(--teal);
+  --frame-edge: color-mix(in srgb, var(--teal) 70%, var(--ink));
+  --glow: color-mix(in srgb, var(--skyblue) 60%, transparent);
+  --surface: color-mix(in srgb, var(--skyblue) 14%, var(--bg));
+
+  --accent: var(--teal);
+  --on-accent: var(--paper);
+  --link: var(--teal);
+
+  --flag-low: var(--teal);
+  --flag-high: #c98a12;
 }
 
-:root[data-design='ocean'] {
-  /* Ocean: Deep Space Blue night, Amber actions (Deep Space text ~8:1), Princeton Orange highlights,
-     Sky Blue links, Blue Green tints. Greys are mixes of these. */
-  --black: var(--deepspace);
-  --white: color-mix(in srgb, var(--sky) 10%, #ffffff);
+/* ---------- V3 dark (data-design="ember"): Prussian Blue night, Jasmine-white text,
+   Brick Ember actions (paper text ~5.5:1), Jasmine highlights, Deep Teal links ---------- */
+:root[data-design='ember'] {
+  --ink: var(--prussian);
+  --paper: color-mix(in srgb, var(--jasmine) 30%, #ffffff);
 
-  --bg: color-mix(in srgb, var(--deepspace) 72%, #000000);
-  --fg: var(--white);
-  --muted: color-mix(in srgb, var(--sky) 62%, var(--bg));
-  --line: color-mix(in srgb, var(--sky) 16%, var(--bg));
-  --frame: color-mix(in srgb, var(--sky) 14%, var(--bg));
-  --frame-edge: color-mix(in srgb, var(--sky) 26%, var(--bg));
-  --screen: var(--bg);
-  --glow: color-mix(in srgb, var(--bluegreen) 32%, transparent);
-  --surface: color-mix(in srgb, var(--bluegreen) 11%, var(--bg));
-  --backdrop: color-mix(in srgb, #000000 60%, transparent);
+  --line: color-mix(in srgb, var(--deepteal) 24%, var(--bg));
+  --frame: color-mix(in srgb, var(--deepteal) 20%, var(--bg));
+  --frame-edge: color-mix(in srgb, var(--deepteal) 34%, var(--bg));
+  --glow: color-mix(in srgb, var(--ember) 30%, transparent);
+  --surface: color-mix(in srgb, var(--deepteal) 12%, var(--bg));
 
-  --accent: var(--amber);
-  --on-accent: var(--deepspace);
-  --highlight: var(--orange);
-  --on-highlight: var(--deepspace);
-  --link: var(--sky);
-  --flag-important: var(--orange);
+  --accent: var(--ember);
+  --on-accent: var(--paper);
+  --highlight: var(--jasmine);
+  --on-highlight: var(--ink);
+  --link: var(--deepteal);
+
+  --flag-low: var(--deepteal);
+  --flag-high: var(--jasmine);
+  --flag-important: #ff5a4f;
 }
 
-:root[data-design='ocean'][data-theme='light'] {
-  --bg: color-mix(in srgb, var(--sky) 12%, #ffffff);
-  --fg: var(--deepspace);
-  --muted: color-mix(in srgb, var(--deepspace) 62%, var(--bg));
-  --line: color-mix(in srgb, var(--deepspace) 13%, var(--bg));
-  --frame: var(--deepspace);
-  --frame-edge: color-mix(in srgb, var(--deepspace) 78%, var(--bg));
-  --screen: var(--bg);
-  --glow: color-mix(in srgb, var(--sky) 45%, transparent);
-  --surface: color-mix(in srgb, var(--sky) 22%, #ffffff);
-  --backdrop: color-mix(in srgb, var(--deepspace) 40%, transparent);
+/* ---------- V3 light: Jasmine paper, Blood Red actions (paper text ~8:1),
+   Brick Ember highlights + links (~5.5:1), Jasmine glow ---------- */
+:root[data-design='ember'][data-theme='light'] {
+  --line: color-mix(in srgb, var(--deepteal) 28%, var(--bg));
+  --frame: var(--prussian);
+  --frame-edge: color-mix(in srgb, var(--deepteal) 50%, var(--prussian));
+  --glow: color-mix(in srgb, var(--jasmine) 75%, transparent);
+  --surface: color-mix(in srgb, var(--jasmine) 24%, var(--bg));
 
-  --link: var(--bluegreen);
+  --accent: var(--bloodred);
+  --on-accent: var(--paper);
+  --highlight: var(--ember);
+  --on-highlight: var(--paper);
+  --link: var(--ember);
+
+  --flag-low: color-mix(in srgb, var(--deepteal) 75%, #000000);
+  --flag-high: #c98a12;
+  --flag-important: var(--ember);
 }
 
 *,

@@ -461,7 +461,7 @@ input[aria-invalid='true'] {
   stroke-width: 2;
 }
 
-/* Strength meter: muted label + Seagrass bar that fills as the password improves. */
+/* Strength meter: muted label + accent bar that fills as the password improves. */
 .strength {
   display: flex;
   align-items: center;
