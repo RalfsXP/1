@@ -236,7 +236,7 @@ textarea {
 }
 
 .standalone {
-  --top-inset: calc(env(safe-area-inset-top, 0px) + 28px);
+  --top-inset: calc(env(safe-area-inset-top, 0px) + 14px);
 }
 
 .standalone .status-strip {
