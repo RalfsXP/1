@@ -37,7 +37,7 @@ export function setLocale(next) {
 const lookup = (lang, key) => key.split('.').reduce((node, part) => node?.[part], messages[lang])
 
 /**
- * Translate a dotted key, e.g. t('auth.email') or t('home.welcomeName', { name }).
+ * Translate a dotted key, e.g. t('auth.email') or t('calendar.week', { n }).
  * Falls back to English, then to the key itself. Arrays (month names) are returned as-is.
  */
 export function t(key, params = {}) {

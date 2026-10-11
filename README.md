@@ -1,9 +1,9 @@
 <p align="center">
   <a href="https://merkis.app">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="frontend/src/assets/Logo.png">
-      <source media="(prefers-color-scheme: light)" srcset="frontend/src/assets/Logo-light.png">
-      <img src="frontend/src/assets/Logo-light.png" alt="Merkis.app" width="240">
+      <source media="(prefers-color-scheme: dark)" srcset="frontend/public/brand/logo-on-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="frontend/public/brand/logo-on-light.svg">
+      <img src="frontend/public/brand/logo-on-light.svg" alt="mērķis" width="240">
     </picture>
   </a>
 </p>
@@ -12,7 +12,7 @@
 
 <p align="center">
   <a href="https://merkis.app"><img src="https://img.shields.io/badge/live-merkis.app-66a182?style=flat-square" alt="Live at merkis.app"></a>
-  <img src="https://img.shields.io/badge/version-v1.1-000000?style=flat-square" alt="Version v1.1">
+  <img src="https://img.shields.io/badge/version-v1.2-000000?style=flat-square" alt="Version v1.2">
   <img src="https://img.shields.io/badge/Vue_3-42b883?style=flat-square&logo=vuedotjs&logoColor=white" alt="Vue 3">
   <img src="https://img.shields.io/badge/Laravel_13-FF2D20?style=flat-square&logo=laravel&logoColor=white" alt="Laravel 13">
   <img src="https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=white" alt="Supabase">
@@ -25,6 +25,14 @@ Merkis (from the Latvian *mērķis*, "goal") is a full-stack web application wit
 
 ## Features
 
+- Overview dashboard: progress for today, this week, month and year, 7-day activity, streak
+- Calendar: month view with week numbers, goal badges (dots on phones), custom periods as bands, swipe between months
+- Daily, weekly, monthly, yearly and custom-period goals with Low / High / Important priority flags
+- Brand date picker that selects whole weeks, months or a custom start–end range
+- Recurring goals: every day, chosen weekdays, or every week / month / year — each occurrence is completed separately
+- Live "time left" countdown for every goal, plus an optional earlier deadline
+- Settings: default badge colour and icon per category (overridable per goal), theme and language
+- Latvian and English interface
 - Account registration, login and logout with session-based authentication (Laravel Sanctum)
 - Animated login and sign-up views with live password-strength feedback
 - Light and dark themes that follow the system preference and persist per user

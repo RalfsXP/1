@@ -20,10 +20,22 @@ const router = createRouter({
       meta: { mode: 'register', guestOnly: true, viewKey: 'auth' },
     },
     {
+      // Signed-in app: side nav + one shared shell (viewKey keeps it mounted between pages).
       path: '/home',
-      name: 'home',
-      component: () => import('./views/HomeView.vue'),
-      meta: { requiresAuth: true },
+      component: () => import('./components/AppShell.vue'),
+      meta: { requiresAuth: true, viewKey: 'app' },
+      children: [
+        { path: '', name: 'home', component: () => import('./views/DashboardView.vue') },
+        { path: '/calendar', name: 'calendar', component: () => import('./views/CalendarView.vue') },
+        {
+          path: '/goals/:period(daily|weekly|monthly|yearly|custom)',
+          name: 'goals',
+          component: () => import('./views/GoalsView.vue'),
+        },
+        { path: '/settings', name: 'settings', component: () => import('./views/SettingsView.vue') },
+        // Admins only (ADMIN_EMAILS on the backend); the API answers 404 to anyone else.
+        { path: '/health', name: 'health', component: () => import('./views/HealthView.vue'), meta: { adminOnly: true } },
+      ],
     },
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],
@@ -40,6 +52,7 @@ router.beforeEach(async (to) => {
   }
 
   if (to.meta.requiresAuth && !current) return { name: 'login' }
+  if (to.meta.adminOnly && !current?.is_admin) return { name: 'home' }
   if (to.meta.guestOnly && current) return { name: 'home' }
   return true
 })

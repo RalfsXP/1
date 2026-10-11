@@ -7,7 +7,10 @@
     "themeToDark": "Switch to dark mode",
     "themeLight": "Light mode",
     "themeDark": "Dark mode",
-    "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    "months": ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    "weekdays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    "weekdaysShort": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "monthsShort": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
   },
   "landing": {
     "login": "Log in",
@@ -39,9 +42,223 @@
     "errorThrottle": "Too many attempts. Please wait a minute and try again.",
     "errorGeneric": "Something went wrong. Please try again."
   },
-  "home": {
-    "welcome": "Welcome",
-    "welcomeName": "Welcome, {name}",
-    "logout": "Log out"
+  "nav": {
+    "menu": "Menu",
+    "close": "Close",
+    "calendar": "Calendar",
+    "logout": "Log out",
+    "home": "Overview",
+    "settings": "Settings",
+    "health": "Site health"
+  },
+  "periods": {
+    "day": "Daily goals",
+    "week": "Weekly goals",
+    "month": "Monthly goals",
+    "year": "Yearly goals",
+    "short": {
+      "day": "Day",
+      "week": "Week",
+      "month": "Month",
+      "year": "Year",
+      "custom": "Custom"
+    },
+    "this": {
+      "day": "Today",
+      "week": "This week",
+      "month": "This month",
+      "year": "This year"
+    },
+    "every": {
+      "day": "Every day",
+      "week": "Every week",
+      "month": "Every month",
+      "year": "Every year"
+    },
+    "custom": "Custom goals"
+  },
+  "priority": {
+    "label": "Priority",
+    "low": "Low",
+    "high": "High",
+    "important": "Important"
+  },
+  "goal": {
+    "new": "New goal",
+    "edit": "Edit goal",
+    "title": "Goal",
+    "notes": "Notes",
+    "period": "Type",
+    "date": "Date",
+    "repeat": "Repeat",
+    "once": "Once",
+    "repeats": "Repeats",
+    "onDays": "On days",
+    "until": "Until",
+    "deadline": "Earlier deadline",
+    "badge": "Badge",
+    "customBadge": "Custom badge",
+    "color": "Colour",
+    "customColor": "Custom colour",
+    "icon": "Icon",
+    "save": "Save",
+    "saving": "Saving…",
+    "delete": "Delete",
+    "confirmDelete": "Confirm delete",
+    "done": "Completed",
+    "completed": "Completed",
+    "overdue": "Overdue",
+    "finishedEarly": "Completed {n} early · {when}",
+    "finishedLate": "Completed late · {when}",
+    "finishedLateBy": "Completed {n} late · {when}",
+    "finishedOnTime": "Completed · {when}",
+    "progress": "Progress",
+    "empty": "No goals yet.",
+    "emptyDay": "Nothing planned.",
+    "dates": "Dates",
+    "time": "Time",
+    "toggle": "Completed: {title}"
+  },
+  "calendar": {
+    "today": "Today",
+    "prev": "Previous",
+    "next": "Next",
+    "week": "Week {n}",
+    "weekShort": "W",
+    "weekRange": "Week {n} · {range}",
+    "monthYear": "{month} {year}",
+    "goalCount": "{n} goals"
+  },
+  "picker": {
+    "day1": "day",
+    "dayN": "days",
+    "pickEnd": "Now pick the end date",
+    "fromToday": "from today: {range}",
+    "clear": "Clear",
+    "until": "until {date}"
+  },
+  "settings": {
+    "title": "Settings",
+    "badges": "Category badges",
+    "badgesLead": "Default colour and icon for each kind of goal. A goal can still have its own.",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "languages": {
+      "lv": "Latviešu",
+      "en": "English"
+    }
+  },
+  "dashboard": {
+    "greeting": "Hi, {name}",
+    "day": "Goals today",
+    "week": "Goals this week",
+    "month": "Goals this month",
+    "year": "Goals this year",
+    "activity": "Completed · last 7 days",
+    "overdue": "Overdue goals",
+    "focus": "In focus now",
+    "allDone": "Nothing open right now.",
+    "completedCount": "{n} completed",
+    "yesterday": "Goals yesterday"
+  },
+  "colors": ["Seagrass", "Blue", "Purple", "Pink", "Red", "Amber", "Teal", "Slate"],
+  "icons": {
+    "flag": "Flag",
+    "star": "Star",
+    "heart": "Heart",
+    "bolt": "Lightning",
+    "fire": "Fire",
+    "trophy": "Trophy",
+    "sun": "Sun",
+    "moon": "Moon",
+    "book-open": "Book",
+    "academic-cap": "Graduation cap",
+    "briefcase": "Briefcase",
+    "home": "Home",
+    "shopping-cart": "Shopping cart",
+    "banknotes": "Money",
+    "musical-note": "Music",
+    "camera": "Camera",
+    "globe-europe-africa": "Globe",
+    "paper-airplane": "Paper plane",
+    "light-bulb": "Light bulb",
+    "puzzle-piece": "Puzzle",
+    "rocket-launch": "Rocket",
+    "sparkles": "Sparkles",
+    "face-smile": "Smile",
+    "user-group": "People",
+    "calendar": "Calendar",
+    "clock": "Clock",
+    "check-badge": "Badge",
+    "beaker": "Beaker",
+    "cake": "Cake",
+    "gift": "Gift"
+  },
+  "health": {
+    "title": "Site health",
+    "refresh": "Refresh",
+    "checkedAt": "Checked at {time}",
+    "unreachable": "Could not reach the API. It may be down or you may be offline.",
+    "allGood": "Everything is running",
+    "problems": "Needs a look: {n}",
+    "api": "API",
+    "database": "Database (Supabase)",
+    "migrations": "Migrations",
+    "storage": "Database storage",
+    "tables": "Tables",
+    "platforms": "Hosting status",
+    "config": "Configuration",
+    "status": {
+      "ok": "OK",
+      "warning": "Check",
+      "error": "Error",
+      "unknown": "Unknown"
+    },
+    "responseTime": "Response time",
+    "serverTime": "Server check time",
+    "environment": "Environment",
+    "region": "Region",
+    "deploy": "Deployment",
+    "frontend": "App version",
+    "latency": "Query latency",
+    "engine": "Engine",
+    "host": "Host",
+    "connections": "Connections",
+    "pending": "Not yet run:",
+    "migrationsDone": "All migrations have run.",
+    "storageNote": "{pct}% of the free plan limit used.",
+    "unavailable": "Not available.",
+    "table": "Table",
+    "rows": "Rows",
+    "size": "Size",
+    "platform": {
+      "supabase": "Supabase",
+      "vercel": "Vercel"
+    },
+    "check": {
+      "debug_off": "Debug mode off in production",
+      "app_key": "App key set",
+      "sanctum": "Login cookies allowed for the site domain",
+      "https": "Site served over HTTPS",
+      "session": "Session storage works on Vercel",
+      "mail": "Email sending configured",
+      "db_ssl": "Database connection encrypted"
+    },
+    "migrate": "Run migrations",
+    "migrateConfirm": "Confirm: run on the live database",
+    "migrating": "Running…",
+    "migrateDone": "Migrations ran.",
+    "migrateFailed": "Migrations failed — see the output."
+  },
+  "demo": {
+    "name": "Anna",
+    "goals": {
+      "run": "Run 5 km",
+      "report": "Submit the report",
+      "read": "Read 20 minutes",
+      "water": "Drink 2 l of water",
+      "gym": "Gym",
+      "call": "Call mum"
+    }
   }
 }

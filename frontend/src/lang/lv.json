@@ -7,7 +7,10 @@
     "themeToDark": "Ieslēgt tumšo režīmu",
     "themeLight": "Gaišais režīms",
     "themeDark": "Tumšais režīms",
-    "months": ["janvāris", "februāris", "marts", "aprīlis", "maijs", "jūnijs", "jūlijs", "augusts", "septembris", "oktobris", "novembris", "decembris"]
+    "months": ["janvāris", "februāris", "marts", "aprīlis", "maijs", "jūnijs", "jūlijs", "augusts", "septembris", "oktobris", "novembris", "decembris"],
+    "weekdays": ["pirmdiena", "otrdiena", "trešdiena", "ceturtdiena", "piektdiena", "sestdiena", "svētdiena"],
+    "weekdaysShort": ["P", "O", "T", "C", "Pk", "S", "Sv"],
+    "monthsShort": ["janv.", "febr.", "marts", "apr.", "maijs", "jūn.", "jūl.", "aug.", "sept.", "okt.", "nov.", "dec."]
   },
   "landing": {
     "login": "Pieslēgties",
@@ -39,9 +42,223 @@
     "errorThrottle": "Pārāk daudz mēģinājumu. Lūdzu, uzgaidi minūti un mēģini vēlreiz.",
     "errorGeneric": "Kaut kas nogāja greizi. Lūdzu, mēģini vēlreiz."
   },
-  "home": {
-    "welcome": "Laipni lūdzam",
-    "welcomeName": "Laipni lūdzam, {name}",
-    "logout": "Iziet"
+  "nav": {
+    "menu": "Izvēlne",
+    "close": "Aizvērt",
+    "calendar": "Kalendārs",
+    "logout": "Iziet",
+    "home": "Pārskats",
+    "settings": "Iestatījumi",
+    "health": "Sistēmas stāvoklis"
+  },
+  "periods": {
+    "day": "Dienas mērķi",
+    "week": "Nedēļas mērķi",
+    "month": "Mēneša mērķi",
+    "year": "Gada mērķi",
+    "short": {
+      "day": "Diena",
+      "week": "Nedēļa",
+      "month": "Mēnesis",
+      "year": "Gads",
+      "custom": "Periods"
+    },
+    "this": {
+      "day": "Šodien",
+      "week": "Šonedēļ",
+      "month": "Šomēnes",
+      "year": "Šogad"
+    },
+    "every": {
+      "day": "Katru dienu",
+      "week": "Katru nedēļu",
+      "month": "Katru mēnesi",
+      "year": "Katru gadu"
+    },
+    "custom": "Perioda mērķi"
+  },
+  "priority": {
+    "label": "Prioritāte",
+    "low": "Zema",
+    "high": "Augsta",
+    "important": "Svarīga"
+  },
+  "goal": {
+    "new": "Jauns mērķis",
+    "edit": "Rediģēt mērķi",
+    "title": "Mērķis",
+    "notes": "Piezīmes",
+    "period": "Veids",
+    "date": "Datums",
+    "repeat": "Atkārtot",
+    "once": "Vienreiz",
+    "repeats": "Atkārtojas",
+    "onDays": "Dienās",
+    "until": "Līdz",
+    "deadline": "Agrāks termiņš",
+    "badge": "Nozīmīte",
+    "customBadge": "Sava nozīmīte",
+    "color": "Krāsa",
+    "customColor": "Sava krāsa",
+    "icon": "Ikona",
+    "save": "Saglabāt",
+    "saving": "Saglabā…",
+    "delete": "Dzēst",
+    "confirmDelete": "Apstiprināt dzēšanu",
+    "done": "Izpildīts",
+    "completed": "Izpildītie",
+    "overdue": "Nokavēts",
+    "finishedEarly": "Izpildīts {n} pirms termiņa · {when}",
+    "finishedLate": "Izpildīts ar nokavēšanos · {when}",
+    "finishedLateBy": "Izpildīts {n} pēc termiņa · {when}",
+    "finishedOnTime": "Izpildīts · {when}",
+    "progress": "Izpilde",
+    "empty": "Vēl nav mērķu.",
+    "emptyDay": "Nekas nav ieplānots.",
+    "dates": "Datumi",
+    "time": "Laiks",
+    "toggle": "Izpildīts: {title}"
+  },
+  "calendar": {
+    "today": "Šodien",
+    "prev": "Iepriekšējais",
+    "next": "Nākamais",
+    "week": "{n}. nedēļa",
+    "weekShort": "N",
+    "weekRange": "{n}. nedēļa · {range}",
+    "monthYear": "{month} {year}",
+    "goalCount": "mērķi: {n}"
+  },
+  "picker": {
+    "day1": "diena",
+    "dayN": "dienas",
+    "pickEnd": "Tagad izvēlies beigu datumu",
+    "fromToday": "no šodienas: {range}",
+    "clear": "Notīrīt",
+    "until": "līdz {date}"
+  },
+  "settings": {
+    "title": "Iestatījumi",
+    "badges": "Kategoriju nozīmītes",
+    "badgesLead": "Noklusējuma krāsa un ikona katram mērķu veidam. Katram mērķim joprojām var būt sava.",
+    "appearance": "Izskats",
+    "theme": "Tēma",
+    "languages": {
+      "lv": "Latviešu",
+      "en": "English"
+    }
+  },
+  "dashboard": {
+    "greeting": "Sveiki, {name}",
+    "day": "Mērķi šodien",
+    "week": "Mērķi šonedēļ",
+    "month": "Mērķi šomēnes",
+    "year": "Mērķi šogad",
+    "activity": "Izpildīti · pēdējās 7 dienas",
+    "overdue": "Nokavētie mērķi",
+    "focus": "Šobrīd aktuāli",
+    "allDone": "Šobrīd nekas nav atvērts.",
+    "completedCount": "Izpildīti: {n}",
+    "yesterday": "Mērķi vakar"
+  },
+  "colors": ["Jūras zāle", "Zila", "Violeta", "Rozā", "Sarkana", "Dzintara", "Tirkīza", "Pelēka"],
+  "icons": {
+    "flag": "Karogs",
+    "star": "Zvaigzne",
+    "heart": "Sirds",
+    "bolt": "Zibens",
+    "fire": "Uguns",
+    "trophy": "Kauss",
+    "sun": "Saule",
+    "moon": "Mēness",
+    "book-open": "Grāmata",
+    "academic-cap": "Absolventa cepure",
+    "briefcase": "Portfelis",
+    "home": "Māja",
+    "shopping-cart": "Iepirkumu ratiņi",
+    "banknotes": "Nauda",
+    "musical-note": "Mūzika",
+    "camera": "Kamera",
+    "globe-europe-africa": "Globuss",
+    "paper-airplane": "Papīra lidmašīna",
+    "light-bulb": "Spuldze",
+    "puzzle-piece": "Puzle",
+    "rocket-launch": "Raķete",
+    "sparkles": "Dzirksteles",
+    "face-smile": "Smaids",
+    "user-group": "Cilvēki",
+    "calendar": "Kalendārs",
+    "clock": "Pulkstenis",
+    "check-badge": "Nozīme",
+    "beaker": "Kolba",
+    "cake": "Kūka",
+    "gift": "Dāvana"
+  },
+  "health": {
+    "title": "Sistēmas stāvoklis",
+    "refresh": "Atjaunot",
+    "checkedAt": "Pārbaudīts {time}",
+    "unreachable": "Neizdevās sasniegt API. Tas var nedarboties vai arī nav interneta.",
+    "allGood": "Viss darbojas",
+    "problems": "Jāpārbauda: {n}",
+    "api": "API",
+    "database": "Datubāze (Supabase)",
+    "migrations": "Migrācijas",
+    "storage": "Datubāzes apjoms",
+    "tables": "Tabulas",
+    "platforms": "Hostinga statuss",
+    "config": "Konfigurācija",
+    "status": {
+      "ok": "Kārtībā",
+      "warning": "Pārbaudīt",
+      "error": "Kļūda",
+      "unknown": "Nav zināms"
+    },
+    "responseTime": "Atbildes laiks",
+    "serverTime": "Servera pārbaudes laiks",
+    "environment": "Vide",
+    "region": "Reģions",
+    "deploy": "Izvietojums",
+    "frontend": "Lietotnes versija",
+    "latency": "Vaicājuma latentums",
+    "engine": "Dzinējs",
+    "host": "Hosts",
+    "connections": "Savienojumi",
+    "pending": "Vēl nav palaistas:",
+    "migrationsDone": "Visas migrācijas ir palaistas.",
+    "storageNote": "Izmantoti {pct}% no bezmaksas plāna limita.",
+    "unavailable": "Nav pieejams.",
+    "table": "Tabula",
+    "rows": "Rindas",
+    "size": "Apjoms",
+    "platform": {
+      "supabase": "Supabase",
+      "vercel": "Vercel"
+    },
+    "check": {
+      "debug_off": "Atkļūdošanas režīms produkcijā izslēgts",
+      "app_key": "Lietotnes atslēga iestatīta",
+      "sanctum": "Pieteikšanās sīkdatnes atļautas vietnes domēnam",
+      "https": "Vietne darbojas ar HTTPS",
+      "session": "Sesiju glabāšana darbojas Vercel vidē",
+      "mail": "E-pasta sūtīšana konfigurēta",
+      "db_ssl": "Datubāzes savienojums šifrēts"
+    },
+    "migrate": "Palaist migrācijas",
+    "migrateConfirm": "Apstiprināt: palaist dzīvajā datubāzē",
+    "migrating": "Palaiž…",
+    "migrateDone": "Migrācijas palaistas.",
+    "migrateFailed": "Migrācijas neizdevās — skati izvadi."
+  },
+  "demo": {
+    "name": "Anna",
+    "goals": {
+      "run": "Skriet 5 km",
+      "report": "Iesniegt atskaiti",
+      "read": "Lasīt 20 min",
+      "water": "Izdzert 2 l ūdens",
+      "gym": "Sporta zāle",
+      "call": "Piezvanīt mammai"
+    }
   }
 }

@@ -1,4 +1,5 @@
 <script setup>
+import { MoonIcon, SunIcon } from '@heroicons/vue/24/outline'
 import { theme, toggleTheme } from '@/lib/theme'
 </script>
 
@@ -10,15 +11,8 @@ import { theme, toggleTheme } from '@/lib/theme'
     :title="theme === 'dark' ? $t('common.themeLight') : $t('common.themeDark')"
     @click="toggleTheme"
   >
-    <!-- Sun (shown in dark mode) -->
-    <svg v-if="theme === 'dark'" viewBox="0 0 24 24" aria-hidden="true">
-      <circle cx="12" cy="12" r="4.2" />
-      <path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" />
-    </svg>
-    <!-- Moon (shown in light mode) -->
-    <svg v-else viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" />
-    </svg>
+    <SunIcon v-if="theme === 'dark'" aria-hidden="true" />
+    <MoonIcon v-else aria-hidden="true" />
   </button>
 </template>
 
@@ -53,12 +47,7 @@ import { theme, toggleTheme } from '@/lib/theme'
 }
 
 .theme-toggle svg {
-  width: 16px;
-  height: 16px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.9;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  width: 18px;
+  height: 18px;
 }
 </style>

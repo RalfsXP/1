@@ -13,6 +13,13 @@
   --frame-edge: color-mix(in srgb, var(--white) 24%, var(--black));
   --screen: var(--black);
   --glow: color-mix(in srgb, var(--seagrass) 28%, transparent);
+  --surface: color-mix(in srgb, var(--white) 6%, var(--black));
+  --backdrop: color-mix(in srgb, var(--black) 60%, transparent);
+
+  /* Priority flags: the ONE place besides user-picked badge colours where other hues are allowed. */
+  --flag-low: #22c55e;
+  --flag-high: #facc15;
+  --flag-important: #ef4444;
 
   color-scheme: dark;
 }
@@ -26,6 +33,12 @@
   --frame-edge: color-mix(in srgb, var(--black) 78%, var(--white));
   --screen: var(--white);
   --glow: color-mix(in srgb, var(--seagrass) 24%, transparent);
+  --surface: color-mix(in srgb, var(--black) 4%, var(--white));
+  --backdrop: color-mix(in srgb, var(--black) 40%, transparent);
+
+  --flag-low: #16a34a;
+  --flag-high: #ca8a04;
+  --flag-important: #dc2626;
 
   color-scheme: light;
 }
@@ -71,10 +84,18 @@ textarea {
   font-family: inherit;
 }
 
-/* Remove the 300ms double-tap-zoom delay on buttons and links. */
-button,
-a {
+/* No double-tap zoom anywhere (pan + pinch-free taps); components that need
+   their own gestures (calendar swipe, sheet drag) set a stricter touch-action. */
+*,
+*::before,
+*::after {
   touch-action: manipulation;
+}
+
+/* One focus ring for everything keyboard-focusable. */
+:focus-visible {
+  outline: 2px solid var(--seagrass);
+  outline-offset: 2px;
 }
 
 ::selection {
@@ -151,6 +172,211 @@ a {
   height: 46px;
   padding: 0 22px;
   font-size: 0.9rem;
+}
+
+/* Square icon-only button (Heroicons inside). */
+.icon-btn {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, transform 0.2s;
+}
+
+.icon-btn:hover {
+  border-color: var(--seagrass);
+  color: var(--seagrass);
+}
+
+.icon-btn:active {
+  transform: scale(0.94);
+}
+
+.icon-btn:focus-visible {
+  outline: 2px solid var(--seagrass);
+  outline-offset: 2px;
+}
+
+.icon-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.icon-btn.bare {
+  border-color: transparent;
+}
+
+/* ---------- App pages (shared by every signed-in view) ---------- */
+.page {
+  display: grid;
+  gap: 24px;
+  align-content: start;
+  min-width: 0;
+  padding: 20px 16px max(32px, calc(env(safe-area-inset-bottom) + 24px));
+}
+
+.page.narrow {
+  max-width: 760px;
+}
+
+.page.wide {
+  max-width: 1080px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: clamp(1.5rem, 5.5vw, 2.1rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.page-title::first-letter {
+  text-transform: uppercase;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.section-label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.card {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  color: var(--fg);
+}
+
+.list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Nothing to show: one muted line in a dashed box (optionally with an action). */
+.empty-state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding: 16px;
+  border: 1px dashed var(--line);
+  border-radius: 18px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+@media (min-width: 860px) {
+  .page {
+    padding: 16px 32px 32px;
+  }
+}
+
+/* ---------- App forms ---------- */
+.form-field {
+  display: grid;
+  gap: 6px;
+}
+
+.form-label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.input {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: transparent;
+  color: var(--fg);
+  font-size: 16px; /* ≥16px stops iOS zooming in on focus */
+  font-weight: 500;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  border-color: var(--seagrass);
+  outline: none;
+}
+
+textarea.input {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Pill group of mutually exclusive options. */
+.segmented {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.segmented button {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 38px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.segmented button:hover {
+  color: var(--fg);
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--seagrass);
+  color: var(--black);
+}
+
+/* Outline variant: keeps coloured content (priority flags) readable when selected. */
+.segmented.outline button[aria-pressed='true'] {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--seagrass);
+  color: var(--fg);
+}
+
+.segmented button:focus-visible {
+  outline: 2px solid var(--seagrass);
+  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {

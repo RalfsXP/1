@@ -7,22 +7,29 @@ use Database\Factories\UserFactory;
 use Illuminate\Contracts\Translation\HasLocalePreference;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'locale'])]
+#[Fillable(['name', 'email', 'password', 'locale', 'goal_styles'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements HasLocalePreference
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    protected $appends = ['is_admin'];
+
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Admins (ADMIN_EMAILS) can open the Site health page.
      */
+    protected function isAdmin(): Attribute
+    {
+        return Attribute::get(fn () => in_array(strtolower((string) $this->email), config('health.admin_emails'), true));
+    }
+
     /**
      * Language for mail and notifications sent to this user.
      */
@@ -31,11 +38,22 @@ class User extends Authenticatable implements HasLocalePreference
         return $this->locale ?: config('app.supported_locales')[0];
     }
 
+    public function goals(): HasMany
+    {
+        return $this->hasMany(Goal::class);
+    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'goal_styles' => 'array',
         ];
     }
 }

@@ -12,7 +12,8 @@ import LoadingScreen from '@/components/LoadingScreen.vue'
     </Transition>
   </RouterView>
 
-  <AppVersion />
+  <!-- The signed-in shell shows the version inside its side nav instead. -->
+  <AppVersion v-if="$route.meta.viewKey !== 'app'" />
   <LoadingScreen />
 </template>
 
