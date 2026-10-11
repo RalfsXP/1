@@ -29,13 +29,20 @@ class SystemHealthTest extends TestCase
         ]);
     }
 
-    public function test_only_admins_can_see_site_health(): void
+    public function test_every_signed_in_user_sees_site_health_without_internals(): void
     {
         $this->getJson('/api/admin/health')->assertUnauthorized();
 
-        $this->spa(User::factory()->create(['email' => 'someone@example.com']))
+        $response = $this->spa(User::factory()->create(['email' => 'someone@example.com']))
             ->getJson('/api/admin/health')
-            ->assertNotFound();
+            ->assertOk()
+            ->assertJsonPath('can_migrate', false)
+            ->assertJsonPath('database.status', 'ok')
+            ->assertJsonPath('database.host', null)
+            ->assertJsonPath('migrations.status', 'ok');
+
+        $this->assertSame([null], array_values(array_unique(array_column($response->json('database.tables'), 'rows'))));
+        $this->assertSame([null], array_values(array_unique(array_column($response->json('checks'), 'value'))));
     }
 
     public function test_admins_can_run_pending_migrations_and_others_cannot(): void
@@ -72,6 +79,7 @@ class SystemHealthTest extends TestCase
         $response = $this->spa(User::factory()->create(['email' => 'admin@example.com']))
             ->getJson('/api/admin/health')
             ->assertOk()
+            ->assertJsonPath('can_migrate', true)
             ->assertJsonPath('api.status', 'ok')
             ->assertJsonPath('database.status', 'ok')
             ->assertJsonPath('database.limit_bytes', 500 * 1024 * 1024)
@@ -83,6 +91,7 @@ class SystemHealthTest extends TestCase
         $this->assertSame($response->json('migrations.total'), $response->json('migrations.ran'));
         $this->assertGreaterThan(0, $response->json('migrations.total'));
         $this->assertContains('goals', array_column($response->json('database.tables'), 'name'));
+        $this->assertNotNull($response->json('database.tables.0.rows'), 'admins see row counts');
         $this->assertEqualsCanonicalizing(
             ['debug_off', 'app_key', 'sanctum', 'https', 'session', 'mail', 'db_ssl'],
             array_column($response->json('checks'), 'key'),

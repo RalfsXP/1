@@ -6,7 +6,7 @@ import api from '@/lib/api'
 import { locale, t } from '@/lib/i18n'
 
 /*
- * Site health (admins only): API, database, migrations, storage against the
+ * Site health (every signed-in user; admins also get internals + "Run migrations"): API, database, migrations, storage against the
  * Supabase free-plan limit, hosting platform status and configuration checks.
  */
 const report = ref(null)
@@ -69,6 +69,8 @@ async function runMigrations() {
   }
 }
 const checks = computed(() => report.value?.checks ?? [])
+// Row counts are admin-only (the API sends null to everyone else).
+const showRows = computed(() => db.value?.tables?.some((x) => x.rows != null))
 
 /** Every problem on the page, for the summary banner. */
 const problems = computed(() => {
@@ -162,8 +164,9 @@ const icons = { ok: CheckCircleIcon, warning: ExclamationTriangleIcon, error: Ex
           <ul v-if="migrations.pending.length" class="pending">
             <li v-for="name in migrations.pending" :key="name" class="mono">{{ name }}</li>
           </ul>
+          <!-- Only admins may change the live database; everyone else just sees what's pending. -->
           <button
-            v-if="migrations.pending.length"
+            v-if="migrations.pending.length && report.can_migrate"
             type="button"
             class="btn btn-primary run"
             :disabled="running"
@@ -215,14 +218,14 @@ const icons = { ok: CheckCircleIcon, warning: ExclamationTriangleIcon, error: Ex
             <thead>
               <tr>
                 <th scope="col">{{ $t('health.table') }}</th>
-                <th scope="col">{{ $t('health.rows') }}</th>
+                <th v-if="showRows" scope="col">{{ $t('health.rows') }}</th>
                 <th v-if="db.tables?.some((x) => x.bytes != null)" scope="col">{{ $t('health.size') }}</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="row in db.tables" :key="row.name">
                 <td class="mono">{{ row.name }}</td>
-                <td>{{ num(row.rows) }}</td>
+                <td v-if="showRows">{{ num(row.rows) }}</td>
                 <td v-if="db.tables.some((x) => x.bytes != null)">{{ mb(row.bytes) }}</td>
               </tr>
             </tbody>

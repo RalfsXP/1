@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Http;
 use Throwable;
 
 /**
- * Admin-only overview of the running system: API, database (Supabase),
+ * Overview of the running system for every signed-in user (admins see a few
+ * more internals and can run migrations): API, database (Supabase),
  * migrations, storage use against the free-plan limit, platform status and
  * configuration checks. Every probe is isolated, so one failure is reported
  * instead of breaking the page. Never returns secrets.
@@ -24,18 +25,27 @@ class SystemHealthController extends Controller
 
     public function __invoke(Request $request): JsonResponse
     {
-        abort_unless($request->user()->is_admin, 404);
-
+        $admin = (bool) $request->user()->is_admin;
         $started = microtime(true);
         $database = $this->database();
+        $checks = $this->checks($database);
+
+        // Non-admins see every status, but not internals: DB host, config values, or row
+        // counts (the users table would reveal how many people use the app).
+        if (! $admin) {
+            $database['host'] = null;
+            $database['tables'] = array_map(fn ($t) => [...$t, 'rows' => null], $database['tables'] ?? []);
+            $checks = array_map(fn ($c) => [...$c, 'value' => null], $checks);
+        }
 
         return response()->json([
             'checked_at' => now()->toIso8601String(),
+            'can_migrate' => $admin,
             'api' => $this->api(),
             'database' => $database,
             'migrations' => $this->migrations(),
             'platforms' => $this->platforms(),
-            'checks' => $this->checks($database),
+            'checks' => $checks,
             'duration_ms' => (int) round((microtime(true) - $started) * 1000),
         ]);
     }

@@ -4,7 +4,7 @@
 > **Keep it current:** every change that alters behaviour, structure, env vars, design rules or the version MUST update this file in the same change (see "Maintaining this file"). Keep it dense — it is loaded every session, so every line costs tokens.
 
 ## What it is
-Mērķis = Latvian for "goal". A minimal planner web app, live at **https://merkis.app**. Current version: **v1.2** (`frontend/VERSION`). Owner: Ralfs (GitHub `RalfsXP/1`). Landing, auth, and the signed-in planner: side nav, Overview dashboard (/home), Calendar, Daily/Weekly/Monthly/Yearly/Custom-period goals (priorities, recurrence, completion per occurrence, time left, custom badges), Settings, admin-only Site health.
+Mērķis = Latvian for "goal". A minimal planner web app, live at **https://merkis.app**. Current version: **v1.2** (`frontend/VERSION`). Owner: Ralfs (GitHub `RalfsXP/1`). Landing, auth, and the signed-in planner: side nav, Overview dashboard (/home), Calendar, Daily/Weekly/Monthly/Yearly/Custom-period goals (priorities, recurrence, completion per occurrence, time left, custom badges), Settings, Site health (all users; admins see internals + can run migrations).
 
 ## Stack & hosting (all free tier except the domain)
 | Part | Tech | Where |
@@ -40,11 +40,12 @@ frontend/
   public/               (icon URLs carry ?v=2 in index.html + manifest — bump on any icon change) favicon.svg (Seagrass tile + black m), favicon-32.png, favicon.ico (16/32/48), apple-touch-icon.png + icon-192/512.png
                         (black, white m + dot; maskable), site.webmanifest, email/logo.png (white wordmark), brand/ (logo-on-dark|light.svg, mark.svg — README uses these)
   scripts/build-logo.mjs  generates all of the above from Montserrat 800 outlines (deps installed --no-save; see its header)
-  src/main.js           registers router + global $t
+  src/main.js           registers router + global $t (+ iOS pinch-zoom guard)
+  src/App.vue           <Analytics/> (Vercel Web Analytics, @vercel/analytics — enable it in Vercel → merkis → Analytics), page transition, AppVersion, LoadingScreen
   src/router.js         / landing · /login + /register (same AuthView, viewKey 'auth') · /home = AppShell (requiresAuth, viewKey 'app') with
                         children '' → DashboardView (name 'home'), /calendar → CalendarView, /goals/:period(daily|weekly|monthly|yearly|custom)?date= → GoalsView,
-                        /settings → SettingsView, /health → HealthView (meta.adminOnly; guard needs user.is_admin). Nav order: Overview, Calendar, Daily…Yearly, Custom;
-                        Settings (+ Site health for admins) + Log out at the bottom
+                        /settings → SettingsView, /health → HealthView (every signed-in user). Nav order: Overview, Calendar, Daily…Yearly, Custom;
+                        Settings + Site health + Log out at the bottom
   src/lib/api.js        axios (baseURL /api, withCredentials, withXSRFToken, Accept-Language = locale)
   src/lib/auth.js       user ref, fetchUser/login/register/logout, changeLocale (PATCH /user/locale when signed in)
   src/lib/i18n.js       tiny i18n: locale ref, t(key, params), setLocale; default 'lv'; localStorage 'merkis-locale'
@@ -62,9 +63,9 @@ frontend/
                         DashboardView (3×2 tiles: yesterday, today, week, month, year, overdue — a finished tile turns Seagrass with a check; 7-day completions bars; focus list = late one-offs + open now)
                         CalendarView (month + selected-day panel) · GoalsView (one category, period navigator — custom: past year + ahead, no navigator — FAB, completed group)
                         SettingsView (per-category default badge accordion, theme, language, account)
-                        HealthView (admins: API, DB latency/version/connections, migrations ran/total, DB size vs free limit, table rows/sizes,
+                        HealthView (all users: API, DB latency/version/connections, migrations ran/total, DB size vs free limit, table rows/sizes,
                         Supabase+Vercel statuspage, config checks; OK = Seagrass check, problems = text + ⚠ — no red;
-                        "Run migrations" button when some are pending: two taps, POST /api/admin/migrate, shows artisan output)
+                        "Run migrations" button — admins only (report.can_migrate) — when some are pending: two taps, POST /api/admin/migrate, shows artisan output)
   src/components/       DeviceScene (shared floating 3D laptop/tablet/phone; layouts landing | auth; sizes in stage cqw), DemoScreen (static miniature of the app in cqw — variant desktop=Overview, tablet=Calendar, phone=today; demo.* strings;
                         root classes are v-* because a parent's scoped .phone/.tablet would hit a child root), AppLogo (wordmark SVG), LogoMark (m. SVG), LiveClock (top bar, every page), ThemeToggle, LanguageSwitch,
                         LoadingScreen (m. breathing inside an orbiting ring), AppVersion,
@@ -83,8 +84,8 @@ backend/
   app/Models/Goal.php   period day|week|month|year|custom, period_start (first occurrence), period_end (custom only; custom never repeats), priority, due_at (one-off only), repeats, repeat_days (ISO weekdays, daily only, null = every day),
                         repeat_until, badge_color/icon (null = category default); appends completed_on[] + completed_at{occurs_on: ISO}. GoalCompletion = (goal_id, occurs_on) unique
   config/goals.php      periods, priorities, icon names, default category styles
-  config/health.php     admin_emails (ADMIN_EMAILS), db_limit_mb (DB_SIZE_LIMIT_MB, default 500 = Supabase free), statuspage URLs
-  app/Http/Controllers/Api/SystemHealthController.php  GET /api/admin/health + POST /api/admin/migrate (throttle 3/min; runs `migrate --force`) — 404 unless user.is_admin; each probe isolated (try/catch), never returns secrets;
+  config/health.php     admin_emails (ADMIN_EMAILS: full health details + Run migrations), db_limit_mb (DB_SIZE_LIMIT_MB, default 500 = Supabase free), statuspage URLs
+  app/Http/Controllers/Api/SystemHealthController.php  GET /api/admin/health (any signed-in user; non-admins get host, config values and row counts nulled) + POST /api/admin/migrate (admins only, else 404; throttle 3/min; runs `migrate --force`); each probe isolated (try/catch), never returns secrets;
                         platform feeds fetched in parallel (Http::pool, 3 s timeout); Sanctum check compares host[:port]
   app/Http/Controllers/Api/AuthController.php   register (saves locale, sends WelcomeMail in try/catch) · login · logout · user · updateLocale
   app/Http/Middleware/SetLocale.php             app locale from Accept-Language (lv|en)
@@ -94,7 +95,7 @@ backend/
   config/app.php        supported_locales ['lv','en'], frontend_url
   tests/Feature/AuthTest.php   10 tests: auth flow, locale, welcome mail, LV validation
   tests/Feature/GoalTest.php   13 tests: CRUD, snapping, range/recurrence listing (incl. across New Year), custom periods, per-occurrence completion, ownership, styles
-  tests/Feature/SystemHealthTest.php   4 tests: admin-only 404, is_admin flag, full report incl. no secret leakage, run pending migrations (29 total in suite)
+  tests/Feature/SystemHealthTest.php   4 tests: non-admin view redacted, is_admin flag, admin full report incl. no secret leakage, run pending migrations (admin only) (29 total in suite)
 ```
 
 ## Commands
@@ -144,7 +145,7 @@ APP_KEY, APP_ENV=production, APP_DEBUG=false, APP_NAME, APP_URL, FRONTEND_URL=ht
 - Owner is learning hosting — give click-by-click steps for dashboards (Vercel/Supabase/Resend), with direct links when possible.
 
 ## Changelog
-- **v1.2** — planner: side nav (drawer on phones), calendar home (badges/dots, week numbers, swipe, day panel), Daily/Weekly/Monthly/Yearly goal pages, priorities with green/yellow/red flags, recurring goals (every period or chosen weekdays) completed per occurrence, time-left countdowns + optional earlier deadline, per-category and per-goal badge colour/icon, Heroicons everywhere (auth + theme toggle icons migrated). Completion timestamps per occurrence → "Finished 4 days early · Wed 7 Oct" / late / on time; progress meters; full-width colour chips in calendar cells; calm done rows; sheet grabber + drag-to-close. Overview dashboard at /home, calendar moved to /calendar, Settings page (category badges, theme, language), custom brand date picker (whole-week/month highlight), custom-period goals (start–end, shown as bands in the calendar). Audit pass: controls top-right like auth, picker shades repeat series, form keeps the picked day across type switches, deadline capped to the period, until in period units, calendar selection follows month paging, New-Year/custom completion fixes, a11y (labels, focus trap, inert drawer), shared page classes. Overview tiles 3×2 incl. yesterday + overdue with green check when done; zoom disabled on phones. Site health page for admins (ADMIN_EMAILS). Date pickers verified for create + edit of every period type; fixed custom end being wiped on edit. New logo: "mērķis" wordmark (vector, generated) + m. mark, new favicons/app icons/email logo; Run migrations button on Site health; Overview: clock in the top bar, no separate date line under the greeting. Landing remade as a 3D laptop/tablet/phone scene with live demo screens; login/register match it (shared DeviceScene); mobile landing without tablet, buttons under the scene.
+- **v1.2** — planner: side nav (drawer on phones), calendar home (badges/dots, week numbers, swipe, day panel), Daily/Weekly/Monthly/Yearly goal pages, priorities with green/yellow/red flags, recurring goals (every period or chosen weekdays) completed per occurrence, time-left countdowns + optional earlier deadline, per-category and per-goal badge colour/icon, Heroicons everywhere (auth + theme toggle icons migrated). Completion timestamps per occurrence → "Finished 4 days early · Wed 7 Oct" / late / on time; progress meters; full-width colour chips in calendar cells; calm done rows; sheet grabber + drag-to-close. Overview dashboard at /home, calendar moved to /calendar, Settings page (category badges, theme, language), custom brand date picker (whole-week/month highlight), custom-period goals (start–end, shown as bands in the calendar). Audit pass: controls top-right like auth, picker shades repeat series, form keeps the picked day across type switches, deadline capped to the period, until in period units, calendar selection follows month paging, New-Year/custom completion fixes, a11y (labels, focus trap, inert drawer), shared page classes. Overview tiles 3×2 incl. yesterday + overdue with green check when done; zoom disabled on phones. Site health page for admins (ADMIN_EMAILS). Date pickers verified for create + edit of every period type; fixed custom end being wiped on edit. New logo: "mērķis" wordmark (vector, generated) + m. mark, new favicons/app icons/email logo; Run migrations button on Site health; Overview: clock in the top bar, no separate date line under the greeting. Site health visible to all signed-in users (internals redacted for non-admins). Landing remade as a 3D laptop/tablet/phone scene with live demo screens; login/register match it (shared DeviceScene); mobile landing without tablet, buttons under the scene.
 - **v1.1** — mobile polish (no-scroll landing, 50px buttons, 16px inputs, safe areas); LV/EN switcher with locale saved on user (`users.locale`, PATCH /api/user/locale, Accept-Language → localized server messages); Latvian/English HTML welcome email via Resend; auth header pinned during panel swap.
 - **v1.0** — Sanctum auth (register/login/logout), landing/auth/home views, spinning-logo loader, password-strength meter, light/dark theme, favicons + home-screen icons, VERSION label, README.
 - **v0** — Laravel + Vue scaffold, Vercel + Supabase hosting, merkis.app domain.
