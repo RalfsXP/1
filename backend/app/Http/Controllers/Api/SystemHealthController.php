@@ -183,7 +183,27 @@ class SystemHealthController extends Controller
             ['key' => 'https', 'ok' => ! $production || str_starts_with((string) config('app.frontend_url'), 'https://'), 'value' => config('app.frontend_url')],
             ['key' => 'session', 'ok' => ! $production || config('session.driver') !== 'file', 'value' => config('session.driver')],
             ['key' => 'mail', 'ok' => ! $production || ($mailer !== 'log' && filled(config('mail.from.address'))), 'value' => $mailer.' · '.config('mail.from.address')],
+            $this->rlsCheck($database),
             ['key' => 'db_ssl', 'ok' => ($database['driver'] ?? null) !== 'pgsql' || config('database.connections.pgsql.sslmode') === 'require', 'value' => ($database['driver'] ?? null) === 'pgsql' ? 'sslmode='.config('database.connections.pgsql.sslmode') : null],
+        ];
+    }
+
+    /** Supabase's REST API must see nothing: RLS on every table in `public` (see App\Support\Rls). */
+    private function rlsCheck(array $database): array
+    {
+        if (($database['driver'] ?? null) !== 'pgsql') {
+            return ['key' => 'db_rls', 'ok' => true, 'value' => null];
+        }
+
+        $rls = $this->attempt(fn () => DB::selectOne(
+            "select count(*) filter (where c.relrowsecurity) as locked, count(*) as total from pg_class c
+             join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'public' and c.relkind = 'r'"
+        ));
+
+        return [
+            'key' => 'db_rls',
+            'ok' => $rls && (int) $rls->locked === (int) $rls->total,
+            'value' => $rls ? "RLS {$rls->locked}/{$rls->total}" : null,
         ];
     }
 

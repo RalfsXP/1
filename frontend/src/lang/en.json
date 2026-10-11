@@ -251,7 +251,8 @@
       "https": "Site served over HTTPS",
       "session": "Session storage works on Vercel",
       "mail": "Email sending configured",
-      "db_ssl": "Database connection encrypted"
+      "db_ssl": "Database connection encrypted",
+      "db_rls": "Database closed to the public Supabase API"
     },
     "migrate": "Run migrations",
     "migrateConfirm": "Confirm: run on the live database",

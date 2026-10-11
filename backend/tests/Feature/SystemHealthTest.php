@@ -87,7 +87,7 @@ class SystemHealthTest extends TestCase
         $this->assertContains('goals', array_column($response->json('database.tables'), 'name'));
         $this->assertNotNull($response->json('database.tables.0.rows'), 'admins see row counts');
         $this->assertEqualsCanonicalizing(
-            ['debug_off', 'app_key', 'sanctum', 'https', 'session', 'mail', 'db_ssl'],
+            ['debug_off', 'app_key', 'sanctum', 'https', 'session', 'mail', 'db_rls', 'db_ssl'],
             array_column($response->json('checks'), 'key'),
         );
         $checks = collect($response->json('checks'))->keyBy('key');

@@ -4,7 +4,7 @@
 > **Keep it current:** every change that alters behaviour, structure, env vars, design rules or the version MUST update this file in the same change (see "Maintaining this file"). Keep it dense — it is loaded every session, so every line costs tokens.
 
 ## What it is
-Mērķis = Latvian for "goal". A minimal planner web app, live at **https://merkis.app**. Current version: **v1.4.1** (`frontend/VERSION`). Owner: Ralfs (GitHub `RalfsXP/1`). Landing, auth, and the signed-in planner: side nav, Overview dashboard (/home), Calendar, Daily/Weekly/Monthly/Yearly/Custom-period goals (priorities, recurrence, completion per occurrence, time left, custom badges), Settings, Site health (all users; admins see internals + can run migrations), Whiteboards (Fabric.js).
+Mērķis = Latvian for "goal". A minimal planner web app, live at **https://merkis.app**. Current version: **v1.4.2** (`frontend/VERSION`). Owner: Ralfs (GitHub `RalfsXP/1`). Landing, auth, and the signed-in planner: side nav, Overview dashboard (/home), Calendar, Daily/Weekly/Monthly/Yearly/Custom-period goals (priorities, recurrence, completion per occurrence, time left, custom badges), Settings, Site health (all users; admins see internals + can run migrations), Whiteboards (Fabric.js).
 
 ## Stack & hosting (all free tier except the domain)
 | Part | Tech | Where |
@@ -39,7 +39,7 @@ Request flow: browser → merkis.app → `frontend/vercel.json` rewrites `/api/*
 frontend/
   index.html            theme + design pre-paint script, icons, Montserrat font; viewport WITHOUT viewport-fit=cover in Safari tabs — the script adds it
                         + html.standalone when opened from the Home Screen (iOS 26 opens those as web apps); App.vue .status-strip = opaque bar under the clock there
-  VERSION               "v1.4.1" → shown bottom-left (AppVersion.vue; inside the side nav in the app shell)
+  VERSION               "v1.4.2" → shown bottom-left (AppVersion.vue; inside the side nav in the app shell)
   vercel.json           /api + /sanctum proxy to backend, SPA fallback
   public/               (icon URLs carry ?v=2 in index.html + manifest — bump on any icon change) favicon.svg (Seagrass tile + black m), favicon-32.png, favicon.ico (16/32/48), apple-touch-icon.png + icon-192/512.png
                         (black, white m + dot; maskable), site.webmanifest, email/logo.png (white wordmark), brand/ (logo-on-dark|light.svg, mark.svg — README uses these)
@@ -101,11 +101,12 @@ backend/
   app/Models/Goal.php   period day|week|month|year|custom, period_start (first occurrence), period_end (custom only; custom never repeats), priority, due_at (one-off only), repeats, repeat_days (ISO weekdays, daily only, null = every day),
                         repeat_until, badge_color/icon (null = category default); appends completed_on[] + completed_at{occurs_on: ISO}. GoalCompletion = (goal_id, occurs_on) unique
   config/goals.php      periods, priorities, icon names, default category styles
+  app/Support/Rls.php   Rls::enable(table) (RLS on + revoke API roles; pgsql only); migration 2026_10_13_090000 locks down all existing tables
   app/Http/Controllers/Api/WhiteboardController.php  apiResource whiteboards (index without data, newest first; data ≤ 2 MB, preview ≤ 200 KB data:image; other users → 404)
   app/Models/Whiteboard.php  title, data (json Fabric scene), preview; lang/{lv,en}/whiteboard.php
   config/health.php     admin_emails (ADMIN_EMAILS: full health details + Run migrations), db_limit_mb (DB_SIZE_LIMIT_MB, default 500 = Supabase free)
   app/Http/Controllers/Api/SystemHealthController.php  GET /api/admin/health (any signed-in user; ~5 queries; non-admins get host, config values and row counts nulled) + POST /api/admin/migrate (admins only, else 404; throttle 3/min; runs `migrate --force`); each probe isolated (try/catch), never returns secrets;
-                        platform feeds fetched in parallel (Http::pool, 3 s timeout); Sanctum check compares host[:port]
+                        platform status is fetched by the browser (not here); Sanctum check compares host[:port]; db_rls check
   app/Http/Controllers/Api/AuthController.php   register (saves locale, sends WelcomeMail in try/catch) · login · logout · user · updateLocale
   app/Http/Middleware/SetLocale.php             app locale from Accept-Language (lv|en)
   app/Mail/WelcomeMail.php + resources/views/emails/welcome(.blade|-text.blade).php
@@ -141,6 +142,7 @@ APP_KEY, APP_ENV=production, APP_DEBUG=false, APP_NAME, APP_URL, FRONTEND_URL=ht
 
 ## DANGER / rules of engagement
 - **`backend/.env` points at PRODUCTION Supabase.** Any `php artisan migrate|tinker|db:*` without DB overrides hits live data. Never run `db:show` (prints the DB URL incl. password). Destructive DB ops (truncate/drop/delete) → give the owner the SQL; don't run them.
+- **Supabase Data API is locked (v1.4.2):** RLS on every `public` table with NO policies + anon/authenticated privileges revoked (also default privileges). Laravel connects as owner `postgres` (BYPASSRLS) so the app is unaffected. **Every migration that creates a table must call `App\Support\Rls::enable('table')`** (no-op on SQLite) — Site health check `db_rls` shows `RLS n/n`.
 - Deploy order for schema changes: run `php artisan migrate` on Supabase **before** merging to `main` (new columns must exist before new code ships). Additive migrations only. v1.2 adds `goals`, `goal_completions`, `users.goal_styles`. From v1.2 on, Site health → "Run migrations" can do it from the live site — but only once code that runs without the new columns is deployed; for v1.2 itself run it from the terminal first.
 - Git: owner commits & pushes himself. Work on a `version/x.y` branch from `main`; never commit/push unless asked. Exclude `.idea/` and `.claude/` from suggested `git add` (use `git add backend frontend README.md CLAUDE.md`).
 - Merging to `main` = production deploy of both Vercel projects.
@@ -175,6 +177,7 @@ APP_KEY, APP_ENV=production, APP_DEBUG=false, APP_NAME, APP_URL, FRONTEND_URL=ht
 - Owner is learning hosting — give click-by-click steps for dashboards (Vercel/Supabase/Resend), with direct links when possible.
 
 ## Changelog
+- **v1.4.2** — security: Supabase lints fixed — RLS on all public tables, Data API roles (anon/authenticated) revoked incl. default privileges; Rls helper for new tables; Site health `db_rls` check. Unused-index lints left (cookie sessions, array cache, sync queue → those tables are empty by design).
 - **v1.4.1** — phones: no text selection / long-press callout (except fields); fixed solid top bar; `viewport-fit=cover` only for Home Screen web apps + opaque status strip there (no iOS 26 top blur), none in Safari tabs (toolbar no longer covers sheets); opaque html background; side drawer replaced by a floating Menu button that opens the navigation as a bottom sheet.
 - **v1.4** — design switch in Settings (labels Noklusējuma / V2 / V3 = ids default / new / ocean: V2 Imperial Blue + Blue Bell + Magenta, V3 Deep Space + Amber + Orange), each light + dark, saved on the account; colours refactored to role tokens; phones: tap = done, hold = edit (+ dismissible hint); whiteboards ask for a name first.
 - **v1.3** — speed: API moved to dub1 next to Supabase, Server-Timing header, health endpoint ~15 → 5 queries with platform status fetched by the browser, deduplicated/cached goal loads + refresh on focus, Resend HTTP mailer; Whiteboards (Fabric.js: pen, eraser, text, sticky notes, shapes, arrows, zoom/pan, undo, autosave, previews); overdue tile also counts repeating goals missed in the last 7 days; goal cache cleared on account switch; DemoSeeder for a presentable demo account; boards without a preview get one on first open.

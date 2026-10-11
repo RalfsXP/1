@@ -251,7 +251,8 @@
       "https": "Vietne darbojas ar HTTPS",
       "session": "Sesiju glabāšana darbojas Vercel vidē",
       "mail": "E-pasta sūtīšana konfigurēta",
-      "db_ssl": "Datubāzes savienojums šifrēts"
+      "db_ssl": "Datubāzes savienojums šifrēts",
+      "db_rls": "Datubāze slēgta publiskajam Supabase API"
     },
     "migrate": "Palaist migrācijas",
     "migrateConfirm": "Apstiprināt: palaist dzīvajā datubāzē",
