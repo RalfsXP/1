@@ -1,43 +1,14 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import {
-  ArrowRightStartOnRectangleIcon,
-  CalendarDateRangeIcon,
-  CalendarDaysIcon,
-  CalendarIcon,
-  Cog6ToothIcon,
-  PencilSquareIcon,
-  SignalIcon,
-  Squares2X2Icon,
-  StarIcon,
-  SunIcon,
-  ViewColumnsIcon,
-} from '@heroicons/vue/24/outline'
+import { ArrowRightStartOnRectangleIcon } from '@heroicons/vue/24/outline'
 import AppLogo from '@/components/AppLogo.vue'
 import AppVersion from '@/components/AppVersion.vue'
-import { logout } from '@/lib/auth'
-import { withLoader } from '@/lib/loader'
+import { NAV_FOOT, NAV_LINKS as links, signOut as doSignOut } from '@/lib/nav'
 
+// Desktop navigation column (phones use MobileNav).
 const emit = defineEmits(['navigate'])
 const router = useRouter()
-
-const links = [
-  { to: { name: 'home' }, label: 'nav.home', icon: Squares2X2Icon },
-  { to: { name: 'calendar' }, label: 'nav.calendar', icon: CalendarDaysIcon },
-  { to: { name: 'goals', params: { period: 'daily' } }, label: 'periods.day', icon: SunIcon },
-  { to: { name: 'goals', params: { period: 'weekly' } }, label: 'periods.week', icon: ViewColumnsIcon },
-  { to: { name: 'goals', params: { period: 'monthly' } }, label: 'periods.month', icon: CalendarIcon },
-  { to: { name: 'goals', params: { period: 'yearly' } }, label: 'periods.year', icon: StarIcon },
-  { to: { name: 'goals', params: { period: 'custom' } }, label: 'periods.custom', icon: CalendarDateRangeIcon },
-  { to: { name: 'whiteboards' }, label: 'nav.whiteboards', icon: PencilSquareIcon },
-]
-
-function signOut() {
-  return withLoader(async () => {
-    await logout()
-    await router.push({ name: 'landing' })
-  })
-}
+const signOut = () => doSignOut(router)
 </script>
 
 <template>
@@ -58,13 +29,9 @@ function signOut() {
     </ul>
 
     <div class="foot">
-      <RouterLink :to="{ name: 'settings' }" class="link" exact-active-class="active" @click="emit('navigate')">
-        <Cog6ToothIcon aria-hidden="true" />
-        <span>{{ $t('nav.settings') }}</span>
-      </RouterLink>
-      <RouterLink :to="{ name: 'health' }" class="link" exact-active-class="active" @click="emit('navigate')">
-        <SignalIcon aria-hidden="true" />
-        <span>{{ $t('nav.health') }}</span>
+      <RouterLink v-for="link in NAV_FOOT" :key="link.label" :to="link.to" class="link" exact-active-class="active" @click="emit('navigate')">
+        <component :is="link.icon" aria-hidden="true" />
+        <span>{{ $t(link.label) }}</span>
       </RouterLink>
       <button type="button" class="link logout" @click="signOut">
         <ArrowRightStartOnRectangleIcon aria-hidden="true" />
