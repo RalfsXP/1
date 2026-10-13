@@ -38,7 +38,7 @@ const openLogin = () => withLoader(() => router.push({ name: 'login' }))
   grid-template-rows: auto minmax(0, 1fr);
   gap: 16px;
   height: 100vh;
-  height: 100dvh;
+  height: var(--app-h);
   padding: max(16px, var(--top-inset)) 20px max(24px, env(safe-area-inset-bottom));
   overflow: hidden;
 }

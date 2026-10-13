@@ -10,6 +10,9 @@
   /* Space above the top bar / headers. Home Screen web app (html.standalone): iOS 26 blurs ~the top of the
      page under the status bar, so content starts a little lower there. */
   --top-inset: env(safe-area-inset-top, 0px);
+  /* Height of the app (shell, landing, login, sheets, mist). Browsers: the dynamic viewport. Home Screen
+     web app: see .standalone — iOS 26 there shrinks the viewport by the status bar after the keyboard. */
+  --app-h: 100dvh;
 
   /* --ink / --paper = darkest + lightest colour (text on badges and accents). --black / --white are aliases. */
   --ink: #0a2128;
@@ -111,16 +114,28 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* The mist sits on <body>, which never scrolls: scrolling content glides over a still background. */
 body {
   margin: 0;
-  background-color: var(--bg);
-  background-image: var(--mist);
-  background-repeat: no-repeat;
   color: var(--fg);
   font-family: Montserrat, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* The mist: one fixed full-screen layer behind everything, so scrolling content glides over a still
+   background. Body stays transparent (its in-flow background would paint over this negative-z layer);
+   html carries --bg. The phone top bar paints a pixel-identical copy (100vw × --app-h from 0 0). */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 100vw;
+  height: var(--app-h);
+  background: var(--mist), var(--bg);
+  background-repeat: no-repeat;
+  pointer-events: none;
 }
 
 svg {
@@ -171,6 +186,11 @@ textarea {
    the top edge — the mist and the glass top bar continue up there, content starts a little lower. */
 .standalone {
   --top-inset: calc(env(safe-area-inset-top, 0px) + 14px);
+  /* iOS 26 Home Screen apps: once the keyboard has been open, 100% / 100dvh / fixed `inset: 0` / bottom
+     anchors all shrink by the status-bar height (852 → 793 pt on iPhone 16) and never recover, leaving a
+     bare strip at the bottom. 100lvh stays the real screen, so everything is sized and placed from the
+     top with it (no fixed `bottom:` anywhere). */
+  --app-h: 100lvh;
 }
 
 /* One focus ring for everything keyboard-focusable. */
@@ -423,7 +443,8 @@ textarea {
    Safari would paint that into its toolbar area. */
 .float-btn {
   position: fixed;
-  bottom: max(20px, calc(env(safe-area-inset-bottom) + 10px));
+  /* Placed from the top (see --app-h): bottom-anchored fixed boxes drift up in iOS web apps. */
+  top: calc(var(--app-h) - max(20px, calc(env(safe-area-inset-bottom) + 10px)) - 56px);
   z-index: 40;
   display: grid;
   place-items: center;
