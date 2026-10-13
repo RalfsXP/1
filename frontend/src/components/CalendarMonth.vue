@@ -124,11 +124,14 @@ function onTouchEnd(e) {
   <section class="calendar">
     <header class="page-head cal-head">
       <div>
-        <h1 class="page-title">{{ monthTitle }}</h1>
-        <p class="page-sub">{{ yearLabel }}</p>
+        <h1 class="page-title month-title">{{ monthTitle }}</h1>
+        <!-- "Today" sits beside the year, not by the arrows: the header width never changes while paging. -->
+        <p class="page-sub year-line">
+          {{ yearLabel }}
+          <button v-if="!isCurrentMonth" type="button" class="today-btn" @click="goToday">{{ $t('calendar.today') }}</button>
+        </p>
       </div>
       <div class="cal-nav">
-        <button v-if="!isCurrentMonth" type="button" class="btn btn-ghost" @click="goToday">{{ $t('calendar.today') }}</button>
         <button type="button" class="icon-btn" :aria-label="$t('calendar.prev')" @click="go(-1)">
           <ChevronLeftIcon aria-hidden="true" />
         </button>
@@ -257,13 +260,39 @@ function onTouchEnd(e) {
   min-width: 0;
 }
 
-.cal-nav .btn {
-  height: 42px;
+/* One line even for "septembris": a little smaller than other page titles. */
+.month-title {
+  font-size: clamp(1.9rem, 8.6vw, 2.6rem);
+  white-space: nowrap;
 }
 
+.year-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 28px;
+}
+
+.today-btn {
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.today-btn:active {
+  transform: scale(0.95);
+}
 
 .cal-nav {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   gap: 6px;
 }
