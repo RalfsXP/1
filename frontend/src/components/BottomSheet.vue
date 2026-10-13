@@ -102,7 +102,10 @@ function onDragEnd() {
 <style scoped>
 .sheet-root {
   position: fixed;
-  inset: 0;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: var(--app-h);
   z-index: 100;
   display: flex;
   align-items: flex-end;
@@ -119,7 +122,7 @@ function onDragEnd() {
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-height: 92dvh;
+  max-height: calc(var(--app-h) * 0.92);
   border: 1px solid var(--glass-edge);
   border-bottom: 0;
   border-radius: 32px 32px 0 0;
@@ -208,7 +211,7 @@ h2 {
 
   .sheet {
     width: min(520px, 100%);
-    max-height: min(88dvh, 820px);
+    max-height: min(calc(var(--app-h) * 0.88), 820px);
     border-bottom: 1px solid var(--glass-edge);
     border-radius: 32px;
   }

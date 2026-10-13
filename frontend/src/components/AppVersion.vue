@@ -15,8 +15,10 @@ const version = raw.trim()
 <style scoped>
 .version {
   position: fixed;
+  /* Placed from the top (see --app-h in main.css): bottom-anchored fixed boxes drift up in iOS web apps. */
+  top: calc(var(--app-h) - max(12px, env(safe-area-inset-bottom)));
   left: max(16px, env(safe-area-inset-left));
-  bottom: max(12px, env(safe-area-inset-bottom));
+  transform: translateY(-100%);
   z-index: 50;
   color: var(--muted);
   font-size: 0.7rem;
@@ -28,5 +30,6 @@ const version = raw.trim()
 
 .version.inline {
   position: static;
+  transform: none;
 }
 </style>

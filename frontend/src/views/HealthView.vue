@@ -16,21 +16,34 @@ const roundTrip = ref(null)
 const frontendVersion = raw.trim()
 
 /* Hosting status comes straight from the public Statuspage feeds (CORS-enabled), in parallel
-   with the API check, so a slow third party never holds up the rest of the page. */
+   with the API check, so a slow third party never holds up the rest of the page. Only the parts
+   mērķis runs on count: a minor incident in some other product (e.g. Supabase Realtime) is shown
+   as a note but isn't a problem here. A major/critical outage always counts. */
 const PLATFORMS = {
-  supabase: 'https://status.supabase.com/api/v2/status.json',
-  vercel: 'https://www.vercel-status.com/api/v2/status.json',
+  supabase: {
+    url: 'https://status.supabase.com/api/v2/summary.json',
+    // The feed lists regions per product without saying which product: any eu-west-1 entry (our database).
+    uses: (c) => c.name === 'eu-west-1',
+  },
+  vercel: {
+    url: 'https://www.vercel-status.com/api/v2/summary.json',
+    // The API runs in dub1; plus functions, DNS, certificates and deploys.
+    uses: (c) => c.name.startsWith('DUB1') || ['Functions', 'DNS', 'TLS Certificates', 'Builds'].includes(c.name),
+  },
 }
 const platforms = ref(Object.keys(PLATFORMS).map((name) => ({ name, status: 'loading', description: null })))
 
 function loadPlatforms() {
-  Object.entries(PLATFORMS).forEach(async ([name, url], i) => {
+  Object.entries(PLATFORMS).forEach(async ([name, { url, uses }], i) => {
     let next = { name, status: 'unknown', description: null }
     try {
       const res = await fetch(url, { signal: AbortSignal.timeout(5000) })
-      const { status } = await res.json()
+      const { status, components = [], incidents = [] } = await res.json()
       // Statuspage indicators: none | minor | major | critical.
-      next = { name, status: status.indicator === 'none' ? 'ok' : 'warning', description: status.description }
+      const outage = ['major', 'critical'].includes(status.indicator)
+      const affected = components.some((c) => uses(c) && c.status !== 'operational')
+      const note = [status.indicator === 'none' ? null : status.description, ...incidents.map((inc) => inc.name)]
+      next = { name, status: outage || affected ? 'warning' : 'ok', description: note.filter(Boolean).join(' · ') || status.description }
     } catch {
       // Feed unreachable: shown as "unknown", not as a problem with mērķis.
     }

@@ -18,7 +18,10 @@ import LogoMark from './LogoMark.vue'
 <style scoped>
 .loader {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: var(--app-h);
   z-index: 100;
   display: grid;
   place-items: center;

@@ -141,7 +141,7 @@ async function submit() {
   display: grid;
   grid-template-columns: 1fr 1fr;
   height: 100vh;
-  height: 100dvh;
+  height: var(--app-h);
   overflow: hidden;
 }
 
@@ -366,7 +366,7 @@ input[aria-invalid='true'] {
     display: flex;
     flex-direction: column;
     height: auto;
-    min-height: 100dvh;
+    min-height: var(--app-h);
     overflow: visible;
   }
 

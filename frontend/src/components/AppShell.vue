@@ -66,12 +66,15 @@ const showMenuButton = computed(() => route.name !== 'whiteboard')
   display: grid;
   grid-template-rows: 1fr;
   height: 100vh;
-  height: 100dvh;
+  height: var(--app-h);
   overflow: hidden;
 }
 
-/* No visible bar: no tint, so the mist runs on unbroken. Content scrolling under it is blurred
-   by a layer whose blur fades out downwards (mask), so the bar never shows an edge. */
+/* An invisible bar: it paints an exact, opaque copy of the mist (same size, same top-left origin as
+   the fixed mist layer), so at rest it can't be seen, and content scrolling up disappears behind it
+   instead of showing through the logo. Opaque and filter-free on purpose: that also stops iOS 26
+   from adding its own blur over the top of the Home Screen web app (which made the top look like
+   two bands). The ::after continues the copy a little lower and fades out, a soft edge. */
 .topbar {
   position: fixed;
   top: 0;
@@ -83,17 +86,25 @@ const showMenuButton = computed(() => route.name !== 'whiteboard')
   gap: 8px;
   height: var(--bar-h);
   padding: max(8px, var(--top-inset)) 20px 6px max(20px, env(safe-area-inset-left));
+  background: var(--mist), var(--bg);
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  background-size: 100vw var(--app-h);
 }
 
-.topbar::before {
+.topbar::after {
   content: '';
   position: absolute;
-  inset: 0 0 -28px;
-  z-index: -1;
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
-  -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent);
-  mask-image: linear-gradient(to bottom, black 55%, transparent);
+  top: 100%;
+  right: 0;
+  left: 0;
+  height: 28px;
+  background: var(--mist), var(--bg);
+  background-position: 0 calc(-1 * var(--bar-h));
+  background-repeat: no-repeat;
+  background-size: 100vw var(--app-h);
+  -webkit-mask-image: linear-gradient(to bottom, black, transparent);
+  mask-image: linear-gradient(to bottom, black, transparent);
   pointer-events: none;
 }
 
@@ -149,9 +160,10 @@ const showMenuButton = computed(() => route.name !== 'whiteboard')
     grid-column: 2;
     height: auto;
     padding: 24px 32px 0;
+    background: none;
   }
 
-  .topbar::before {
+  .topbar::after {
     display: none;
   }
 
