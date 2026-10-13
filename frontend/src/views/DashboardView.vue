@@ -1,18 +1,18 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { ArrowRightIcon, CheckIcon, ExclamationCircleIcon } from '@heroicons/vue/24/outline'
+import { ArrowRightIcon, CheckIcon } from '@heroicons/vue/24/outline'
 import GoalForm from '@/components/GoalForm.vue'
 import GoalItem from '@/components/GoalItem.vue'
 import HoldHint from '@/components/HoldHint.vue'
 import { user } from '@/lib/auth'
 import { compareOccurrences, loadRange, occurrencesBetween, refreshTick, setDone } from '@/lib/goals'
-import { PERIOD_TO_ROUTE, addDays, dayMonth, parseISO, periodEnd, periodLabel, periodStart, toISO, weekdayName } from '@/lib/periods'
+import { addDays, dayMonth, parseISO, periodEnd, periodLabel, periodStart, toISO, weekdayName } from '@/lib/periods'
 import { now, todayISO } from '@/lib/timeLeft'
 
 /*
- * Overview: six tiles (yesterday, today, this week / month / year, overdue),
- * the last 7 days of activity and what needs attention now. "Today" follows
- * the shared clock, so the page stays right past midnight.
+ * Overview: today's and yesterday's daily goals as progress rings, the last 7 days
+ * of activity and what needs attention now. "Today" follows the shared clock, so
+ * the page stays right past midnight.
  */
 const todayDate = computed(() => parseISO(todayISO.value))
 const yesterdayISO = computed(() => toISO(addDays(todayDate.value, -1)))
@@ -60,28 +60,28 @@ const overdue = computed(() =>
   }),
 )
 
-function progressTile(key, items, to) {
+/** A ring for one day's daily goals: done/total, how full the ring is and where it links. */
+function dayRing(key, iso) {
+  const items = occurrences.value.filter((o) => o.goal.period === 'day' && o.start === iso)
   const done = items.filter((o) => o.done).length
   const total = items.length
-  return { key, kind: 'progress', done, total, ratio: total ? done / total : 0, complete: total > 0 && done === total, to }
+  const ratio = total ? done / total : 0
+  return {
+    key,
+    done,
+    total,
+    percent: Math.round(ratio * 100),
+    complete: total > 0 && done === total,
+    offset: RING_C * (1 - ratio),
+    to: { name: 'goals', params: { period: 'daily' }, query: key === 'day' ? undefined : { date: iso } },
+  }
 }
 
-const tiles = computed(() => [
-  progressTile(
-    'yesterday',
-    occurrences.value.filter((o) => o.goal.period === 'day' && o.start === yesterdayISO.value),
-    { name: 'goals', params: { period: 'daily' }, query: { date: yesterdayISO.value } },
-  ),
-  ...['day', 'week', 'month', 'year'].map((period) =>
-    progressTile(
-      period,
-      current.value.filter((o) => o.goal.period === period),
-      { name: 'goals', params: { period: PERIOD_TO_ROUTE[period] } },
-    ),
-  ),
-  // Overdue: a count, "complete" (all clear) when there is nothing late.
-  { key: 'overdue', kind: 'count', count: overdue.value.length, complete: loaded.value && !failed.value && !overdue.value.length },
-])
+/* Ring geometry (viewBox 120 × 120). */
+const RING_R = 52
+const RING_C = 2 * Math.PI * RING_R
+
+const rings = computed(() => [dayRing('day', todayISO.value), dayRing('yesterday', yesterdayISO.value)])
 
 /**
  * Overdue one-off goals first (real tasks), then what's open now, then habits missed in
@@ -115,7 +115,6 @@ const hovered = ref(null)
 
 const firstName = computed(() => user.value?.name?.split(' ')[0] ?? '')
 
-const SHORT_LABEL = ['week', 'month', 'year']
 const todayLabel = computed(() => periodLabel('day', todayISO.value))
 const todayShort = computed(() => dayMonth(todayISO.value, true))
 
@@ -143,32 +142,42 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
 
     <p v-if="failed" class="empty-state" role="alert">{{ $t('auth.errorGeneric') }}</p>
 
-    <!-- Today is the big tile; yesterday + overdue, then this week / month / year under it. -->
-    <section class="tiles" :aria-label="$t('goal.progress')">
-      <component
-        :is="tile.to ? 'RouterLink' : 'div'"
-        v-for="tile in tiles"
-        :key="tile.key"
-        class="tile"
-        :class="[`t-${tile.key}`, { complete: tile.complete, link: tile.to }]"
-        :to="tile.to || undefined"
+    <!-- Today (big) and yesterday: how much of the day's goals is done, as a filling ring. -->
+    <section class="rings" :aria-label="$t('goal.progress')">
+      <RouterLink
+        v-for="ring in rings"
+        :key="ring.key"
+        :to="ring.to"
+        class="ring-card"
+        :class="[`r-${ring.key}`, { complete: ring.complete }]"
+        :aria-label="`${$t(`dashboard.${ring.key}`)}: ${ring.done}/${ring.total}`"
       >
-        <span class="tile-top">
-          <!-- The three small tiles use the short "This week / month / year". -->
-          <span class="tile-label">{{ SHORT_LABEL.includes(tile.key) ? $t(`periods.this.${tile.key}`) : $t(`dashboard.${tile.key}`) }}</span>
-          <span v-if="tile.key === 'day'" class="chip">{{ todayShort }}</span>
-          <!-- Everything done (or nothing late): the tile turns accent with a check. -->
-          <CheckIcon v-else-if="tile.complete" class="tile-icon check" aria-hidden="true" />
-          <ExclamationCircleIcon v-else-if="tile.kind === 'count'" class="tile-icon warn" aria-hidden="true" />
+        <span class="ring-top">
+          <span class="ring-label">{{ $t(`dashboard.${ring.key}`) }}</span>
+          <span v-if="ring.key === 'day'" class="chip">{{ todayShort }}</span>
         </span>
-        <span class="tile-value">
-          <template v-if="tile.kind === 'progress'">{{ tile.done }}<span class="of">/{{ tile.total }}</span></template>
-          <template v-else>{{ tile.count }}</template>
+        <span class="ring">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="ring-track" cx="60" cy="60" :r="RING_R" />
+            <circle
+              class="ring-fill"
+              cx="60"
+              cy="60"
+              :r="RING_R"
+              :stroke-dasharray="RING_C"
+              :stroke-dashoffset="ring.offset"
+            />
+          </svg>
+          <span class="ring-center">
+            <CheckIcon v-if="ring.complete" class="ring-check" aria-hidden="true" />
+            <template v-else>
+              <span class="ring-value">{{ ring.done }}<span class="of">/{{ ring.total }}</span></span>
+              <span v-if="ring.total" class="ring-percent">{{ ring.percent }}%</span>
+            </template>
+          </span>
         </span>
-        <span v-if="tile.kind === 'progress' && tile.key !== 'yesterday'" class="meter" aria-hidden="true">
-          <span class="meter-fill" :style="{ width: `${tile.ratio * 100}%` }" />
-        </span>
-      </component>
+        <span v-if="ring.complete" class="ring-done">{{ ring.done }}/{{ ring.total }}</span>
+      </RouterLink>
     </section>
 
     <section class="card activity">
@@ -221,69 +230,48 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
 </template>
 
 <style scoped>
-/* ---------- Tiles: today across the top, then 2 + 3 ---------- */
-.tiles {
+/* ---------- Rings: today (wide) + yesterday ---------- */
+.rings {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  grid-template-areas:
-    'day day day day day day'
-    'yesterday yesterday yesterday overdue overdue overdue'
-    'week week month month year year';
+  grid-template-columns: 3fr 2fr;
   gap: 10px;
 }
 
-.t-day { grid-area: day; }
-.t-yesterday { grid-area: yesterday; }
-.t-overdue { grid-area: overdue; }
-.t-week { grid-area: week; }
-.t-month { grid-area: month; }
-.t-year { grid-area: year; }
-
-.tile {
+.ring-card {
   display: grid;
-  align-content: space-between;
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
   gap: 12px;
   min-width: 0;
-  padding: 14px 14px 16px;
+  padding: 16px 14px 18px;
   border: 1px solid var(--glass-edge);
-  border-radius: 22px;
+  border-radius: 28px;
   background: var(--surface);
   box-shadow: var(--glass-shadow);
   color: var(--fg);
   text-decoration: none;
-  transition: border-color 0.2s, background-color 0.3s, color 0.3s, transform 0.2s;
+  transition: border-color 0.2s, transform 0.2s;
 }
 
-.t-day {
-  gap: 16px;
-  padding: 20px 22px 22px;
-  border-radius: 28px;
-}
-
-.t-yesterday,
-.t-overdue {
-  gap: 18px;
-  padding: 16px 18px;
-  border-radius: 24px;
-}
-
-.tile.link:hover {
+.ring-card:hover {
   border-color: var(--accent);
 }
 
-.tile.link:active {
+.ring-card:active {
   transform: scale(0.98);
 }
 
-.tile-top {
+.ring-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  min-height: 20px;
+  width: 100%;
+  min-height: 26px;
+  padding: 0 4px;
 }
 
-.tile-label {
+.ring-label {
   min-width: 0;
   color: var(--muted);
   font-size: 0.8rem;
@@ -301,97 +289,104 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
   font-weight: 700;
 }
 
-.tile-icon {
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
+/* The ring fills clockwise from 12 o'clock as goals get done. */
+.ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(100%, 150px);
+  aspect-ratio: 1;
 }
 
-.tile-icon.warn {
-  color: var(--flag-high);
+.r-yesterday .ring {
+  width: min(100%, 104px);
+  align-self: center;
 }
 
-.tile-icon.check {
-  stroke-width: 2.5;
-  animation: pop 0.35s cubic-bezier(0.2, 0.8, 0.2, 1.4);
+.ring svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
 }
 
-.tile-value {
-  font-size: 1.4rem;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
+.ring circle {
+  fill: none;
+  stroke-width: 12;
+}
+
+.ring-track {
+  stroke: var(--pill);
+}
+
+.ring-fill {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.r-yesterday .ring-fill {
+  stroke: var(--soft);
+}
+
+.ring-center {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
   line-height: 1;
 }
 
-.t-yesterday .tile-value,
-.t-overdue .tile-value {
-  font-size: 1.9rem;
+.ring-value {
+  font-size: 2rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
   letter-spacing: -0.03em;
 }
 
-.t-day .tile-value {
-  font-size: 4rem;
-  letter-spacing: -0.04em;
-  line-height: 0.95;
+.r-yesterday .ring-value {
+  font-size: 1.35rem;
 }
 
 .of {
-  margin-left: 2px;
+  margin-left: 1px;
   color: var(--muted);
-  font-size: 0.6em;
+  font-size: 0.55em;
   font-weight: 600;
   letter-spacing: 0;
 }
 
-.t-day .of {
-  margin-left: 6px;
-  font-size: 0.38em;
+.ring-percent {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
-.meter {
-  display: block;
-  height: 5px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: var(--pill);
+.ring-check {
+  width: 44px;
+  height: 44px;
+  color: var(--accent);
+  stroke-width: 2.5;
+  animation: pop 0.35s cubic-bezier(0.2, 0.8, 0.2, 1.4);
 }
 
-.t-day .meter {
-  height: 8px;
+.r-yesterday .ring-check {
+  width: 32px;
+  height: 32px;
 }
 
-.meter-fill {
-  display: block;
-  height: 100%;
-  border-radius: 999px;
-  background: var(--accent);
-  transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+/* All done: the ring closes in the accent colour with a check inside; the count moves under it. */
+.complete .ring-fill {
+  stroke: var(--accent);
 }
 
-/* Complete: the whole tile goes accent with on-accent text. */
-.tile.complete {
-  border-color: var(--accent);
-  background: var(--accent);
-  box-shadow: 0 12px 28px color-mix(in srgb, var(--accent) 30%, transparent);
-  color: var(--on-accent);
-}
-
-.tile.complete .tile-label,
-.tile.complete .of {
-  color: color-mix(in srgb, var(--on-accent) 75%, var(--accent));
-}
-
-.tile.complete .meter {
-  background: color-mix(in srgb, var(--on-accent) 25%, transparent);
-}
-
-.tile.complete .meter-fill {
-  background: var(--on-accent);
-}
-
-.tile.complete.link:hover {
-  border-color: var(--on-accent);
+.ring-done {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 @keyframes pop {
@@ -530,21 +525,17 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
 }
 
 @media (min-width: 860px) {
-  .tiles {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-template-areas:
-      'day day yesterday'
-      'day day overdue'
-      'week month year';
+  .ring {
+    width: min(100%, 180px);
   }
 
-  .t-day .tile-value {
-    font-size: 5rem;
+  .r-yesterday .ring {
+    width: min(100%, 132px);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tile-icon.check {
+  .ring-check {
     animation: none;
   }
 }
