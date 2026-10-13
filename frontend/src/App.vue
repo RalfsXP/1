@@ -6,7 +6,6 @@ import LoadingScreen from '@/components/LoadingScreen.vue'
 
 <template>
   <Analytics />
-  <div class="status-strip" aria-hidden="true" />
   <RouterView v-slot="{ Component, route }">
     <Transition name="page" mode="out-in">
       <component :is="Component" :key="route.meta.viewKey ?? route.path" />

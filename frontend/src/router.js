@@ -6,19 +6,9 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', name: 'landing', component: LandingView },
-    {
-      path: '/login',
-      name: 'login',
-      component: () => import('./views/AuthView.vue'),
-      // Same view key for both: the page stays mounted and its panels swap sides.
-      meta: { mode: 'login', guestOnly: true, viewKey: 'auth' },
-    },
-    {
-      path: '/register',
-      name: 'register',
-      component: () => import('./views/AuthView.vue'),
-      meta: { mode: 'register', guestOnly: true, viewKey: 'auth' },
-    },
+    { path: '/login', name: 'login', component: () => import('./views/AuthView.vue'), meta: { guestOnly: true } },
+    // No sign-up (personal app): old links land on the login page.
+    { path: '/register', redirect: '/login' },
     {
       // Signed-in app: side nav + one shared shell (viewKey keeps it mounted between pages).
       path: '/home',
@@ -27,6 +17,7 @@ const router = createRouter({
       children: [
         { path: '', name: 'home', component: () => import('./views/DashboardView.vue') },
         { path: '/calendar', name: 'calendar', component: () => import('./views/CalendarView.vue') },
+        { path: '/events', name: 'events', component: () => import('./views/EventsView.vue') },
         {
           path: '/goals/:period(daily|weekly|monthly|yearly|custom)',
           name: 'goals',

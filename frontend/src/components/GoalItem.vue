@@ -73,15 +73,17 @@ const finished = computed(() => (props.occurrence.done ? completionInfo(props.oc
 </template>
 
 <style scoped>
+/* A glass row. */
 .item {
   display: flex;
   align-items: center;
   gap: 4px;
-  min-height: 64px;
-  padding: 6px 12px 6px 4px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
+  min-height: 70px;
+  padding: 6px 14px 6px 6px;
+  border: 1px solid var(--glass-edge);
+  border-radius: 20px;
   background: var(--surface);
+  box-shadow: var(--glass-shadow);
   transition: background-color 0.2s;
 }
 
@@ -109,7 +111,8 @@ const finished = computed(() => (props.occurrence.done ? completionInfo(props.oc
 }
 
 .item.done {
-  background: transparent;
+  background: color-mix(in srgb, var(--surface) 55%, transparent);
+  box-shadow: none;
 }
 
 .done .title {
@@ -135,14 +138,14 @@ const finished = computed(() => (props.occurrence.done ? completionInfo(props.oc
 }
 
 .check svg {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
 }
 
 .ring {
-  width: 24px;
-  height: 24px;
-  border: 2px solid var(--muted);
+  width: 26px;
+  height: 26px;
+  border: 2px solid color-mix(in srgb, var(--fg) 30%, transparent);
   border-radius: 50%;
   transition: border-color 0.2s;
 }
@@ -173,8 +176,8 @@ const finished = computed(() => (props.occurrence.done ? completionInfo(props.oc
 
 .title {
   overflow: hidden;
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
 }

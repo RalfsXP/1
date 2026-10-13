@@ -19,11 +19,13 @@ return [
     ],
 
     'default_styles' => [
-        'day' => ['color' => '#4c956c', 'icon' => 'sun'],
-        'week' => ['color' => '#489fb5', 'icon' => 'bolt'],
-        'month' => ['color' => '#ffc9b9', 'icon' => 'star'],
-        'year' => ['color' => '#ffa62b', 'icon' => 'trophy'],
-        'custom' => ['color' => '#16697a', 'icon' => 'flag'],
+        'day' => ['color' => '#489fb5', 'icon' => 'sun'],
+        'week' => ['color' => '#82c0cc', 'icon' => 'bolt'],
+        'month' => ['color' => '#ffa62b', 'icon' => 'star'],
+        'year' => ['color' => '#16697a', 'icon' => 'trophy'],
+        'custom' => ['color' => '#0a2128', 'icon' => 'flag'],
+        // Not a goal period: the default badge for events (Events page).
+        'event' => ['color' => '#e5604d', 'icon' => 'calendar'],
     ],
 
 ];

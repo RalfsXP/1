@@ -33,25 +33,26 @@ const percent = computed(() => (props.total ? Math.round((props.done / props.tot
 }
 
 .count {
+  order: 2;
   min-width: 2.6em;
-  color: var(--muted);
-  font-size: 0.75rem;
+  font-size: 0.9rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
+  text-align: right;
 }
 
 .track {
   flex: 1;
-  height: 6px;
+  height: 8px;
   overflow: hidden;
-  border-radius: 3px;
-  background: var(--line);
+  border-radius: 999px;
+  background: var(--pill);
 }
 
 .fill {
   display: block;
   height: 100%;
-  border-radius: 3px;
+  border-radius: 999px;
   background: var(--accent);
   transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
 }

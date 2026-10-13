@@ -21,9 +21,10 @@ import { dismissHoldHint, holdHintDismissed, touchUI } from '@/lib/input'
   align-items: center;
   gap: 8px;
   margin: 0;
-  padding: 8px 6px 8px 12px;
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  padding: 8px 6px 8px 14px;
+  border: 1px solid var(--glass-edge);
+  border-radius: 16px;
+  background: var(--surface);
   color: var(--fg);
   font-size: 0.8rem;
   font-weight: 600;

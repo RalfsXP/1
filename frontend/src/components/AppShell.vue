@@ -3,17 +3,16 @@ import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { Bars3Icon } from '@heroicons/vue/24/outline'
 import LanguageSwitch from '@/components/LanguageSwitch.vue'
-import LiveClock from '@/components/LiveClock.vue'
 import LogoMark from '@/components/LogoMark.vue'
 import MobileNav from '@/components/MobileNav.vue'
 import SideNav from '@/components/SideNav.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 
 /**
- * Signed-in layout. Desktop: side nav on the left. Phones: a fixed top bar
- * (solid, so iOS Safari tints the status bar instead of blurring the page under
- * it) and a floating Menu button that opens the navigation as a bottom sheet.
- * The main area scrolls on its own while the page itself stays fixed.
+ * Signed-in layout. Desktop: side nav on the left. Phones: a fixed glass top bar
+ * (the mist continues under it, content scrolls under it blurred) and a floating
+ * Menu button that opens the navigation as a bottom sheet. The main area scrolls
+ * on its own while the page itself stays fixed.
  */
 const route = useRoute()
 const menuOpen = ref(false)
@@ -29,7 +28,6 @@ const showMenuButton = computed(() => route.name !== 'whiteboard')
     <!-- Same corner as on the login page: language + theme top right. -->
     <header class="topbar">
       <RouterLink :to="{ name: 'home' }" class="mark" :aria-label="$t('nav.home')"><LogoMark /></RouterLink>
-      <LiveClock class="clock" />
       <div class="controls">
         <LanguageSwitch />
         <ThemeToggle />
@@ -51,7 +49,7 @@ const showMenuButton = computed(() => route.name !== 'whiteboard')
     <button
       v-if="showMenuButton"
       type="button"
-      class="menu-btn"
+      class="float-btn glass-float menu-btn"
       :aria-label="$t('nav.menu')"
       :aria-expanded="menuOpen"
       @click="menuOpen = true"
@@ -64,15 +62,16 @@ const showMenuButton = computed(() => route.name !== 'whiteboard')
 
 <style scoped>
 .shell {
+  --bar-h: calc(max(8px, var(--top-inset)) + 56px);
   display: grid;
   grid-template-rows: 1fr;
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
-  /* = phone top bar height: top padding + 40 px row + 8 px bottom padding + 1 px border */
-  padding-top: calc(max(8px, var(--top-inset)) + 49px);
 }
 
+/* No visible bar: no tint, so the mist runs on unbroken. Content scrolling under it is blurred
+   by a layer whose blur fades out downwards (mask), so the bar never shows an edge. */
 .topbar {
   position: fixed;
   top: 0;
@@ -82,15 +81,20 @@ const showMenuButton = computed(() => route.name !== 'whiteboard')
   display: flex;
   align-items: center;
   gap: 8px;
-  height: calc(max(8px, var(--top-inset)) + 49px);
-  padding: max(8px, var(--top-inset)) 16px 8px max(16px, env(safe-area-inset-left));
-  border-bottom: 1px solid var(--line);
-  background: var(--bg);
+  height: var(--bar-h);
+  padding: max(8px, var(--top-inset)) 20px 6px max(20px, env(safe-area-inset-left));
 }
 
-/* Phones: no room for the clock next to the logo and controls. */
-.topbar .clock {
-  display: none;
+.topbar::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 -28px;
+  z-index: -1;
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  -webkit-mask-image: linear-gradient(to bottom, black 55%, transparent);
+  mask-image: linear-gradient(to bottom, black 55%, transparent);
+  pointer-events: none;
 }
 
 .controls {
@@ -108,53 +112,30 @@ const showMenuButton = computed(() => route.name !== 'whiteboard')
 
 .main {
   min-height: 0;
+  padding-top: var(--bar-h);
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
 
-/* Room so the last rows can scroll clear of the floating Menu button. */
+/* Room so the last rows can scroll clear of the floating buttons. */
 .main.with-menu {
-  padding-bottom: calc(env(safe-area-inset-bottom) + 72px);
+  padding-bottom: calc(env(safe-area-inset-bottom) + 84px);
 }
 
 .side {
   display: none;
 }
 
-/* Floating, not a full-width bar: Safari would paint a full-width bottom bar into its toolbar area. */
 .menu-btn {
-  position: fixed;
-  bottom: max(16px, calc(env(safe-area-inset-bottom) + 8px));
-  left: max(16px, env(safe-area-inset-left));
-  z-index: 40;
-  display: grid;
-  place-items: center;
-  width: 54px;
-  height: 54px;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  background: var(--bg);
+  left: max(20px, env(safe-area-inset-left));
   color: var(--fg);
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--black) 30%, transparent);
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.menu-btn:active {
-  transform: scale(0.94);
-}
-
-.menu-btn svg {
-  width: 26px;
-  height: 26px;
 }
 
 @media (min-width: 860px) {
   .shell {
-    grid-template-columns: 248px 1fr;
+    grid-template-columns: 272px 1fr;
     grid-template-rows: auto 1fr;
-    padding-top: 0;
   }
 
   .mark,
@@ -162,22 +143,21 @@ const showMenuButton = computed(() => route.name !== 'whiteboard')
     display: none;
   }
 
-  /* Desktop: a borderless bar over the content column — clock left, controls right (like the auth header). */
+  /* Desktop: a borderless bar over the content column, controls right (like the auth header). */
   .topbar {
     position: static;
     grid-column: 2;
     height: auto;
     padding: 24px 32px 0;
-    border-bottom: 0;
-    background: transparent;
   }
 
-  .topbar .clock {
-    display: inline;
+  .topbar::before {
+    display: none;
   }
 
   .main {
     grid-column: 2;
+    padding-top: 0;
   }
 
   .main.with-menu {
@@ -188,6 +168,8 @@ const showMenuButton = computed(() => route.name !== 'whiteboard')
     display: block;
     grid-row: 1 / span 2;
     grid-column: 1;
+    min-height: 0;
+    padding: 16px 0 16px 16px;
   }
 }
 </style>

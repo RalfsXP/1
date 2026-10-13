@@ -1,58 +1,54 @@
+/* Harbour fog (v1.6): the only design. Parchment mist + frosted glass in light mode, pure black + teal mist in dark.
+   Components use ONLY the role tokens below (--accent, --surface…), never the palette or raw hex. */
 :root {
-  /* V1 palette (default design) */
-  --turf: #2c6e49;
-  --seagreen: #4c956c;
-  --cream: #fefee3;
-  --blush: #ffc9b9;
-  --almond: #d68c45;
-
-  /* V2 palette (data-design="teal") */
   --teal: #16697a;
   --pacific: #489fb5;
   --skyblue: #82c0cc;
   --parchment: #ede7e3;
   --amberglow: #ffa62b;
 
-  /* V3 palette (data-design="ember") */
-  --prussian: #001427;
-  --deepteal: #708d81;
-  --jasmine: #f4d58d;
-  --ember: #bf0603;
-  --bloodred: #8d0801;
-
   /* Space above the top bar / headers. Home Screen web app (html.standalone): iOS 26 blurs ~the top of the
-     page under the status bar, so content starts a little lower there and the blur only covers plain colour. */
+     page under the status bar, so content starts a little lower there. */
   --top-inset: env(safe-area-inset-top, 0px);
 
-  /* Every design defines the same roles; components use ONLY these, never the palette.
-     --ink / --paper = the design's darkest + lightest colour (text on badges, shadows, previews).
-     --black / --white are kept as aliases of them for older call sites. */
+  /* --ink / --paper = darkest + lightest colour (text on badges and accents). --black / --white are aliases. */
+  --ink: #0a2128;
+  --paper: var(--parchment);
 
-  /* ---------- V1 dark (default): deep Turf night, Light Yellow text,
-     Sea Green actions (ink text ~5:1), Toasted Almond highlights, Powder Blush links ---------- */
-  --ink: #0d1f15;
-  --paper: var(--cream);
-
-  --bg: var(--ink);
+  /* ---------- Dark: pure black, Parchment text, Pacific Blue actions (ink text ~5.5:1),
+     Amber Glow highlights (ink text ~8:1), Sky Blue links ---------- */
+  --bg: #000000;
   --fg: var(--paper);
-  --muted: color-mix(in srgb, var(--paper) 62%, var(--bg));
-  --line: color-mix(in srgb, var(--seagreen) 22%, var(--bg));
-  --frame: color-mix(in srgb, var(--seagreen) 20%, var(--bg));
-  --frame-edge: color-mix(in srgb, var(--seagreen) 34%, var(--bg));
-  --screen: var(--bg);
-  --glow: color-mix(in srgb, var(--seagreen) 30%, transparent);
-  --surface: color-mix(in srgb, var(--turf) 22%, var(--bg));
-  --backdrop: color-mix(in srgb, #000000 60%, transparent);
+  --muted: #9db2b7;
+  --line: rgb(237 231 227 / 0.12);
+  --backdrop: rgb(0 0 0 / 0.6);
 
-  --accent: var(--seagreen);
+  /* Glass: translucent panels over the mist. --surface = cards and rows, --surface-strong = sheets,
+     --glass-edge = their 1 px rim, --field = inputs, --pill / --pill-active = segmented controls. */
+  --surface: rgb(255 255 255 / 0.07);
+  --surface-strong: rgb(22 26 28 / 0.9);
+  --glass-edge: rgb(255 255 255 / 0.12);
+  --glass-shadow: 0 12px 32px rgb(0 0 0 / 0.35);
+  --float-shadow: 0 10px 30px rgb(0 0 0 / 0.5);
+  --field: rgb(255 255 255 / 0.06);
+  --pill: rgb(255 255 255 / 0.08);
+  --pill-active: rgb(255 255 255 / 0.18);
+  --mist:
+    radial-gradient(65% 40% at 100% 18%, rgb(22 105 122 / 0.7), transparent),
+    radial-gradient(55% 35% at 0% 58%, rgb(72 159 181 / 0.26), transparent),
+    radial-gradient(50% 30% at 90% 96%, rgb(255 166 43 / 0.14), transparent);
+
+  --accent: var(--pacific);
   --on-accent: var(--ink);
-  --highlight: var(--almond);
+  --highlight: var(--amberglow);
   --on-highlight: var(--ink);
-  --link: var(--blush);
+  --link: var(--skyblue);
+  /* Quiet data colour (chart bars, secondary marks). */
+  --soft: color-mix(in srgb, var(--skyblue) 80%, transparent);
 
   /* Priority flags: low / high / important. */
-  --flag-low: var(--seagreen);
-  --flag-high: #f2c14e;
+  --flag-low: var(--skyblue);
+  --flag-high: var(--amberglow);
   --flag-important: #e5604d;
 
   --black: var(--ink);
@@ -61,65 +57,27 @@
   color-scheme: dark;
 }
 
-/* ---------- V1 light: Light Yellow paper, Turf Green actions (yellow text ~6:1),
-   Toasted Almond highlights (ink text ~4.5:1), Powder Blush glow ---------- */
+/* ---------- Light: Parchment ground, Stormy Teal actions (parchment text ~5:1),
+   Amber Glow highlights (ink text), Sky Blue + Pacific mist ---------- */
 :root[data-theme='light'] {
-  --ink: #143823;
-
   --bg: var(--paper);
   --fg: var(--ink);
-  --muted: color-mix(in srgb, var(--ink) 62%, var(--bg));
-  --line: color-mix(in srgb, var(--turf) 18%, var(--bg));
-  --frame: var(--turf);
-  --frame-edge: color-mix(in srgb, var(--turf) 70%, var(--ink));
-  --screen: var(--bg);
-  --glow: color-mix(in srgb, var(--blush) 70%, transparent);
-  --surface: color-mix(in srgb, var(--seagreen) 9%, var(--bg));
-  --backdrop: color-mix(in srgb, var(--ink) 40%, transparent);
+  --muted: #4d656b;
+  --line: rgb(10 33 40 / 0.1);
+  --backdrop: rgb(10 33 40 / 0.32);
 
-  --accent: var(--turf);
-  --on-accent: var(--paper);
-  --link: var(--turf);
-
-  --flag-low: var(--turf);
-  --flag-high: #c98a12;
-  --flag-important: #c8412e;
-
-  color-scheme: light;
-}
-
-/* ---------- V2 dark (data-design="teal"): deep Stormy Teal night, Parchment text,
-   Pacific Blue actions (ink text ~5:1), Amber Glow highlights, Sky Blue links ---------- */
-:root[data-design='teal'] {
-  --ink: #0a2128;
-  --paper: var(--parchment);
-
-  --line: color-mix(in srgb, var(--pacific) 22%, var(--bg));
-  --frame: color-mix(in srgb, var(--pacific) 20%, var(--bg));
-  --frame-edge: color-mix(in srgb, var(--pacific) 34%, var(--bg));
-  --glow: color-mix(in srgb, var(--pacific) 32%, transparent);
-  --surface: color-mix(in srgb, var(--teal) 24%, var(--bg));
-
-  --accent: var(--pacific);
-  --on-accent: var(--ink);
-  --highlight: var(--amberglow);
-  --on-highlight: var(--ink);
-  --link: var(--skyblue);
-
-  --flag-low: var(--skyblue);
-  --flag-high: var(--amberglow);
-}
-
-/* ---------- V2 light: Parchment paper, Stormy Teal actions (parchment text ~5:1),
-   Amber Glow highlights (ink text), Sky Blue glow ---------- */
-:root[data-design='teal'][data-theme='light'] {
-  --ink: #0c3640;
-
-  --line: color-mix(in srgb, var(--teal) 18%, var(--bg));
-  --frame: var(--teal);
-  --frame-edge: color-mix(in srgb, var(--teal) 70%, var(--ink));
-  --glow: color-mix(in srgb, var(--skyblue) 60%, transparent);
-  --surface: color-mix(in srgb, var(--skyblue) 14%, var(--bg));
+  --surface: rgb(255 255 255 / 0.55);
+  --surface-strong: rgb(245 241 238 / 0.92);
+  --glass-edge: rgb(255 255 255 / 0.85);
+  --glass-shadow: 0 12px 32px rgb(10 33 40 / 0.07);
+  --float-shadow: 0 10px 30px rgb(10 33 40 / 0.16);
+  --field: rgb(255 255 255 / 0.75);
+  --pill: rgb(10 33 40 / 0.06);
+  --pill-active: #ffffff;
+  --mist:
+    radial-gradient(60% 38% at 100% 22%, rgb(130 192 204 / 0.75), transparent),
+    radial-gradient(55% 35% at 0% 55%, rgb(72 159 181 / 0.35), transparent),
+    radial-gradient(50% 30% at 90% 92%, rgb(255 166 43 / 0.22), transparent);
 
   --accent: var(--teal);
   --on-accent: var(--paper);
@@ -127,49 +85,9 @@
 
   --flag-low: var(--teal);
   --flag-high: #c98a12;
-}
+  --flag-important: #c8412e;
 
-/* ---------- V3 dark (data-design="ember"): Prussian Blue night, Jasmine-white text,
-   Brick Ember actions (paper text ~5.5:1), Jasmine highlights, Deep Teal links ---------- */
-:root[data-design='ember'] {
-  --ink: var(--prussian);
-  --paper: color-mix(in srgb, var(--jasmine) 30%, #ffffff);
-
-  --line: color-mix(in srgb, var(--deepteal) 24%, var(--bg));
-  --frame: color-mix(in srgb, var(--deepteal) 20%, var(--bg));
-  --frame-edge: color-mix(in srgb, var(--deepteal) 34%, var(--bg));
-  --glow: color-mix(in srgb, var(--ember) 30%, transparent);
-  --surface: color-mix(in srgb, var(--deepteal) 12%, var(--bg));
-
-  --accent: var(--ember);
-  --on-accent: var(--paper);
-  --highlight: var(--jasmine);
-  --on-highlight: var(--ink);
-  --link: var(--deepteal);
-
-  --flag-low: var(--deepteal);
-  --flag-high: var(--jasmine);
-  --flag-important: #ff5a4f;
-}
-
-/* ---------- V3 light: Jasmine paper, Blood Red actions (paper text ~8:1),
-   Brick Ember highlights + links (~5.5:1), Jasmine glow ---------- */
-:root[data-design='ember'][data-theme='light'] {
-  --line: color-mix(in srgb, var(--deepteal) 28%, var(--bg));
-  --frame: var(--prussian);
-  --frame-edge: color-mix(in srgb, var(--deepteal) 50%, var(--prussian));
-  --glow: color-mix(in srgb, var(--jasmine) 75%, transparent);
-  --surface: color-mix(in srgb, var(--jasmine) 24%, var(--bg));
-
-  --accent: var(--bloodred);
-  --on-accent: var(--paper);
-  --highlight: var(--ember);
-  --on-highlight: var(--paper);
-  --link: var(--ember);
-
-  --flag-low: color-mix(in srgb, var(--deepteal) 75%, #000000);
-  --flag-high: #c98a12;
-  --flag-important: var(--ember);
+  color-scheme: light;
 }
 
 *,
@@ -193,9 +111,12 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* The mist sits on <body>, which never scrolls: scrolling content glides over a still background. */
 body {
   margin: 0;
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image: var(--mist);
+  background-repeat: no-repeat;
   color: var(--fg);
   font-family: Montserrat, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -246,27 +167,10 @@ textarea {
   }
 }
 
-/* Home Screen web app (html.standalone, set pre-paint): a solid strip under the clock / Dynamic Island.
-   iOS 26 blurs the top of the page unless an opaque fixed box covers the top edge (no backdrop-filter);
-   pages without their own fixed top bar (landing, login) get it from this strip. */
-.status-strip {
-  display: none;
-}
-
+/* Home Screen web app (html.standalone, set pre-paint): the page draws under the status bar, and iOS 26 blurs
+   the top edge — the mist and the glass top bar continue up there, content starts a little lower. */
 .standalone {
   --top-inset: calc(env(safe-area-inset-top, 0px) + 14px);
-}
-
-.standalone .status-strip {
-  position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
-  z-index: 45;
-  display: block;
-  height: max(12px, var(--top-inset));
-  background: var(--bg);
-  pointer-events: none;
 }
 
 /* One focus ring for everything keyboard-focusable. */
@@ -289,23 +193,40 @@ textarea {
   white-space: nowrap;
 }
 
+/* ---------- Glass ---------- */
+/* Panels: translucent over the mist. Plain fills only — the mist is soft already, and a backdrop blur on
+   every row would make long lists scroll slowly on phones. Floating chrome uses .glass-float (real blur). */
+.glass {
+  border: 1px solid var(--glass-edge);
+  background: var(--surface);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-float {
+  border: 1px solid var(--glass-edge);
+  background: var(--surface);
+  box-shadow: var(--float-shadow);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  backdrop-filter: blur(24px) saturate(1.4);
+}
+
 /* ---------- Buttons ---------- */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 34px;
-  padding: 0 14px;
+  height: 40px;
+  padding: 0 18px;
   border-radius: 999px;
   font: inherit;
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s, color 0.2s, transform 0.2s, opacity 0.2s;
+  transition: background-color 0.2s, border-color 0.2s, color 0.2s, transform 0.2s, opacity 0.2s, box-shadow 0.2s;
 }
 
 .btn:active {
@@ -322,54 +243,58 @@ textarea {
   cursor: default;
 }
 
+.btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Secondary: a glass pill. */
 .btn-ghost {
-  border: 1px solid var(--line);
-  background: transparent;
+  border: 1px solid var(--glass-edge);
+  background: var(--surface);
   color: var(--fg);
 }
 
 .btn-ghost:hover {
   border-color: var(--accent);
-  color: var(--accent);
 }
 
-/* Black on Seagrass in both themes: ~7:1 contrast, white would be ~3:1. */
 .btn-primary {
   border: 1px solid var(--accent);
   background: var(--accent);
   color: var(--on-accent);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--accent) 85%, var(--white));
-  border-color: color-mix(in srgb, var(--accent) 85%, var(--white));
+  background: color-mix(in srgb, var(--accent) 88%, var(--fg));
+  border-color: color-mix(in srgb, var(--accent) 88%, var(--fg));
 }
 
 .btn-lg {
-  height: 46px;
-  padding: 0 22px;
-  font-size: 0.9rem;
+  height: 54px;
+  padding: 0 24px;
+  font-size: 1rem;
 }
 
-/* Square icon-only button (Heroicons inside). */
+/* Round icon-only button (Heroicons inside): a glass disc. */
 .icon-btn {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   padding: 0;
-  border: 1px solid var(--line);
+  border: 1px solid var(--glass-edge);
   border-radius: 50%;
-  background: transparent;
+  background: var(--surface);
   color: var(--fg);
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, transform 0.2s;
+  transition: border-color 0.2s, color 0.2s, background-color 0.2s, transform 0.2s;
 }
 
 .icon-btn:hover {
   border-color: var(--accent);
-  color: var(--accent);
 }
 
 .icon-btn:active {
@@ -388,15 +313,17 @@ textarea {
 
 .icon-btn.bare {
   border-color: transparent;
+  background: var(--pill);
+  box-shadow: none;
 }
 
 /* ---------- App pages (shared by every signed-in view) ---------- */
 .page {
   display: grid;
-  gap: 24px;
+  gap: 16px;
   align-content: start;
   min-width: 0;
-  padding: 20px 16px max(32px, calc(env(safe-area-inset-bottom) + 24px));
+  padding: 14px 20px max(32px, calc(env(safe-area-inset-bottom) + 24px));
 }
 
 .page.narrow {
@@ -407,50 +334,76 @@ textarea {
   max-width: 1080px;
 }
 
-.page-title {
-  margin: 0;
-  font-size: clamp(1.5rem, 5.5vw, 2.1rem);
-  font-weight: 800;
-  letter-spacing: -0.03em;
+/* Big editorial title with an optional muted line under it (.page-sub). */
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0 8px;
 }
 
-.page-title::first-letter {
+.page-head > div:first-child {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.page-title {
+  margin: 0;
+  font-size: clamp(2.1rem, 10vw, 2.6rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  overflow-wrap: anywhere;
+}
+
+.page-title::first-letter,
+.page-sub::first-letter {
   text-transform: uppercase;
+}
+
+.page-sub {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 500;
 }
 
 .section-title {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.2rem;
   font-weight: 800;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
 }
 
 .section-label {
   color: var(--muted);
   font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.08em;
   text-decoration: none;
   text-transform: uppercase;
 }
 
 .card {
-  padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
+  padding: 18px;
+  border: 1px solid var(--glass-edge);
+  border-radius: 28px;
   background: var(--surface);
+  box-shadow: var(--glass-shadow);
   color: var(--fg);
 }
 
 .list {
   display: grid;
-  gap: 8px;
+  gap: 10px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-/* Nothing to show: one muted line in a dashed box (optionally with an action). */
+/* Nothing to show: one muted line in a dashed glass box (optionally with an action). */
 .empty-state {
   display: flex;
   flex-wrap: wrap;
@@ -458,63 +411,100 @@ textarea {
   justify-content: space-between;
   gap: 12px;
   margin: 0;
-  padding: 16px;
-  border: 1px dashed var(--line);
-  border-radius: 18px;
+  padding: 18px;
+  border: 1px dashed color-mix(in srgb, var(--fg) 22%, transparent);
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
   color: var(--muted);
   font-size: 0.9rem;
 }
 
+/* Round floating buttons (phones): Menu bottom-left, add bottom-right. Never a full-width bar —
+   Safari would paint that into its toolbar area. */
+.float-btn {
+  position: fixed;
+  bottom: max(20px, calc(env(safe-area-inset-bottom) + 10px));
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.float-btn:active {
+  transform: scale(0.94);
+}
+
+.float-btn svg {
+  width: 26px;
+  height: 26px;
+}
+
+.float-btn.add {
+  right: max(20px, env(safe-area-inset-right));
+  border: 0;
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
 @media (min-width: 860px) {
   .page {
-    padding: 16px 32px 32px;
+    padding: 8px 32px 32px;
+  }
+
+  .float-btn.add {
+    display: none;
   }
 }
 
 /* ---------- App forms ---------- */
 .form-field {
   display: grid;
-  gap: 6px;
+  gap: 8px;
 }
 
 .form-label {
   color: var(--muted);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
 .input {
   width: 100%;
-  min-height: 46px;
-  padding: 10px 14px;
+  min-height: 52px;
+  padding: 12px 16px;
   border: 1px solid var(--line);
-  border-radius: 14px;
-  background: transparent;
+  border-radius: 16px;
+  background: var(--field);
   color: var(--fg);
   font-size: 16px; /* ≥16px stops iOS zooming in on focus */
   font-weight: 500;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .input:focus {
   border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
   outline: none;
 }
 
 textarea.input {
-  min-height: 80px;
+  min-height: 84px;
   resize: vertical;
 }
 
-/* Pill group of mutually exclusive options. */
+/* Pill group of mutually exclusive options: the chosen one is a raised pill. */
 .segmented {
   display: flex;
   gap: 4px;
   padding: 4px;
-  border: 1px solid var(--line);
   border-radius: 999px;
+  background: var(--pill);
 }
 
 .segmented button {
@@ -523,16 +513,17 @@ textarea.input {
   align-items: center;
   justify-content: center;
   gap: 6px;
+  min-width: 0;
   min-height: 38px;
   padding: 0 10px;
   border: 0;
   border-radius: 999px;
   background: transparent;
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
 }
 
 .segmented button:hover {
@@ -540,15 +531,14 @@ textarea.input {
 }
 
 .segmented button[aria-pressed='true'] {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--pill-active);
+  box-shadow: 0 2px 8px rgb(10 33 40 / 0.1);
+  color: var(--fg);
 }
 
-/* Outline variant: keeps coloured content (priority flags) readable when selected. */
+/* Outline variant: keeps coloured content (priority flags) readable, with an accent rim when chosen. */
 .segmented.outline button[aria-pressed='true'] {
-  background: transparent;
   box-shadow: inset 0 0 0 2px var(--accent);
-  color: var(--fg);
 }
 
 .segmented button:focus-visible {

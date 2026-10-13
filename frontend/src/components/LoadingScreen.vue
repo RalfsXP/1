@@ -22,9 +22,8 @@ import LogoMark from './LogoMark.vue'
   z-index: 100;
   display: grid;
   place-items: center;
-  background:
-    radial-gradient(28rem 28rem at 50% 50%, var(--glow), transparent 70%),
-    var(--bg);
+  background-color: var(--bg);
+  background-image: var(--mist);
 }
 
 .spinner {

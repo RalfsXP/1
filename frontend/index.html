@@ -2,14 +2,14 @@
 <html lang="lv">
   <head>
     <meta charset="UTF-8">
-    <!-- Tab icon: Turf Green tile with a Light Yellow "m"; PNG/ICO for browsers without SVG icons (Safari).
+    <!-- Tab icon: Stormy Teal tile with a Parchment "m"; PNG/ICO for browsers without SVG icons (Safari).
          ?v= busts browsers' sticky favicon cache — bump it whenever the icons change. -->
-    <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
-    <link rel="icon" href="/favicon-32.png?v=3" sizes="32x32" type="image/png">
-    <link rel="icon" href="/favicon.ico?v=3" sizes="any">
+    <link rel="icon" href="/favicon.svg?v=4" type="image/svg+xml">
+    <link rel="icon" href="/favicon-32.png?v=4" sizes="32x32" type="image/png">
+    <link rel="icon" href="/favicon.ico?v=4" sizes="any">
     <!-- Home-screen icon (iPhone "Add to Home Screen", Android/Chrome install). -->
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
-    <link rel="manifest" href="/site.webmanifest?v=3">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=4">
+    <link rel="manifest" href="/site.webmanifest?v=4">
     <!-- Opened from the Home Screen: a full-screen app; the page draws under the status bar /
          Dynamic Island (layouts pad with env(safe-area-inset-*)), so the menu reaches the top. -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -18,10 +18,10 @@
     <meta name="apple-mobile-web-app-title" content="Merkis">
     <!-- App-like: no pinch or double-tap zoom (inputs are ≥16px, so iOS never needs to zoom them). -->
     <!-- No viewport-fit=cover in a Safari tab: iOS 26 Safari covers anything drawn under its bottom toolbar.
-         Opened from the Home Screen (iOS 26 opens those as web apps) the script below adds it, so the opaque
-         top bar can reach under the clock — that's what stops iOS's blur over the top of the page. -->
+         Opened from the Home Screen (iOS 26 opens those as web apps) the script below adds it, so the mist
+         and the glass top bar reach up under the clock. -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0d1f15">
+    <meta name="theme-color" content="#000000">
     <meta name="description" content="Merkis.app">
     <title>Merkis.app</title>
     <script>
@@ -33,17 +33,12 @@
           theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
         }
         document.documentElement.dataset.theme = theme
-        // Home Screen web app: draw under the status bar; .standalone styles cover it with an opaque strip.
+        // Home Screen web app: draw under the status bar (.standalone moves content a little lower).
         if (window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches) {
           document.documentElement.classList.add('standalone')
           var vp = document.querySelector('meta[name="viewport"]')
           if (vp) vp.setAttribute('content', vp.getAttribute('content') + ', viewport-fit=cover')
         }
-        // Design (Settings → Design): the default one needs no attribute.
-        try {
-          var design = localStorage.getItem('merkis-design')
-          if (design === 'teal' || design === 'ember') document.documentElement.dataset.design = design
-        } catch (e) {}
       })()
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">

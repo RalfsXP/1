@@ -50,9 +50,9 @@ class StickyNote extends Textbox {
 }
 classRegistry.setClass(StickyNote)
 
-/** UI colour (handles, cursors) from the active design; note colours are content and stay put. */
-const accent = () => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#4c956c'
-const NOTE_DEFAULT = SWATCHES[0]
+/** UI colour (handles, cursors) from the theme; note colours are content and stay put. */
+const accent = () => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#16697a'
+const NOTE_DEFAULT = SWATCHES[3]
 const INK_LIGHT = '#000000'
 const INK_DARK = '#ffffff'
 const SIZES = [
@@ -759,7 +759,7 @@ onBeforeUnmount(() => {
   touch-action: none;
 }
 
-/* Floating pill bars over the board. */
+/* Floating glass bars over the board. */
 .bar {
   position: absolute;
   z-index: 5;
@@ -767,11 +767,16 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 4px;
   padding: 6px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: color-mix(in srgb, var(--bg) 92%, transparent);
-  box-shadow: 0 6px 24px color-mix(in srgb, var(--black) 18%, transparent);
-  backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-edge);
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--surface-strong) 80%, transparent);
+  box-shadow: var(--float-shadow);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  backdrop-filter: blur(24px) saturate(1.4);
+}
+
+.top {
+  border-radius: 999px;
 }
 
 .top {
@@ -821,15 +826,20 @@ onBeforeUnmount(() => {
   cursor: default;
 }
 
+/* Only "back" sits on a pill; the other bar buttons are plain icons. */
+.bar .icon-btn.bare:not(:first-child) {
+  background: transparent;
+}
+
 .zoom {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   height: 36px;
-  padding: 0 10px;
+  padding: 0 12px;
   border: 0;
-  border-radius: 10px;
-  background: transparent;
+  border-radius: 999px;
+  background: var(--pill);
   color: var(--fg);
   font-size: 0.78rem;
   font-weight: 800;
@@ -857,11 +867,11 @@ onBeforeUnmount(() => {
 .tool {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
   border: 0;
-  border-radius: 12px;
+  border-radius: 16px;
   background: transparent;
   color: var(--fg);
   cursor: pointer;
@@ -874,6 +884,7 @@ onBeforeUnmount(() => {
 
 .tool[aria-pressed='true'] {
   background: var(--accent);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 35%, transparent);
   color: var(--on-accent);
 }
 
@@ -935,7 +946,7 @@ onBeforeUnmount(() => {
 }
 
 .size[aria-pressed='true'] {
-  background: var(--line);
+  background: var(--pill);
 }
 
 .divider {
@@ -952,7 +963,7 @@ onBeforeUnmount(() => {
   right: 16px;
   left: 16px;
   z-index: 6;
-  background: var(--bg);
+  background: var(--surface-strong);
 }
 
 @media (max-width: 860px) {

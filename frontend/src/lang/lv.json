@@ -14,31 +14,18 @@
   },
   "landing": {
     "login": "Pieslēgties",
-    "signup": "Reģistrēties"
+    "sceneGoal": "Skriet 5 km"
   },
   "auth": {
     "back": "Atpakaļ",
     "loginTitle": "Laipni lūdzam atpakaļ",
     "loginLead": "Pieslēdzies, lai turpinātu darbu ar Merkis.",
-    "registerTitle": "Izveido savu kontu",
-    "registerLead": "Reģistrējies, lai sāktu lietot Merkis.",
-    "name": "Vārds",
     "email": "E-pasts",
     "password": "Parole",
-    "confirmPassword": "Apstiprini paroli",
     "showPassword": "Rādīt paroli",
     "hidePassword": "Slēpt paroli",
-    "strength": "Drošība",
-    "strengthAria": "Paroles drošība",
-    "strengthLevels": ["Tukša", "Vāja", "Vāja", "Vidēja", "Laba", "Spēcīga"],
     "submitLogin": "Pieslēgties",
     "submittingLogin": "Pieslēdzas…",
-    "submitRegister": "Izveidot kontu",
-    "submittingRegister": "Izveido kontu…",
-    "haveAccount": "Jau ir konts?",
-    "noAccount": "Pirmo reizi Merkis?",
-    "switchToLogin": "Pieslēgties",
-    "switchToRegister": "Reģistrēties",
     "errorThrottle": "Pārāk daudz mēģinājumu. Lūdzu, uzgaidi minūti un mēģini vēlreiz.",
     "errorGeneric": "Kaut kas nogāja greizi. Lūdzu, mēģini vēlreiz."
   },
@@ -46,6 +33,7 @@
     "menu": "Izvēlne",
     "close": "Aizvērt",
     "calendar": "Kalendārs",
+    "events": "Notikumi",
     "logout": "Iziet",
     "home": "Pārskats",
     "settings": "Iestatījumi",
@@ -148,12 +136,6 @@
     "languages": {
       "lv": "Latviešu",
       "en": "English"
-    },
-    "design": "Dizains",
-    "designs": {
-      "default": "V1",
-      "teal": "V2",
-      "ember": "V3"
     }
   },
   "dashboard": {
@@ -169,7 +151,7 @@
     "completedCount": "Izpildīti: {n}",
     "yesterday": "Mērķi vakar"
   },
-  "colors": ["Jūras zaļa", "Okeāna zila", "Mandeļu", "Pūderrozā", "Zāles zaļa", "Dzintara", "Vētras zilganzaļa", "Debeszila"],
+  "colors": ["Okeāna zila", "Debeszila", "Vētras zilganzaļa", "Dzintara", "Koraļļu", "Okera", "Salvijas zaļa", "Tintes"],
   "icons": {
     "flag": "Karogs",
     "star": "Zvaigzne",
@@ -260,16 +242,18 @@
     "migrateDone": "Migrācijas palaistas.",
     "migrateFailed": "Migrācijas neizdevās — skati izvadi."
   },
-  "demo": {
-    "name": "Anna",
-    "goals": {
-      "run": "Skriet 5 km",
-      "report": "Iesniegt atskaiti",
-      "read": "Lasīt 20 min",
-      "water": "Izdzert 2 l ūdens",
-      "gym": "Sporta zāle",
-      "call": "Piezvanīt mammai"
-    }
+  "events": {
+    "title": "Notikumi",
+    "new": "Jauns notikums",
+    "edit": "Rediģēt notikumu",
+    "name": "Nosaukums",
+    "date": "Datums",
+    "time": "Laiks",
+    "allDay": "Visu dienu",
+    "repeat": "Atkārtot",
+    "once": "Vienreiz",
+    "empty": "Vēl nav notikumu. Pievieno dzimšanas dienas, gadadienas vai tikšanās.",
+    "past": "Pagājušie"
   },
   "whiteboard": {
     "title": "Tāfeles",

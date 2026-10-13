@@ -3,12 +3,13 @@ import { computed, ref } from 'vue'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/outline'
 import { FlagIcon } from '@heroicons/vue/20/solid'
 import GoalBadge from '@/components/GoalBadge.vue'
+import { eventBadge } from '@/lib/events'
 import { badgeFor } from '@/lib/goals'
 import { touchUI } from '@/lib/input'
 import { usePress } from '@/lib/press'
 import { t } from '@/lib/i18n'
 import { todayISO } from '@/lib/timeLeft'
-import { addDays, isoWeek, monthLabel, periodEnd, periodLabel, periodStart, shiftPeriod, toISO } from '@/lib/periods'
+import { addDays, isoWeek, parseISO, periodEnd, periodLabel, periodStart, shiftPeriod, toISO } from '@/lib/periods'
 
 /**
  * Month grid (Monday first) with week numbers. Days show their daily goals as
@@ -20,6 +21,8 @@ const props = defineProps({
   month: { type: String, required: true }, // first day, YYYY-MM-DD
   selected: { type: String, required: true },
   occurrences: { type: Array, required: true },
+  // Event occurrences ({ key, date, event }) in the visible weeks.
+  events: { type: Array, default: () => [] },
 })
 const emit = defineEmits(['update:month', 'select', 'open-week', 'open', 'toggle'])
 
@@ -28,6 +31,10 @@ const press = usePress({ onTap: (occ) => emit('toggle', occ), onHold: (occ) => e
 const onBadge = (e, occ) => (touchUI.value ? press.click(e, occ) : emit('open', occ))
 
 const direction = ref('next')
+
+// Big month name as the page title, the year under it.
+const monthTitle = computed(() => t('common.months')[parseISO(props.month).getMonth()])
+const yearLabel = computed(() => parseISO(props.month).getFullYear())
 
 function go(n) {
   direction.value = n > 0 ? 'next' : 'prev'
@@ -70,6 +77,7 @@ const weeks = computed(() => {
           day: date.getDate(),
           inMonth: date.getMonth() === monthIndex,
           items,
+          events: props.events.filter((o) => o.date === iso),
           spans: customs.value.filter((o) => o.start <= iso && o.end >= iso),
           important: items.some((o) => !o.done && o.goal.priority === 'important'),
         }
@@ -90,7 +98,13 @@ const strip = computed(() =>
 )
 
 const dayLabel = (day) =>
-  day.items.length ? `${periodLabel('day', day.iso)} · ${t('calendar.goalCount', { n: day.items.length })}` : periodLabel('day', day.iso)
+  [
+    periodLabel('day', day.iso),
+    ...day.events.map((o) => o.event.title),
+    day.items.length ? t('calendar.goalCount', { n: day.items.length }) : null,
+  ]
+    .filter(Boolean)
+    .join(' · ')
 
 const isCurrentMonth = computed(() => props.month === toISO(periodStart('month', todayISO.value)))
 
@@ -108,8 +122,11 @@ function onTouchEnd(e) {
 
 <template>
   <section class="calendar">
-    <header class="cal-head">
-      <h1 class="page-title">{{ monthLabel(month) }}</h1>
+    <header class="page-head cal-head">
+      <div>
+        <h1 class="page-title">{{ monthTitle }}</h1>
+        <p class="page-sub">{{ yearLabel }}</p>
+      </div>
       <div class="cal-nav">
         <button v-if="!isCurrentMonth" type="button" class="btn btn-ghost" @click="goToday">{{ $t('calendar.today') }}</button>
         <button type="button" class="icon-btn" :aria-label="$t('calendar.prev')" @click="go(-1)">
@@ -179,9 +196,16 @@ function onTouchEnd(e) {
               <span class="num">{{ day.day }}</span>
               <FlagIcon v-if="day.important" class="important" aria-hidden="true" />
 
-              <span v-if="day.items.length" class="dots">
+              <span v-if="day.items.length || day.events.length" class="dots">
+                <!-- Events: a small rounded square in their badge colour; goals: round dots. -->
                 <span
-                  v-for="occ in day.items.slice(0, 4)"
+                  v-for="occ in day.events.slice(0, 2)"
+                  :key="occ.key"
+                  class="dot event"
+                  :style="{ '--c': eventBadge(occ.event).color }"
+                />
+                <span
+                  v-for="occ in day.items.slice(0, 4 - Math.min(2, day.events.length))"
                   :key="occ.key"
                   class="dot"
                   :class="{ done: occ.done }"
@@ -189,16 +213,23 @@ function onTouchEnd(e) {
                 />
               </span>
 
-              <span v-if="day.items.length" class="badges">
+              <span v-if="day.items.length || day.events.length" class="badges">
                 <GoalBadge
-                  v-for="occ in day.items.slice(0, 2)"
+                  v-for="occ in day.events.slice(0, 2)"
+                  :key="occ.key"
+                  compact
+                  :title="occ.event.title"
+                  v-bind="eventBadge(occ.event)"
+                />
+                <GoalBadge
+                  v-for="occ in day.items.slice(0, 2 - Math.min(2, day.events.length))"
                   :key="occ.key"
                   compact
                   :title="occ.goal.title"
                   v-bind="badgeFor(occ.goal)"
                   :done="occ.done"
                 />
-                <span v-if="day.items.length > 2" class="more">+{{ day.items.length - 2 }}</span>
+                <span v-if="day.items.length + day.events.length > 2" class="more">+{{ day.items.length + day.events.length - 2 }}</span>
               </span>
 
               <!-- Custom periods: a band through every day they cover. -->
@@ -226,19 +257,8 @@ function onTouchEnd(e) {
   min-width: 0;
 }
 
-.cal-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px 12px;
-}
-
-.cal-head h1 {
-  min-width: 0;
-}
-
 .cal-nav .btn {
-  height: 40px;
+  height: 42px;
 }
 
 
@@ -251,8 +271,8 @@ function onTouchEnd(e) {
 .strip {
   display: flex;
   gap: 8px;
-  margin: 0 -16px;
-  padding: 2px 16px;
+  margin: 0 -20px;
+  padding: 2px 20px;
   overflow-x: auto;
   scrollbar-width: none;
   mask-image: linear-gradient(90deg, transparent, var(--black) 16px, var(--black) calc(100% - 24px), transparent);
@@ -292,14 +312,20 @@ function onTouchEnd(e) {
   transform: scale(0.97);
 }
 
+/* The month sits on one glass panel. */
 .grid-wrap {
+  padding: 12px 8px 8px;
   overflow: hidden;
+  border: 1px solid var(--glass-edge);
+  border-radius: 28px;
+  background: var(--surface);
+  box-shadow: var(--glass-shadow);
   touch-action: pan-y;
 }
 
 .weeks {
   display: grid;
-  gap: 4px;
+  gap: 2px;
 }
 
 .row {
@@ -315,9 +341,13 @@ function onTouchEnd(e) {
 .dow,
 .wk {
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 700;
   text-align: center;
+}
+
+.wk {
+  opacity: 0.75;
 }
 
 .wk-btn {
@@ -361,11 +391,11 @@ function onTouchEnd(e) {
   align-items: center;
   gap: 4px;
   min-width: 0;
-  height: 54px;
-  padding: 6px 2px;
+  height: 60px;
+  padding: 4px 2px;
   border: 1px solid transparent;
-  border-radius: 14px;
-  background: var(--surface);
+  border-radius: 16px;
+  background: transparent;
   color: var(--fg);
   font-family: inherit;
   cursor: pointer;
@@ -373,16 +403,17 @@ function onTouchEnd(e) {
 }
 
 .cell.out {
-  background: transparent;
   color: var(--muted);
+  opacity: 0.55;
 }
 
 .cell:hover {
-  border-color: var(--line);
+  background: var(--pill);
 }
 
 .cell.selected {
   border-color: var(--accent);
+  background: color-mix(in srgb, var(--pill-active) 55%, transparent);
 }
 
 .cell:focus-visible {
@@ -393,16 +424,18 @@ function onTouchEnd(e) {
 .num {
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  font-size: 0.8rem;
-  font-weight: 700;
+  font-size: 0.92rem;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
 
+/* Today: a glowing highlight disc. */
 .today .num {
   background: var(--highlight);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--highlight) 45%, transparent);
   color: var(--on-highlight);
   font-weight: 800;
 }
@@ -431,6 +464,10 @@ function onTouchEnd(e) {
   background: var(--c);
 }
 
+.dot.event {
+  border-radius: 2px;
+}
+
 /* Completed: hollow ring in the same colour. */
 .dot.done {
   background: transparent;
@@ -444,25 +481,25 @@ function onTouchEnd(e) {
 .spans {
   position: absolute;
   right: -3px;
-  bottom: 4px;
+  bottom: 2px;
   left: -3px;
   display: grid;
   gap: 2px;
 }
 
 .span {
-  height: 3px;
+  height: 4px;
   background: var(--c);
 }
 
 .span.first {
   margin-left: 8px;
-  border-radius: 2px 0 0 2px;
+  border-radius: 999px 0 0 999px;
 }
 
 .span.last {
   margin-right: 8px;
-  border-radius: 0 2px 2px 0;
+  border-radius: 0 999px 999px 0;
 }
 
 .span.done {
@@ -481,10 +518,19 @@ function onTouchEnd(e) {
     gap: 6px;
   }
 
+  .grid-wrap {
+    padding: 14px;
+  }
+
   .cell {
     align-items: stretch;
     height: 104px;
     padding: 6px;
+    background: var(--pill);
+  }
+
+  .cell.out {
+    background: transparent;
   }
 
   .num {

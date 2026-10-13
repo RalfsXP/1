@@ -6,7 +6,7 @@ import GoalItem from '@/components/GoalItem.vue'
 import HoldHint from '@/components/HoldHint.vue'
 import { user } from '@/lib/auth'
 import { compareOccurrences, loadRange, occurrencesBetween, refreshTick, setDone } from '@/lib/goals'
-import { PERIOD_TO_ROUTE, addDays, parseISO, periodEnd, periodStart, toISO, weekdayName } from '@/lib/periods'
+import { PERIOD_TO_ROUTE, addDays, dayMonth, parseISO, periodEnd, periodLabel, periodStart, toISO, weekdayName } from '@/lib/periods'
 import { now, todayISO } from '@/lib/timeLeft'
 
 /*
@@ -115,9 +115,9 @@ const hovered = ref(null)
 
 const firstName = computed(() => user.value?.name?.split(' ')[0] ?? '')
 
-/* Ring geometry for the progress tiles. */
-const R = 24
-const C = 2 * Math.PI * R
+const SHORT_LABEL = ['week', 'month', 'year']
+const todayLabel = computed(() => periodLabel('day', todayISO.value))
+const todayShort = computed(() => dayMonth(todayISO.value, true))
 
 const formOpen = ref(false)
 const editing = ref(null)
@@ -134,40 +134,46 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
 
 <template>
   <div class="page wide">
-    <h1 class="page-title">{{ firstName ? $t('dashboard.greeting', { name: firstName }) : $t('nav.home') }}</h1>
+    <header class="page-head">
+      <div>
+        <h1 class="page-title">{{ firstName ? $t('dashboard.greeting', { name: firstName }) : $t('nav.home') }}</h1>
+        <p class="page-sub">{{ todayLabel }}</p>
+      </div>
+    </header>
 
     <p v-if="failed" class="empty-state" role="alert">{{ $t('auth.errorGeneric') }}</p>
 
+    <!-- Today is the big tile; yesterday + overdue, then this week / month / year under it. -->
     <section class="tiles" :aria-label="$t('goal.progress')">
       <component
         :is="tile.to ? 'RouterLink' : 'div'"
         v-for="tile in tiles"
         :key="tile.key"
         class="tile"
-        :class="{ complete: tile.complete, link: tile.to }"
+        :class="[`t-${tile.key}`, { complete: tile.complete, link: tile.to }]"
         :to="tile.to || undefined"
       >
-        <span class="tile-label">{{ $t(`dashboard.${tile.key}`) }}</span>
-        <span class="tile-row">
-          <span class="tile-value">
-            <template v-if="tile.kind === 'progress'">{{ tile.done }}<span class="of">/{{ tile.total }}</span></template>
-            <template v-else>{{ tile.count }}</template>
-          </span>
-
+        <span class="tile-top">
+          <!-- The three small tiles use the short "This week / month / year". -->
+          <span class="tile-label">{{ SHORT_LABEL.includes(tile.key) ? $t(`periods.this.${tile.key}`) : $t(`dashboard.${tile.key}`) }}</span>
+          <span v-if="tile.key === 'day'" class="chip">{{ todayShort }}</span>
           <!-- Everything done (or nothing late): the tile turns accent with a check. -->
-          <span v-if="tile.complete" class="tile-check" aria-hidden="true"><CheckIcon /></span>
-          <svg v-else-if="tile.kind === 'progress'" class="ring" viewBox="0 0 60 60" aria-hidden="true">
-            <circle class="ring-track" cx="30" cy="30" :r="R" />
-            <circle class="ring-fill" cx="30" cy="30" :r="R" :stroke-dasharray="C" :stroke-dashoffset="C * (1 - tile.ratio)" />
-          </svg>
-          <ExclamationCircleIcon v-else class="tile-icon" aria-hidden="true" />
+          <CheckIcon v-else-if="tile.complete" class="tile-icon check" aria-hidden="true" />
+          <ExclamationCircleIcon v-else-if="tile.kind === 'count'" class="tile-icon warn" aria-hidden="true" />
+        </span>
+        <span class="tile-value">
+          <template v-if="tile.kind === 'progress'">{{ tile.done }}<span class="of">/{{ tile.total }}</span></template>
+          <template v-else>{{ tile.count }}</template>
+        </span>
+        <span v-if="tile.kind === 'progress' && tile.key !== 'yesterday'" class="meter" aria-hidden="true">
+          <span class="meter-fill" :style="{ width: `${tile.ratio * 100}%` }" />
         </span>
       </component>
     </section>
 
-    <section class="card">
+    <section class="card activity">
       <header class="card-head">
-        <h2 class="section-title">{{ $t('dashboard.activity') }}</h2>
+        <h2 class="card-title">{{ $t('dashboard.activity') }}</h2>
         <span class="card-meta">{{ activityTotal }}</span>
       </header>
       <!-- One series, so no legend: the title names it. Hover/tap a bar for its value. -->
@@ -186,7 +192,7 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
         >
           <span v-if="hovered === i" class="tip" aria-hidden="true">{{ $t('dashboard.completedCount', { n: d.count }) }}</span>
           <span class="bar-track">
-            <span class="bar" :style="{ height: `${(d.count / activityMax) * 100}%` }" />
+            <span class="bar" :style="{ height: `${Math.max(14, (d.count / activityMax) * 100)}%` }" />
           </span>
           <span class="bar-label" aria-hidden="true">{{ d.label }}</span>
         </button>
@@ -194,7 +200,7 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
     </section>
 
     <section class="focus">
-      <header class="card-head">
+      <header class="focus-head">
         <h2 class="section-title">{{ $t('dashboard.focus') }}</h2>
         <RouterLink class="more" :to="{ name: 'calendar' }">
           {{ $t('nav.calendar') }}<ArrowRightIcon aria-hidden="true" />
@@ -215,26 +221,50 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
 </template>
 
 <style scoped>
-/* ---------- Tiles: 2 × 3 on phones, 3 × 2 from tablet up ---------- */
+/* ---------- Tiles: today across the top, then 2 + 3 ---------- */
 .tiles {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-areas:
+    'day day day day day day'
+    'yesterday yesterday yesterday overdue overdue overdue'
+    'week week month month year year';
   gap: 10px;
 }
+
+.t-day { grid-area: day; }
+.t-yesterday { grid-area: yesterday; }
+.t-overdue { grid-area: overdue; }
+.t-week { grid-area: week; }
+.t-month { grid-area: month; }
+.t-year { grid-area: year; }
 
 .tile {
   display: grid;
   align-content: space-between;
-  gap: 10px;
+  gap: 12px;
   min-width: 0;
-  min-height: 108px;
-  padding: 14px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
+  padding: 14px 14px 16px;
+  border: 1px solid var(--glass-edge);
+  border-radius: 22px;
   background: var(--surface);
+  box-shadow: var(--glass-shadow);
   color: var(--fg);
   text-decoration: none;
   transition: border-color 0.2s, background-color 0.3s, color 0.3s, transform 0.2s;
+}
+
+.t-day {
+  gap: 16px;
+  padding: 20px 22px 22px;
+  border-radius: 28px;
+}
+
+.t-yesterday,
+.t-overdue {
+  gap: 18px;
+  padding: 16px 18px;
+  border-radius: 24px;
 }
 
 .tile.link:hover {
@@ -245,94 +275,123 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
   transform: scale(0.98);
 }
 
-.tile-label {
-  color: var(--muted);
-  font-size: 0.75rem;
-  font-weight: 700;
-  line-height: 1.3;
-}
-
-.tile-row {
+.tile-top {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
+  min-height: 20px;
 }
 
-.tile-value {
-  font-size: 1.7rem;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.03em;
-  line-height: 1;
-}
-
-.of {
+.tile-label {
+  min-width: 0;
   color: var(--muted);
-  font-size: 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.25;
 }
 
-.ring {
+.chip {
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  transform: rotate(-90deg);
-}
-
-.ring circle {
-  fill: none;
-  stroke-width: 6;
-}
-
-.ring-track {
-  stroke: var(--line);
-}
-
-.ring-fill {
-  stroke: var(--accent);
-  stroke-linecap: round;
-  transition: stroke-dashoffset 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: var(--highlight);
+  color: var(--on-highlight);
+  font-size: 0.75rem;
+  font-weight: 700;
 }
 
 .tile-icon {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  color: var(--muted);
+  width: 20px;
+  height: 20px;
 }
 
-/* Complete: the whole tile goes accent with on-accent text, an on-accent disc with an accent check. */
+.tile-icon.warn {
+  color: var(--flag-high);
+}
+
+.tile-icon.check {
+  stroke-width: 2.5;
+  animation: pop 0.35s cubic-bezier(0.2, 0.8, 0.2, 1.4);
+}
+
+.tile-value {
+  font-size: 1.4rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.t-yesterday .tile-value,
+.t-overdue .tile-value {
+  font-size: 1.9rem;
+  letter-spacing: -0.03em;
+}
+
+.t-day .tile-value {
+  font-size: 4rem;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+}
+
+.of {
+  margin-left: 2px;
+  color: var(--muted);
+  font-size: 0.6em;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.t-day .of {
+  margin-left: 6px;
+  font-size: 0.38em;
+}
+
+.meter {
+  display: block;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--pill);
+}
+
+.t-day .meter {
+  height: 8px;
+}
+
+.meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Complete: the whole tile goes accent with on-accent text. */
 .tile.complete {
   border-color: var(--accent);
   background: var(--accent);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--accent) 30%, transparent);
   color: var(--on-accent);
 }
 
 .tile.complete .tile-label,
 .tile.complete .of {
-  color: color-mix(in srgb, var(--on-accent) 70%, var(--accent));
+  color: color-mix(in srgb, var(--on-accent) 75%, var(--accent));
+}
+
+.tile.complete .meter {
+  background: color-mix(in srgb, var(--on-accent) 25%, transparent);
+}
+
+.tile.complete .meter-fill {
+  background: var(--on-accent);
 }
 
 .tile.complete.link:hover {
   border-color: var(--on-accent);
-}
-
-.tile-check {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--on-accent);
-  color: var(--accent);
-  animation: pop 0.35s cubic-bezier(0.2, 0.8, 0.2, 1.4);
-}
-
-.tile-check svg {
-  width: 24px;
-  height: 24px;
-  stroke-width: 3;
 }
 
 @keyframes pop {
@@ -345,36 +404,42 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
 /* ---------- Activity ---------- */
 .card-head {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
+}
+
+.card-title {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
 .card-meta {
-  color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
 
-/* Thin bars, rounded data ends, recessive baseline. */
+/* Rounded pill bars, no axis; today in the highlight colour. */
 .bars {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 4px;
-  height: 140px;
+  height: 116px;
 }
 
 .bar-slot {
   position: relative;
   display: grid;
   grid-template-rows: 1fr auto;
-  gap: 6px;
+  gap: 8px;
   min-width: 0;
   padding: 0;
   border: 0;
-  border-radius: 6px;
+  border-radius: 8px;
   background: transparent;
   color: var(--muted);
   cursor: default;
@@ -384,32 +449,34 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  border-bottom: 1px solid var(--line);
 }
 
 .bar {
   display: block;
-  width: min(22px, 70%);
-  min-height: 2px;
-  border-radius: 4px 4px 0 0;
-  background: color-mix(in srgb, var(--link) 55%, transparent);
+  width: min(24px, 72%);
+  border-radius: 999px;
+  background: var(--soft);
   transition: height 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.2s;
 }
 
-.bar-slot.today .bar,
 .bar-slot:hover .bar,
 .bar-slot:focus-visible .bar {
   background: var(--accent);
 }
 
+.bar-slot.today .bar {
+  background: var(--highlight);
+}
+
 .bar-label {
-  font-size: 0.68rem;
-  font-weight: 700;
+  font-size: 0.72rem;
+  font-weight: 600;
   text-align: center;
 }
 
 .bar-slot.today .bar-label {
   color: var(--fg);
+  font-weight: 800;
 }
 
 .tip {
@@ -429,15 +496,25 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
 }
 
 /* ---------- Focus ---------- */
-.hint {
-  margin-bottom: 10px;
+.focus {
+  display: grid;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.focus-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 4px;
 }
 
 .more {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--accent);
+  color: var(--link);
   font-size: 0.85rem;
   font-weight: 700;
   text-decoration: none;
@@ -452,14 +529,22 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
   height: 16px;
 }
 
-@media (min-width: 640px) {
+@media (min-width: 860px) {
   .tiles {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-areas:
+      'day day yesterday'
+      'day day overdue'
+      'week month year';
+  }
+
+  .t-day .tile-value {
+    font-size: 5rem;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tile-check {
+  .tile-icon.check {
     animation: none;
   }
 }

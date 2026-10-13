@@ -43,17 +43,22 @@ const signOut = () => doSignOut(router)
 </template>
 
 <style scoped>
+/* A floating glass column. */
 .nav {
   display: flex;
   flex-direction: column;
   gap: 24px;
   height: 100%;
-  padding: max(24px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  padding: 26px 14px 16px;
   overflow-y: auto;
+  border: 1px solid var(--glass-edge);
+  border-radius: 28px;
+  background: var(--surface);
+  box-shadow: var(--glass-shadow);
 }
 
 .brand {
-  padding: 0 10px;
+  padding: 0 12px;
 }
 
 .logo {
@@ -75,14 +80,14 @@ const signOut = () => doSignOut(router)
   align-items: center;
   gap: 12px;
   width: 100%;
-  min-height: 46px;
-  padding: 0 12px;
+  min-height: 48px;
+  padding: 0 14px;
   border: 0;
-  border-radius: 14px;
+  border-radius: 16px;
   background: transparent;
   color: var(--fg);
   font-size: 0.95rem;
-  font-weight: 700;
+  font-weight: 600;
   text-decoration: none;
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
@@ -92,15 +97,22 @@ const signOut = () => doSignOut(router)
   flex-shrink: 0;
   width: 22px;
   height: 22px;
+  color: var(--link);
 }
 
 .link:hover {
-  color: var(--accent);
+  background: var(--pill);
 }
 
 .link.active {
   background: var(--accent);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--accent) 30%, transparent);
   color: var(--on-accent);
+  font-weight: 700;
+}
+
+.link.active svg {
+  color: currentColor;
 }
 
 .link:focus-visible {
@@ -112,13 +124,16 @@ const signOut = () => doSignOut(router)
   display: grid;
   gap: 2px;
   margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
 }
 
+.foot .link:not(.active) svg,
 .logout {
   color: var(--muted);
 }
 
 .foot :deep(.version) {
-  padding: 0 12px;
+  padding: 6px 14px 0;
 }
 </style>
