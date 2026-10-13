@@ -1,130 +1,97 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import AppLogo from '@/components/AppLogo.vue'
-import DeviceScene from '@/components/DeviceScene.vue'
+import GlassScene from '@/components/GlassScene.vue'
 import LanguageSwitch from '@/components/LanguageSwitch.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import { withLoader } from '@/lib/loader'
 
 const router = useRouter()
 
-// Short loading screen (logo) before showing the auth page.
-const open = (name) => withLoader(() => router.push({ name }))
+// Short loading screen (logo) before showing the login page.
+const openLogin = () => withLoader(() => router.push({ name: 'login' }))
 </script>
 
 <template>
   <div class="page">
     <header class="top">
-      <h1 class="brand"><AppLogo /></h1>
-      <nav class="auth" :aria-label="$t('common.account')">
-        <button type="button" class="btn btn-ghost" @click="open('login')">{{ $t('landing.login') }}</button>
-        <button type="button" class="btn btn-primary" @click="open('register')">{{ $t('landing.signup') }}</button>
-      </nav>
       <div class="controls">
         <LanguageSwitch />
         <ThemeToggle />
       </div>
     </header>
 
-    <main class="stage-wrap">
-      <DeviceScene layout="landing" />
+    <main class="hero">
+      <h1 class="brand"><AppLogo /></h1>
+      <GlassScene class="scene" />
+      <button type="button" class="btn btn-primary btn-lg login" @click="openLogin">{{ $t('landing.login') }}</button>
     </main>
   </div>
 </template>
 
 <style scoped>
+/* Exactly one screen tall: the landing page never scrolls. Controls top right; the wordmark,
+   the floating glass scene and the login button form one block, well above the bottom edge
+   so the button sits in easy thumb reach without hugging the edge. */
 .page {
   display: grid;
-  grid-template-rows: auto 1fr;
-  padding: 24px 32px 0;
-  /* Exactly one screen tall: the landing page never scrolls. */
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 16px;
   height: 100vh;
   height: 100dvh;
+  padding: max(16px, var(--top-inset)) 20px max(24px, env(safe-area-inset-bottom));
   overflow: hidden;
-  background:
-    radial-gradient(56rem 34rem at 50% 62%, var(--glow), transparent 70%),
-    var(--bg);
-  transition: background-color 0.3s ease;
 }
 
-/* ---------- Header ---------- */
 .top {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  grid-template-areas: 'brand auth controls';
-  align-items: center;
-  gap: 12px;
-}
-
-.brand {
-  grid-area: brand;
-  width: 132px;
-  height: 40px;
-  margin: 0;
-}
-
-.auth {
-  grid-area: auth;
   display: flex;
-  gap: 8px;
+  justify-content: flex-end;
 }
 
 .controls {
-  grid-area: controls;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.stage-wrap {
+.hero {
   display: grid;
-  place-items: center;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  justify-items: center;
+  gap: clamp(16px, 4dvh, 36px);
   min-height: 0;
-  padding: 1rem 0 2rem;
+  padding: clamp(8px, 3dvh, 32px) 0 clamp(40px, 14dvh, 140px);
 }
 
-/* ---------- Phones ---------- */
-@media (max-width: 640px) {
-  /* Header items join the page grid; scene + buttons form one block a little above centre. */
+.brand {
+  width: min(250px, 64vw);
+  height: auto;
+  aspect-ratio: 343.5 / 99.4;
+  margin: 0;
+}
+
+/* The scene keeps its proportions and shrinks to whatever height is left. */
+.scene {
+  max-width: 360px;
+  max-height: 382px;
+}
+
+.login {
+  width: min(420px, 100%);
+}
+
+@media (min-width: 640px) {
   .page {
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-rows: auto 1fr auto auto 1.6fr;
-    grid-template-areas:
-      'brand controls'
-      '. .'
-      'stage stage'
-      'auth auth'
-      '. .';
-    column-gap: 12px;
-    padding: max(16px, var(--top-inset)) 16px max(16px, env(safe-area-inset-bottom));
+    padding: 24px 32px 40px;
   }
 
-  .top {
-    display: contents;
+  .scene {
+    max-width: 460px;
+    max-height: 488px;
   }
 
-  .brand {
-    width: 112px;
-    height: 34px;
-  }
-
-  .stage-wrap {
-    grid-area: stage;
-    min-width: 0;
-    padding: 0;
-  }
-
-  .auth {
-    justify-content: center;
-    gap: 12px;
-    padding-top: 28px;
-  }
-
-  .auth .btn {
-    flex: 1 1 0;
-    max-width: 180px;
-    height: 50px;
-    font-size: 0.95rem;
+  .login {
+    width: 280px;
   }
 }
 </style>

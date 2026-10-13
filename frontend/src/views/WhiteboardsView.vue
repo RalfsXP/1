@@ -70,8 +70,10 @@ function edited(iso) {
 
 <template>
   <div class="page wide">
-    <header class="head">
-      <h1 class="page-title">{{ $t('whiteboard.title') }}</h1>
+    <header class="page-head">
+      <div>
+        <h1 class="page-title">{{ $t('whiteboard.title') }}</h1>
+      </div>
       <button type="button" class="btn btn-primary new" :disabled="creating" @click="askName">
         <PlusIcon aria-hidden="true" />{{ $t('whiteboard.new') }}
       </button>
@@ -119,6 +121,10 @@ function edited(iso) {
       </li>
     </ul>
 
+    <button type="button" class="float-btn add" :aria-label="$t('whiteboard.new')" :disabled="creating" @click="askName">
+      <PlusIcon aria-hidden="true" />
+    </button>
+
     <BottomSheet :open="naming" :title="$t('whiteboard.new')" @close="naming = false">
       <form class="name-form" @submit.prevent="create">
         <label class="form-field">
@@ -147,39 +153,31 @@ function edited(iso) {
   gap: 18px;
 }
 
-.head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
+/* Phones add with the round button bottom-right; wider screens with the header button. */
 .new {
-  height: 40px;
-}
-
-.new svg {
-  width: 18px;
-  height: 18px;
+  display: none;
+  flex-shrink: 0;
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 12px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+/* A glass card holding a paper-white preview. */
 .board {
   display: grid;
   grid-template-columns: 1fr auto;
   grid-template-rows: auto auto;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 18px;
+  padding: 8px;
+  border: 1px solid var(--glass-edge);
+  border-radius: 24px;
   background: var(--surface);
+  box-shadow: var(--glass-shadow);
   transition: border-color 0.2s;
 }
 
@@ -192,7 +190,9 @@ function edited(iso) {
   grid-column: 1 / -1;
   display: grid;
   place-items: center;
-  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  aspect-ratio: 6 / 5;
+  border-radius: 18px;
   background: var(--white);
 }
 
@@ -212,7 +212,7 @@ function edited(iso) {
   display: grid;
   gap: 2px;
   min-width: 0;
-  padding: 10px 0 12px 14px;
+  padding: 10px 0 6px 6px;
 }
 
 .name {
@@ -242,8 +242,33 @@ function edited(iso) {
 
 .delete {
   align-self: center;
-  margin-right: 6px;
+  width: 36px;
+  height: 36px;
+  background: transparent;
   color: var(--muted);
+}
+
+.delete svg {
+  width: 18px;
+  height: 18px;
+}
+
+.page {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 104px);
+}
+
+@media (min-width: 860px) {
+  .new {
+    display: inline-flex;
+  }
+
+  .page {
+    padding-bottom: 32px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
 }
 
 .delete.confirm {

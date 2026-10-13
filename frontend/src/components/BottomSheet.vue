@@ -114,16 +114,20 @@ function onDragEnd() {
   outline: none;
 }
 
+/* Frosted glass over the dimmed page. */
 .sheet {
   display: flex;
   flex-direction: column;
   width: 100%;
   max-height: 92dvh;
-  border: 1px solid var(--line);
+  border: 1px solid var(--glass-edge);
   border-bottom: 0;
-  border-radius: 24px 24px 0 0;
-  background: var(--bg);
+  border-radius: 32px 32px 0 0;
+  background: var(--surface-strong);
+  box-shadow: 0 -12px 40px rgb(0 0 0 / 0.18);
   color: var(--fg);
+  -webkit-backdrop-filter: blur(30px) saturate(1.4);
+  backdrop-filter: blur(30px) saturate(1.4);
 }
 
 .sheet:not(.dragging) {
@@ -142,7 +146,7 @@ function onDragEnd() {
   height: 5px;
   margin-top: 8px;
   border-radius: 3px;
-  background: var(--line);
+  background: color-mix(in srgb, var(--fg) 22%, transparent);
 }
 
 .sheet-head {
@@ -150,20 +154,30 @@ function onDragEnd() {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px 14px 6px 22px;
+  padding: 14px 18px 6px 22px;
 }
 
 h2 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.5rem;
   font-weight: 800;
   letter-spacing: -0.02em;
+}
+
+.sheet-head .icon-btn {
+  width: 36px;
+  height: 36px;
+}
+
+.sheet-head .icon-btn svg {
+  width: 18px;
+  height: 18px;
 }
 
 .sheet-body {
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 8px 22px max(22px, env(safe-area-inset-bottom));
+  padding: 10px 22px max(24px, calc(env(safe-area-inset-bottom) + 12px));
 }
 
 .sheet-enter-active,
@@ -195,8 +209,8 @@ h2 {
   .sheet {
     width: min(520px, 100%);
     max-height: min(88dvh, 820px);
-    border-bottom: 1px solid var(--line);
-    border-radius: 24px;
+    border-bottom: 1px solid var(--glass-edge);
+    border-radius: 32px;
   }
 
   .grabber {

@@ -2,7 +2,7 @@ import './assets/main.css'
 
 import { createApp } from 'vue'
 import App from './App.vue'
-import { syncThemeColor } from './lib/design'
+import { syncThemeColor } from './lib/theme'
 import { t } from './lib/i18n'
 import router from './router'
 
@@ -16,5 +16,5 @@ const app = createApp(App)
 app.config.globalProperties.$t = t
 app.use(router).mount('#app')
 
-// Mobile browser chrome takes the real page background of the current design + theme.
+// Mobile browser chrome takes the real page background of the current theme.
 syncThemeColor()

@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { ArrowPathIcon, CheckCircleIcon, ExclamationTriangleIcon, QuestionMarkCircleIcon } from '@heroicons/vue/24/outline'
+import { ArrowPathIcon, CheckCircleIcon, CheckIcon, ExclamationTriangleIcon, QuestionMarkCircleIcon } from '@heroicons/vue/24/outline'
 import raw from '../../VERSION?raw'
 import api from '@/lib/api'
 import { locale, t } from '@/lib/i18n'
@@ -121,10 +121,10 @@ const icons = {
 
 <template>
   <div class="page wide">
-    <header class="head">
+    <header class="page-head">
       <div>
         <h1 class="page-title">{{ $t('health.title') }}</h1>
-        <p v-if="report" class="checked">{{ $t('health.checkedAt', { time: time(report.checked_at) }) }}</p>
+        <p v-if="report" class="page-sub">{{ $t('health.checkedAt', { time: time(report.checked_at) }) }}</p>
       </div>
       <button type="button" class="btn btn-ghost refresh" :disabled="loading" @click="refresh">
         <ArrowPathIcon :class="{ spinning: loading }" aria-hidden="true" />{{ $t('health.refresh') }}
@@ -135,8 +135,10 @@ const icons = {
 
     <template v-if="report">
       <!-- Summary: accent when everything passes, plain text listing what needs a look otherwise. -->
-      <section class="summary" :class="{ ok: !problems.length }" aria-live="polite">
-        <component :is="problems.length ? ExclamationTriangleIcon : CheckCircleIcon" class="summary-icon" aria-hidden="true" />
+      <section class="card summary" :class="{ ok: !problems.length }" aria-live="polite">
+        <span class="summary-icon" aria-hidden="true">
+          <component :is="problems.length ? ExclamationTriangleIcon : CheckIcon" />
+        </span>
         <div>
           <p class="summary-title">{{ problems.length ? $t('health.problems', { n: problems.length }) : $t('health.allGood') }}</p>
           <p v-if="problems.length" class="summary-list">{{ problems.join(' · ') }}</p>
@@ -303,23 +305,8 @@ const icons = {
 </template>
 
 <style scoped>
-.head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.checked {
-  margin: 4px 0 0;
-  color: var(--muted);
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
 .refresh {
   flex-shrink: 0;
-  height: 40px;
 }
 
 .refresh svg {
@@ -341,28 +328,39 @@ const icons = {
 .summary {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 16px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: var(--surface);
+  gap: 16px;
+  padding: 20px;
 }
 
-.summary.ok {
-  border-color: var(--accent);
+/* All good: an accent disc with a check. Problems: a plain disc (no red — text says what's wrong). */
+.summary-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--pill);
+  color: var(--fg);
+}
+
+.summary.ok .summary-icon {
   background: var(--accent);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 35%, transparent);
   color: var(--on-accent);
 }
 
-.summary-icon {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+.summary-icon svg {
+  width: 26px;
+  height: 26px;
+  stroke-width: 2.5;
 }
 
 .summary-title {
   margin: 0;
+  font-size: 1.35rem;
   font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .summary-list {
@@ -506,24 +504,24 @@ const icons = {
   margin: 0;
   padding: 10px;
   overflow: auto;
-  border-radius: 10px;
-  background: var(--bg);
+  border-radius: 12px;
+  background: var(--pill);
   white-space: pre-wrap;
   word-break: break-word;
 }
 
 .meter {
-  height: 8px;
+  height: 10px;
   margin-top: 12px;
   overflow: hidden;
-  border-radius: 4px;
-  background: var(--line);
+  border-radius: 999px;
+  background: var(--pill);
 }
 
 .meter-fill {
   display: block;
   height: 100%;
-  border-radius: 4px;
+  border-radius: 999px;
   background: var(--accent);
 }
 

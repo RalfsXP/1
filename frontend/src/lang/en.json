@@ -14,31 +14,18 @@
   },
   "landing": {
     "login": "Log in",
-    "signup": "Sign up"
+    "sceneGoal": "Run 5 km"
   },
   "auth": {
     "back": "Back",
     "loginTitle": "Welcome back",
     "loginLead": "Log in to continue to Merkis.",
-    "registerTitle": "Create your account",
-    "registerLead": "Sign up to start using Merkis.",
-    "name": "Name",
     "email": "Email",
     "password": "Password",
-    "confirmPassword": "Confirm password",
     "showPassword": "Show password",
     "hidePassword": "Hide password",
-    "strength": "Strength",
-    "strengthAria": "Password strength",
-    "strengthLevels": ["Empty", "Weak", "Weak", "Fair", "Good", "Strong"],
     "submitLogin": "Log in",
     "submittingLogin": "Logging in…",
-    "submitRegister": "Create account",
-    "submittingRegister": "Creating account…",
-    "haveAccount": "Already have an account?",
-    "noAccount": "New to Merkis?",
-    "switchToLogin": "Log in",
-    "switchToRegister": "Sign up",
     "errorThrottle": "Too many attempts. Please wait a minute and try again.",
     "errorGeneric": "Something went wrong. Please try again."
   },
@@ -46,6 +33,7 @@
     "menu": "Menu",
     "close": "Close",
     "calendar": "Calendar",
+    "events": "Events",
     "logout": "Log out",
     "home": "Overview",
     "settings": "Settings",
@@ -148,12 +136,6 @@
     "languages": {
       "lv": "Latviešu",
       "en": "English"
-    },
-    "design": "Design",
-    "designs": {
-      "default": "V1",
-      "teal": "V2",
-      "ember": "V3"
     }
   },
   "dashboard": {
@@ -169,7 +151,7 @@
     "completedCount": "{n} completed",
     "yesterday": "Goals yesterday"
   },
-  "colors": ["Sea Green", "Pacific Blue", "Toasted Almond", "Powder Blush", "Turf Green", "Amber Glow", "Stormy Teal", "Sky Blue"],
+  "colors": ["Pacific Blue", "Sky Blue", "Stormy Teal", "Amber Glow", "Coral", "Ochre", "Sage", "Ink"],
   "icons": {
     "flag": "Flag",
     "star": "Star",
@@ -260,16 +242,18 @@
     "migrateDone": "Migrations ran.",
     "migrateFailed": "Migrations failed — see the output."
   },
-  "demo": {
-    "name": "Anna",
-    "goals": {
-      "run": "Run 5 km",
-      "report": "Submit the report",
-      "read": "Read 20 minutes",
-      "water": "Drink 2 l of water",
-      "gym": "Gym",
-      "call": "Call mum"
-    }
+  "events": {
+    "title": "Events",
+    "new": "New event",
+    "edit": "Edit event",
+    "name": "Name",
+    "date": "Date",
+    "time": "Time",
+    "allDay": "All day",
+    "repeat": "Repeat",
+    "once": "Once",
+    "empty": "No events yet. Add birthdays, anniversaries or appointments.",
+    "past": "Past"
   },
   "whiteboard": {
     "title": "Whiteboards",

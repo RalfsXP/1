@@ -85,9 +85,6 @@ return [
     // Languages the app is translated into; the first one is the default.
     'supported_locales' => ['lv', 'en'],
 
-    // Interface designs a user can pick in Settings.
-    'designs' => ['default', 'teal', 'ember'],
-
     // Public address of the Vue app, used for links and images in emails.
     'frontend_url' => env('FRONTEND_URL', 'https://merkis.app'),
 

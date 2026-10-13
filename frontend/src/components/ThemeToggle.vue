@@ -17,24 +17,27 @@ import { theme, toggleTheme } from '@/lib/theme'
 </template>
 
 <style scoped>
+/* Glass disc, same as the language pill next to it. */
 .theme-toggle {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   padding: 0;
-  border: 1px solid var(--line);
+  border: 1px solid var(--glass-edge);
   border-radius: 50%;
-  background: transparent;
+  background: var(--surface);
   color: var(--fg);
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, transform 0.2s;
+  transition: border-color 0.2s, transform 0.2s;
 }
 
 .theme-toggle:hover {
   border-color: var(--accent);
-  color: var(--accent);
 }
 
 .theme-toggle:active {
@@ -47,7 +50,7 @@ import { theme, toggleTheme } from '@/lib/theme'
 }
 
 .theme-toggle svg {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 </style>

@@ -21,7 +21,7 @@ use Throwable;
 class SystemHealthController extends Controller
 {
     /** Tables shown in the storage breakdown. */
-    private const TABLES = ['users', 'goals', 'goal_completions', 'whiteboards', 'migrations'];
+    private const TABLES = ['users', 'goals', 'goal_completions', 'events', 'whiteboards', 'migrations'];
 
     public function __invoke(Request $request): JsonResponse
     {

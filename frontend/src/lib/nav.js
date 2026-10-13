@@ -1,9 +1,9 @@
 import {
+  CakeIcon,
   CalendarDateRangeIcon,
   CalendarDaysIcon,
   CalendarIcon,
   Cog6ToothIcon,
-  PencilSquareIcon,
   SignalIcon,
   Squares2X2Icon,
   StarIcon,
@@ -17,12 +17,13 @@ import { withLoader } from './loader'
 export const NAV_LINKS = [
   { to: { name: 'home' }, label: 'nav.home', icon: Squares2X2Icon },
   { to: { name: 'calendar' }, label: 'nav.calendar', icon: CalendarDaysIcon },
+  { to: { name: 'events' }, label: 'nav.events', icon: CakeIcon },
   { to: { name: 'goals', params: { period: 'daily' } }, label: 'periods.day', icon: SunIcon },
   { to: { name: 'goals', params: { period: 'weekly' } }, label: 'periods.week', icon: ViewColumnsIcon },
   { to: { name: 'goals', params: { period: 'monthly' } }, label: 'periods.month', icon: CalendarIcon },
   { to: { name: 'goals', params: { period: 'yearly' } }, label: 'periods.year', icon: StarIcon },
   { to: { name: 'goals', params: { period: 'custom' } }, label: 'periods.custom', icon: CalendarDateRangeIcon },
-  { to: { name: 'whiteboards' }, label: 'nav.whiteboards', icon: PencilSquareIcon },
+  // Whiteboards (/whiteboards) are hidden from the menus for now; the pages still work by URL.
 ]
 
 export const NAV_FOOT = [

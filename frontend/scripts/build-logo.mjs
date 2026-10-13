@@ -8,12 +8,12 @@ import { Resvg } from '@resvg/resvg-js'
 
 // Repo root (this file lives in frontend/scripts/).
 const REPO = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..')
-// V1 palette (v1.5): Toasted Almond marks, Turf Green tile, Light Yellow letters on the deep Turf ink.
-const ALMOND = '#d68c45'
-const TURF = '#2c6e49'
-const CREAM = '#fefee3'
-const INK = '#0d1f15'
-const INK_LIGHT = '#143823'
+// Harbour fog (v1.6): Amber Glow marks, Stormy Teal tile, Parchment letters; home-screen icon on black.
+const AMBER = '#ffa62b'
+const TEAL = '#16697a'
+const PARCHMENT = '#ede7e3'
+const BLACK = '#000000'
+const INK = '#0a2128'
 const font = opentype.parse(fs.readFileSync(new URL(import.meta.resolve('@fontsource/montserrat/files/montserrat-latin-800-normal.woff'))).buffer)
 
 const SIZE = 100 // font units -> px at 100
@@ -54,7 +54,7 @@ const wordPath = word.map((g) => g.d).join('')
 const accents = (fill) =>
   `<rect x="${r(bar.x)}" y="${r(bar.y)}" width="${r(bar.w)}" height="${bar.h}" rx="${bar.h / 2}" fill="${fill}"/>` +
   `<circle cx="${r(dot.cx)}" cy="${r(dot.cy)}" r="${dot.r}" fill="${fill}"/>`
-const wordSvg = (textFill, accentFill = ALMOND) =>
+const wordSvg = (textFill, accentFill = AMBER) =>
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${wordVB.join(' ')}"><path d="${wordPath}" fill="${textFill}"/>${accents(accentFill)}</svg>`
 
 /* Mark: "m" + Almond dot at its baseline (the wordmark's dot, borrowed). */
@@ -62,11 +62,11 @@ const m = layout('m')[0]
 const markDot = { cx: m.box.x2 + 6 + dotR, cy: m.box.y2 - dotR, r: dotR }
 const markBox = { x1: m.box.x1, y1: m.box.y1, x2: markDot.cx + dotR, y2: m.box.y2 }
 const markVB = [r(markBox.x1), r(markBox.y1), r(markBox.x2 - markBox.x1), r(markBox.y2 - markBox.y1)]
-const markInner = (fill, dotFill = ALMOND, withDot = true) =>
+const markInner = (fill, dotFill = AMBER, withDot = true) =>
   `<path d="${m.d}" fill="${fill}"/>` + (withDot ? `<circle cx="${r(markDot.cx)}" cy="${r(markDot.cy)}" r="${markDot.r}" fill="${dotFill}"/>` : '')
 
 /** Square icon: background + mark centred, mark width = `scale` of the side. */
-function iconSvg({ bg, fill, dotFill = ALMOND, withDot = true, radius = 0, scale = 0.56 }) {
+function iconSvg({ bg, fill, dotFill = AMBER, withDot = true, radius = 0, scale = 0.56 }) {
   const S = 100
   const box = withDot ? markBox : m.box
   const w = box.x2 - box.x1
@@ -86,17 +86,17 @@ const write = (rel, data) => {
 }
 
 // Brand files (README, anything outside the app).
-write('frontend/public/brand/logo-on-dark.svg', wordSvg(CREAM))
-write('frontend/public/brand/logo-on-light.svg', wordSvg(INK_LIGHT))
-write('frontend/public/brand/mark.svg', `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${markVB.join(' ')}">${markInner(INK_LIGHT)}</svg>`)
+write('frontend/public/brand/logo-on-dark.svg', wordSvg(PARCHMENT))
+write('frontend/public/brand/logo-on-light.svg', wordSvg(INK))
+write('frontend/public/brand/mark.svg', `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${markVB.join(' ')}">${markInner(INK)}</svg>`)
 
 // Favicon: Turf Green tile, Light Yellow "m" — readable at 16 px in light and dark tab bars.
-const fav = iconSvg({ bg: TURF, fill: CREAM, withDot: false, radius: 22, scale: 0.66 })
+const fav = iconSvg({ bg: TEAL, fill: PARCHMENT, withDot: false, radius: 22, scale: 0.66 })
 write('frontend/public/favicon.svg', fav)
 write('frontend/public/favicon-32.png', png(fav, 32))
 
 // Home-screen icons: ink full-bleed (iOS/Android round it), Light Yellow m + Almond dot inside the safe zone.
-const app = iconSvg({ bg: INK, fill: CREAM, scale: 0.58 })
+const app = iconSvg({ bg: BLACK, fill: PARCHMENT, scale: 0.58 })
 write('frontend/public/apple-touch-icon.png', png(app, 180))
 write('frontend/public/icon-192.png', png(app, 192))
 write('frontend/public/icon-512.png', png(app, 512))
@@ -116,7 +116,7 @@ sizes.forEach(([s, buf], i) => {
 write('frontend/public/favicon.ico', Buffer.concat([header, ...sizes.map(([, b]) => b)]))
 
 // Email header (ink background): Light Yellow wordmark, 3× its 160 px display width.
-write('frontend/public/email/logo.png', png(wordSvg(CREAM), 480))
+write('frontend/public/email/logo.png', png(wordSvg(PARCHMENT), 480))
 
 // Data for the Vue components.
 fs.writeFileSync(path.join(REPO, 'frontend/scripts/logo-geometry.json'), JSON.stringify({ wordVB, wordPath, bar: { ...bar, x: r(bar.x), y: r(bar.y), w: r(bar.w) }, dot: { ...dot, cx: r(dot.cx), cy: r(dot.cy) }, markVB, mPath: m.d, markDot: { ...markDot, cx: r(markDot.cx), cy: r(markDot.cy) } }))

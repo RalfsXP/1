@@ -3,15 +3,11 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Mail\WelcomeMail;
-use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -19,38 +15,11 @@ use Illuminate\Validation\ValidationException;
  *
  * The Vue app calls GET /sanctum/csrf-cookie first, then these endpoints with
  * the XSRF token; Laravel keeps the user in the session cookie afterwards.
+ *
+ * No sign-up (v1.6): the app is personal, accounts are created by the owner (tinker / seeder).
  */
 class AuthController extends Controller
 {
-    public function register(Request $request): JsonResponse
-    {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'confirmed', Password::min(8)],
-            'locale' => ['nullable', Rule::in(config('app.supported_locales'))],
-            'design' => ['nullable', Rule::in(config('app.designs'))],
-        ]);
-
-        $user = User::create([
-            ...$data,
-            'locale' => $data['locale'] ?? app()->getLocale(),
-            'design' => $data['design'] ?? 'default',
-        ]);
-
-        Auth::guard('web')->login($user);
-        $request->session()->regenerate();
-
-        // A mail outage shouldn't block sign-up; log it and carry on.
-        try {
-            Mail::to($user)->send(new WelcomeMail($user));
-        } catch (\Throwable $e) {
-            report($e);
-        }
-
-        return response()->json($user, 201);
-    }
-
     public function login(Request $request): JsonResponse
     {
         $credentials = $request->validate([
@@ -91,20 +60,6 @@ class AuthController extends Controller
     {
         $data = $request->validate([
             'locale' => ['required', Rule::in(config('app.supported_locales'))],
-        ]);
-
-        $request->user()->update($data);
-
-        return response()->json($request->user());
-    }
-
-    /**
-     * Save the interface design so it follows the user to other devices.
-     */
-    public function updateDesign(Request $request): JsonResponse
-    {
-        $data = $request->validate([
-            'design' => ['required', Rule::in(config('app.designs'))],
         ]);
 
         $request->user()->update($data);

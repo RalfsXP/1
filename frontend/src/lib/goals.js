@@ -12,15 +12,17 @@ export const PRIORITIES = ['low', 'high', 'important']
 const PRIORITY_RANK = { important: 0, high: 1, low: 2 }
 
 /** User-picked colours start from these; any hex is allowed (badges/flags are the colour exception). */
-export const SWATCHES = ['#4c956c', '#489fb5', '#d68c45', '#ffc9b9', '#2c6e49', '#ffa62b', '#16697a', '#82c0cc']
+export const SWATCHES = ['#489fb5', '#82c0cc', '#16697a', '#ffa62b', '#e5604d', '#c98a12', '#7fa98a', '#0a2128']
 
-/** Built-in category look; mirrors config/goals.php default_styles (every period needs one). */
+/** Built-in category look; mirrors config/goals.php default_styles (every period + events needs one). */
 const DEFAULT_STYLES = {
-  day: { color: '#4c956c', icon: 'sun' },
-  week: { color: '#489fb5', icon: 'bolt' },
-  month: { color: '#ffc9b9', icon: 'star' },
-  year: { color: '#ffa62b', icon: 'trophy' },
-  custom: { color: '#16697a', icon: 'flag' },
+  day: { color: '#489fb5', icon: 'sun' },
+  week: { color: '#82c0cc', icon: 'bolt' },
+  month: { color: '#ffa62b', icon: 'star' },
+  year: { color: '#16697a', icon: 'trophy' },
+  custom: { color: '#0a2128', icon: 'flag' },
+  // Not a period: the default badge for events.
+  event: { color: '#e5604d', icon: 'calendar' },
 }
 
 const cache = reactive(new Map())

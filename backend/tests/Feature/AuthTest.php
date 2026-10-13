@@ -5,7 +5,6 @@ namespace Tests\Feature;
 use App\Mail\WelcomeMail;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class AuthTest extends TestCase
@@ -21,32 +20,17 @@ class AuthTest extends TestCase
         ]);
     }
 
-    public function test_a_user_can_register_and_is_logged_in(): void
+    public function test_sign_up_is_closed(): void
     {
-        Mail::fake();
-
-        $response = $this->spa()->postJson('/api/register', [
+        // v1.6: personal app — no public registration endpoint.
+        $this->spa()->postJson('/api/register', [
             'name' => 'Ralfs',
             'email' => 'ralfs@example.com',
             'password' => 'secret123',
             'password_confirmation' => 'secret123',
-        ]);
+        ])->assertNotFound();
 
-        $response->assertCreated()->assertJsonPath('email', 'ralfs@example.com');
-        $this->assertAuthenticated('web');
-        $this->assertDatabaseHas('users', ['email' => 'ralfs@example.com']);
-    }
-
-    public function test_registration_validates_input(): void
-    {
-        User::factory()->create(['email' => 'taken@example.com']);
-
-        $this->spa()->postJson('/api/register', [
-            'name' => '',
-            'email' => 'taken@example.com',
-            'password' => 'short',
-            'password_confirmation' => 'different',
-        ])->assertUnprocessable()->assertJsonValidationErrors(['name', 'email', 'password']);
+        $this->assertDatabaseMissing('users', ['email' => 'ralfs@example.com']);
     }
 
     public function test_a_user_can_log_in_with_correct_credentials(): void
@@ -91,23 +75,6 @@ class AuthTest extends TestCase
         $this->assertGuest('web');
     }
 
-    public function test_registration_saves_the_locale_and_sends_a_welcome_email_in_it(): void
-    {
-        Mail::fake();
-
-        $this->spa()->postJson('/api/register', [
-            'name' => 'Ralfs',
-            'email' => 'ralfs@example.com',
-            'password' => 'secret123',
-            'password_confirmation' => 'secret123',
-            'locale' => 'lv',
-        ])->assertCreated()->assertJsonPath('locale', 'lv');
-
-        Mail::assertSent(WelcomeMail::class, function (WelcomeMail $mail) {
-            return $mail->hasTo('ralfs@example.com') && $mail->locale === 'lv';
-        });
-    }
-
     public function test_welcome_email_renders_in_latvian_by_default(): void
     {
         $user = User::factory()->create(['name' => 'Ralfs', 'locale' => 'lv']);
@@ -134,31 +101,13 @@ class AuthTest extends TestCase
             ->assertUnprocessable();
     }
 
-    public function test_a_user_can_save_their_design_and_it_is_validated(): void
+    public function test_the_design_switch_is_gone(): void
     {
+        // v1.6 has one design (Harbour fog); the old per-user design setting no longer exists.
         $user = User::factory()->create();
-        $this->assertSame('default', $user->fresh()->design);
 
         $this->actingAs($user)->spa()->patchJson('/api/user/design', ['design' => 'teal'])
-            ->assertOk()
-            ->assertJsonPath('design', 'teal');
-
-        $this->actingAs($user)->spa()->patchJson('/api/user/design', ['design' => 'ember'])
-            ->assertOk()
-            ->assertJsonPath('design', 'ember');
-
-        $this->actingAs($user)->spa()->patchJson('/api/user/design', ['design' => 'default'])
-            ->assertOk()
-            ->assertJsonPath('design', 'default');
-
-        // v1.4 designs are retired.
-        $this->actingAs($user)->spa()->patchJson('/api/user/design', ['design' => 'ocean'])
-            ->assertUnprocessable();
-
-        $this->actingAs($user)->spa()->withHeader('Accept-Language', 'lv')
-            ->patchJson('/api/user/design', ['design' => 'neon'])
-            ->assertUnprocessable()
-            ->assertJsonPath('errors.design.0', 'Izvēlētā dizains vērtība nav derīga.');
+            ->assertNotFound();
     }
 
     public function test_validation_messages_follow_the_accept_language_header(): void

@@ -12,7 +12,7 @@
 
 <p align="center">
   <a href="https://merkis.app"><img src="https://img.shields.io/badge/live-merkis.app-4c956c?style=flat-square" alt="Live at merkis.app"></a>
-  <img src="https://img.shields.io/badge/version-v1.5-2c6e49?style=flat-square" alt="Version v1.5">
+  <img src="https://img.shields.io/badge/version-v1.6-16697a?style=flat-square" alt="Version v1.6">
   <img src="https://img.shields.io/badge/Vue_3-42b883?style=flat-square&logo=vuedotjs&logoColor=white" alt="Vue 3">
   <img src="https://img.shields.io/badge/Laravel_13-FF2D20?style=flat-square&logo=laravel&logoColor=white" alt="Laravel 13">
   <img src="https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=white" alt="Supabase">
@@ -37,7 +37,7 @@ Merkis (from the Latvian *mērķis*, "goal") is a full-stack web application wit
 - Settings: default badge colour and icon per category (overridable per goal), theme and language
 - Latvian and English interface
 - Account registration, login and logout with session-based authentication (Laravel Sanctum)
-- Animated login and sign-up views with live password-strength feedback
+- Login page (personal app — no public sign-up)
 - Light and dark themes that follow the system preference and persist per user
 - Responsive layout for mobile, tablet and desktop, with home-screen icons for iOS and Android
 

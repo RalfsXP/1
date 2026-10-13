@@ -62,29 +62,32 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
 
 <template>
   <div class="page narrow">
-    <header class="head">
-      <h1 class="page-title">{{ $t(`periods.${period}`) }}</h1>
-      <div class="head-actions">
-        <button type="button" class="btn btn-primary add-wide" @click="add">
-          <PlusIcon aria-hidden="true" />{{ $t('goal.new') }}
-        </button>
+    <header class="page-head">
+      <div>
+        <h1 class="page-title">{{ $t(`periods.${period}`) }}</h1>
       </div>
+      <button type="button" class="btn btn-primary add-wide" @click="add">
+        <PlusIcon aria-hidden="true" />{{ $t('goal.new') }}
+      </button>
     </header>
 
-    <div v-if="!isCustom" class="period-nav">
-      <button type="button" class="icon-btn" :aria-label="$t('calendar.prev')" @click="go(-1)">
-        <ChevronLeftIcon aria-hidden="true" />
-      </button>
-      <div class="period-label">
-        <span>{{ periodLabel(period, start) }}</span>
-        <button v-if="!isCurrent" type="button" class="current" @click="goCurrent">{{ $t(`periods.this.${period}`) }}</button>
+    <!-- Period navigator + progress on one glass card ("Today / Tuesday, 13 October"). -->
+    <section v-if="!isCustom || occurrences.length" class="card period-card">
+      <div v-if="!isCustom" class="period-nav">
+        <button type="button" class="icon-btn" :aria-label="$t('calendar.prev')" @click="go(-1)">
+          <ChevronLeftIcon aria-hidden="true" />
+        </button>
+        <div class="period-label">
+          <span class="period-main">{{ isCurrent ? $t(`periods.this.${period}`) : periodLabel(period, start) }}</span>
+          <span v-if="isCurrent" class="period-sub">{{ periodLabel(period, start) }}</span>
+          <button v-else type="button" class="current" @click="goCurrent">{{ $t(`periods.this.${period}`) }}</button>
+        </div>
+        <button type="button" class="icon-btn" :aria-label="$t('calendar.next')" @click="go(1)">
+          <ChevronRightIcon aria-hidden="true" />
+        </button>
       </div>
-      <button type="button" class="icon-btn" :aria-label="$t('calendar.next')" @click="go(1)">
-        <ChevronRightIcon aria-hidden="true" />
-      </button>
-    </div>
-
-    <ProgressMeter :done="done.length" :total="occurrences.length" />
+      <ProgressMeter class="period-meter" :done="done.length" :total="occurrences.length" />
+    </section>
     <HoldHint v-if="occurrences.length" />
 
     <p v-if="!occurrences.length" class="empty-state">{{ $t('goal.empty') }}</p>
@@ -100,7 +103,7 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
       </ul>
     </details>
 
-    <button type="button" class="fab" :aria-label="$t('goal.new')" @click="add">
+    <button type="button" class="float-btn add" :aria-label="$t('goal.new')" @click="add">
       <PlusIcon aria-hidden="true" />
     </button>
 
@@ -110,30 +113,22 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
 
 <style scoped>
 .page {
-  gap: 18px;
   padding-bottom: calc(env(safe-area-inset-bottom) + 104px);
-}
-
-.head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.head-actions {
-  display: flex;
-  gap: 8px;
 }
 
 .add-wide {
   display: none;
-  height: 40px;
+  flex-shrink: 0;
 }
 
-.add-wide svg {
-  width: 18px;
-  height: 18px;
+.period-card {
+  display: grid;
+  gap: 16px;
+  padding: 10px 10px 18px;
+}
+
+.period-card:not(:has(.period-nav)) {
+  padding: 18px;
 }
 
 .period-nav {
@@ -148,13 +143,27 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
   justify-items: center;
   gap: 2px;
   min-width: 0;
-  font-size: 0.95rem;
-  font-weight: 700;
   text-align: center;
 }
 
-.period-label span::first-letter {
+.period-main {
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.period-sub {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.period-main::first-letter,
+.period-sub::first-letter {
   text-transform: uppercase;
+}
+
+.period-meter {
+  padding: 0 10px;
 }
 
 .current {
@@ -162,8 +171,8 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
   border: 0;
   border-radius: 999px;
   background: none;
-  color: var(--accent);
-  font-size: 0.75rem;
+  color: var(--link);
+  font-size: 0.8rem;
   font-weight: 700;
   cursor: pointer;
 }
@@ -174,39 +183,12 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
 
 .done-group summary {
   margin-bottom: 10px;
+  padding: 0 4px;
   cursor: pointer;
 }
 
 .done-group summary:hover {
   color: var(--fg);
-}
-
-/* Thumb-reach add button on phones, above the home indicator. */
-.fab {
-  position: fixed;
-  right: max(20px, env(safe-area-inset-right));
-  bottom: max(20px, calc(env(safe-area-inset-bottom) + 12px));
-  z-index: 40;
-  display: grid;
-  place-items: center;
-  width: 58px;
-  height: 58px;
-  border: 0;
-  border-radius: 50%;
-  background: var(--accent);
-  color: var(--on-accent);
-  box-shadow: 0 8px 24px color-mix(in srgb, var(--black) 35%, transparent);
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.fab:active {
-  transform: scale(0.94);
-}
-
-.fab svg {
-  width: 28px;
-  height: 28px;
 }
 
 @media (min-width: 860px) {
@@ -216,10 +198,6 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
 
   .add-wide {
     display: inline-flex;
-  }
-
-  .fab {
-    display: none;
   }
 }
 </style>

@@ -3,10 +3,13 @@ import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { PlusIcon } from '@heroicons/vue/24/outline'
 import CalendarMonth from '@/components/CalendarMonth.vue'
+import EventForm from '@/components/EventForm.vue'
+import EventItem from '@/components/EventItem.vue'
 import GoalForm from '@/components/GoalForm.vue'
 import GoalItem from '@/components/GoalItem.vue'
 import HoldHint from '@/components/HoldHint.vue'
 import ProgressMeter from '@/components/ProgressMeter.vue'
+import { eventOccurrences, loadEvents } from '@/lib/events'
 import { loadRange, occurrencesBetween, refreshTick, setDone } from '@/lib/goals'
 import { PERIODS, PERIOD_TO_ROUTE, periodEnd, periodLabel, periodStart, toISO } from '@/lib/periods'
 import { todayISO } from '@/lib/timeLeft'
@@ -23,8 +26,11 @@ const range = computed(() => ({
 }))
 
 watch([range, refreshTick], ([{ from, to }]) => loadRange(from, to).catch(() => {}), { immediate: true })
+loadEvents().catch(() => {})
 
 const occurrences = computed(() => occurrencesBetween(range.value.from, range.value.to))
+const events = computed(() => eventOccurrences(toISO(range.value.from), toISO(range.value.to)))
+const dayEvents = computed(() => events.value.filter((o) => o.date === selected.value))
 
 /** The selected day's goals, grouped: that day, its week, month, year and any custom period covering it. */
 const groups = computed(() =>
@@ -69,6 +75,13 @@ function edit(occurrence) {
 
 const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() => {})
 
+const eventFormOpen = ref(false)
+const editingEvent = ref(null)
+function editEvent(occurrence) {
+  editingEvent.value = occurrence.event
+  eventFormOpen.value = true
+}
+
 const openWeek = (monday) => router.push({ name: 'goals', params: { period: 'weekly' }, query: { date: monday } })
 </script>
 
@@ -78,6 +91,7 @@ const openWeek = (monday) => router.push({ name: 'goals', params: { period: 'wee
       v-model:month="month"
       :selected="selected"
       :occurrences="occurrences"
+      :events="events"
       @select="selected = $event"
       @open-week="openWeek"
       @open="edit"
@@ -95,7 +109,14 @@ const openWeek = (monday) => router.push({ name: 'goals', params: { period: 'wee
       <ProgressMeter :done="dayItems.filter((o) => o.done).length" :total="dayItems.length" />
       <HoldHint v-if="dayItems.length" />
 
-      <p v-if="!groups.length" class="empty-state">{{ $t('goal.emptyDay') }}</p>
+      <p v-if="!groups.length && !dayEvents.length" class="empty-state">{{ $t('goal.emptyDay') }}</p>
+
+      <div v-if="dayEvents.length" class="group">
+        <RouterLink class="section-label group-title" :to="{ name: 'events' }">{{ $t('events.title') }}</RouterLink>
+        <ul class="list">
+          <EventItem v-for="occ in dayEvents" :key="occ.key" :occurrence="occ" compact @edit="editEvent" />
+        </ul>
+      </div>
 
       <div v-for="group in groups" :key="group.period" class="group">
         <RouterLink
@@ -111,6 +132,7 @@ const openWeek = (monday) => router.push({ name: 'goals', params: { period: 'wee
     </section>
 
     <GoalForm :open="formOpen" :goal="editing" :defaults="formDefaults" @close="formOpen = false" />
+    <EventForm :open="eventFormOpen" :event="editingEvent" @close="eventFormOpen = false" />
   </div>
 </template>
 

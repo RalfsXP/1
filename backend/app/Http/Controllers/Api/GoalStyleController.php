@@ -8,14 +8,14 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 /**
- * Default badge colour + icon for each goal category (a goal can still override it).
+ * Default badge colour + icon for each goal category and for events (each can still override it).
  */
 class GoalStyleController extends Controller
 {
     public function update(Request $request): JsonResponse
     {
         $rules = [];
-        foreach (config('goals.periods') as $period) {
+        foreach (array_keys(config('goals.default_styles')) as $period) {
             $rules[$period] = ['sometimes', 'array'];
             $rules["$period.color"] = ["required_with:$period", 'regex:/^#[0-9a-fA-F]{6}$/'];
             $rules["$period.icon"] = ["required_with:$period", Rule::in(config('goals.icons'))];

@@ -31,6 +31,8 @@ class DemoSeederTest extends TestCase
         $this->assertEqualsCanonicalizing(['day', 'week', 'month', 'year', 'custom'], $demo->goals()->distinct()->pluck('period')->all());
         $this->assertGreaterThan(50, $demo->goals()->withCount('completions')->get()->sum('completions_count'));
         $this->assertSame(2, $demo->whiteboards()->count());
+        $this->assertSame(8, $demo->events()->count());
+        $this->assertSame(3, $demo->events()->where('repeat', 'year')->count());
 
         // The API serves it like any account's data.
         $this->actingAs($demo)

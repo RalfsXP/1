@@ -36,11 +36,11 @@ class DemoSeeder extends Seeder
             'password' => $password,
             'locale' => 'lv',
             'goal_styles' => [
-                'day' => ['color' => '#4c956c', 'icon' => 'sun'],
-                'week' => ['color' => '#489fb5', 'icon' => 'bolt'],
-                'month' => ['color' => '#ffc9b9', 'icon' => 'star'],
-                'year' => ['color' => '#ffa62b', 'icon' => 'trophy'],
-                'custom' => ['color' => '#16697a', 'icon' => 'flag'],
+                'day' => ['color' => '#489fb5', 'icon' => 'sun'],
+                'week' => ['color' => '#82c0cc', 'icon' => 'bolt'],
+                'month' => ['color' => '#ffa62b', 'icon' => 'star'],
+                'year' => ['color' => '#16697a', 'icon' => 'trophy'],
+                'custom' => ['color' => '#0a2128', 'icon' => 'flag'],
             ],
         ]);
         $user->forceFill(['email_verified_at' => now()])->save();
@@ -49,6 +49,7 @@ class DemoSeeder extends Seeder
         $this->habits($user, $today);
         $this->dayGoals($user, $today);
         $this->longerGoals($user, $today);
+        $this->events($user, $today);
         $this->boards($user);
     }
 
@@ -58,8 +59,8 @@ class DemoSeeder extends Seeder
         $start = $today->copy()->subWeeks(6)->startOfWeek(Carbon::MONDAY);
         $habits = [
             ['Izdzert 2 l ūdens', 'low', '#16697a', 'beaker', null, 0.9],
-            ['Lasīt 20 min', 'low', '#d68c45', 'book-open', null, 0.75],
-            ['Sporta zāle', 'high', '#ffc9b9', 'bolt', [1, 3, 5], 0.85],
+            ['Lasīt 20 min', 'low', '#c98a12', 'book-open', null, 0.75],
+            ['Sporta zāle', 'high', '#e5604d', 'bolt', [1, 3, 5], 0.85],
             ['Meditēt 10 min', 'low', null, null, [2, 4, 6, 7], 0.6],
         ];
 
@@ -87,13 +88,13 @@ class DemoSeeder extends Seeder
         $this->done($invoice, $yesterday, $yesterday->copy()->setTime(16, 40));
         $this->goal($user, 'day', $yesterday, 'Pierakstīties pie zobārsta', 'important', null, 'heart');
 
-        $run = $this->goal($user, 'day', $today, 'Skriet 5 km', 'important', '#4c956c', 'fire');
+        $run = $this->goal($user, 'day', $today, 'Skriet 5 km', 'important', '#489fb5', 'fire');
         $this->done($run, $today, $today->copy()->setTime(7, 15));
         $this->goal($user, 'day', $today, 'Komandas sapulce', 'high', '#82c0cc', 'user-group', ['due_at' => $today->copy()->setTime(17, 0)]);
-        $this->goal($user, 'day', $today, 'Nopirkt dāvanu Annai', 'low', '#d68c45', 'gift');
+        $this->goal($user, 'day', $today, 'Nopirkt dāvanu Annai', 'low', '#c98a12', 'gift');
 
         $this->goal($user, 'day', $today->copy()->addDay(), 'Iesniegt atskaiti', 'important', '#489fb5', 'briefcase');
-        $this->goal($user, 'day', $today->copy()->addDays(2), 'Ģitāras nodarbība', 'low', '#ffc9b9', 'musical-note');
+        $this->goal($user, 'day', $today->copy()->addDays(2), 'Ģitāras nodarbība', 'low', '#e5604d', 'musical-note');
         $this->goal($user, 'day', $today->copy()->addDays(4), 'Cept kūku', 'low', '#ffa62b', 'cake');
         $this->goal($user, 'day', $today->copy()->addDays(6), 'Pārgājiens Siguldā', 'high', '#16697a', 'globe-europe-africa');
     }
@@ -106,10 +107,10 @@ class DemoSeeder extends Seeder
 
         $slides = $this->goal($user, 'week', $lastWeek, 'Sagatavot prezentāciju', 'important', '#489fb5', 'light-bulb');
         $this->done($slides, $lastWeek, $lastWeek->copy()->addDays(2)->setTime(18, 5));
-        $this->goal($user, 'week', $week, 'Izlasīt 3 nodaļas', 'high', '#d68c45', 'book-open');
+        $this->goal($user, 'week', $week, 'Izlasīt 3 nodaļas', 'high', '#c98a12', 'book-open');
         $this->goal($user, 'week', $week, 'Iztīrīt garāžu', 'low', null, 'home');
 
-        $training = $this->goal($user, 'week', $week->copy()->subWeeks(5), '3× treniņš', 'high', '#2c6e49', 'fire', ['repeats' => true]);
+        $training = $this->goal($user, 'week', $week->copy()->subWeeks(5), '3× treniņš', 'high', '#7fa98a', 'fire', ['repeats' => true]);
         for ($w = $week->copy()->subWeeks(5); $w->lt($week); $w->addWeek()) {
             if ($w->weekOfYear % 4 !== 0) {
                 $this->done($training, $w, $w->copy()->addDays(5)->setTime(19, 30));
@@ -125,13 +126,39 @@ class DemoSeeder extends Seeder
         $this->goal($user, 'month', $month, 'Izlasīt 2 grāmatas', 'low', null, 'book-open');
 
         $year = $today->copy()->startOfYear();
-        $this->goal($user, 'year', $year, 'Noskriet pusmaratonu', 'important', '#4c956c', 'trophy');
-        $this->goal($user, 'year', $year, 'Iemācīties spāņu valodu', 'high', '#d68c45', 'academic-cap');
+        $this->goal($user, 'year', $year, 'Noskriet pusmaratonu', 'important', '#489fb5', 'trophy');
+        $this->goal($user, 'year', $year, 'Iemācīties spāņu valodu', 'high', '#c98a12', 'academic-cap');
         $trip = $this->goal($user, 'year', $year, 'Apceļot 3 jaunas valstis', 'low', '#489fb5', 'paper-airplane');
         $this->done($trip, $year, $today->copy()->subDays(20)->setTime(12, 0));
 
         $this->goal($user, 'custom', $today->copy()->subDays(5), 'Remonts virtuvē', 'high', '#ffa62b', 'home', ['period_end' => $today->copy()->addDays(5)]);
-        $this->goal($user, 'custom', $today->copy()->addDays(10), 'Atvaļinājums Itālijā', 'low', '#d68c45', 'paper-airplane', ['period_end' => $today->copy()->addDays(17)]);
+        $this->goal($user, 'custom', $today->copy()->addDays(10), 'Atvaļinājums Itālijā', 'low', '#c98a12', 'paper-airplane', ['period_end' => $today->copy()->addDays(17)]);
+    }
+
+    /** Birthdays and a few one-off events spread around today, so the countdown list has a mix. */
+    private function events(User $user, Carbon $today): void
+    {
+        $events = [
+            ['Annas dzimšanas diena', $today->copy()->addDays(27)->subYears(31), null, 'year', '#e5604d', 'cake'],
+            ['Mammas dzimšanas diena', $today->copy()->addDays(74)->subYears(58), null, 'year', '#ffa62b', 'gift'],
+            ['Kāzu gadadiena', $today->copy()->addDays(160)->subYears(4), null, 'year', '#e5604d', 'heart'],
+            ['Īres maksājums', $today->copy()->startOfMonth()->addDays(14), null, 'month', '#16697a', 'banknotes'],
+            ['Futbols ar draugiem', $today->copy()->subWeeks(3)->addDays(2), '19:30', 'week', '#7fa98a', 'user-group'],
+            ['Zobārsts', $today->copy()->addDays(3), '09:15', null, null, null],
+            ['Koncerts Arēnā Rīga', $today->copy()->addDays(19), '20:00', null, '#489fb5', 'musical-note'],
+            ['Lidojums uz Romu', $today->copy()->addDays(10), '06:40', null, '#82c0cc', 'paper-airplane'],
+        ];
+
+        foreach ($events as [$title, $date, $time, $repeat, $color, $icon]) {
+            $user->events()->create([
+                'title' => $title,
+                'date' => $date->toDateString(),
+                'time' => $time,
+                'repeat' => $repeat,
+                'badge_color' => $color,
+                'badge_icon' => $icon,
+            ]);
+        }
     }
 
     /** Two boards in Fabric.js scene format (previews are generated the first time they're opened). */
@@ -160,7 +187,7 @@ class DemoSeeder extends Seeder
             'title' => 'Nedēļas plāns',
             'data' => ['version' => '7.4.0', 'objects' => [
                 $text('Šī nedēļa', 330, 60, 40),
-                $note("Pirmdiena\nSporta zāle\nRēķini", 140, 200, '#4c956c'),
+                $note("Pirmdiena\nSporta zāle\nRēķini", 140, 200, '#489fb5'),
                 $note("Trešdiena\nPrezentācija\nklientam", 380, 200, '#489fb5', '#ffffff'),
                 $note("Piektdiena\nPārgājiens\nSiguldā", 620, 200, '#ffa62b'),
             ], 'viewport' => [1, 0, 0, 1, 0, 0]],
@@ -173,10 +200,10 @@ class DemoSeeder extends Seeder
                 $box(160, 220, 200, 110),
                 $text('Mērķis', 160, 220, 26),
                 $arrow(270, 220, 390, 220),
-                $box(500, 220, 200, 110, '#ffc9b9'),
+                $box(500, 220, 200, 110, '#e5604d'),
                 $text('Paradums', 500, 220, 26),
                 $arrow(610, 220, 730, 220),
-                $note("Rezultāts:\nkatru dienu\nnedaudz labāk", 840, 220, '#d68c45'),
+                $note("Rezultāts:\nkatru dienu\nnedaudz labāk", 840, 220, '#c98a12'),
             ], 'viewport' => [1, 0, 0, 1, 0, 0]],
         ]);
     }

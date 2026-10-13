@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'locale', 'design', 'goal_styles'])]
+#[Fillable(['name', 'email', 'password', 'locale', 'goal_styles'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements HasLocalePreference
 {
@@ -46,6 +46,11 @@ class User extends Authenticatable implements HasLocalePreference
     public function whiteboards(): HasMany
     {
         return $this->hasMany(Whiteboard::class);
+    }
+
+    public function events(): HasMany
+    {
+        return $this->hasMany(Event::class);
     }
 
     /**

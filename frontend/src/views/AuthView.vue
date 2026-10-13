@@ -1,53 +1,20 @@
 <script setup>
-import { computed, reactive, ref, watch } from 'vue'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { reactive, ref } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
 import { EyeIcon, EyeSlashIcon, InformationCircleIcon } from '@heroicons/vue/24/outline'
 import AppLogo from '@/components/AppLogo.vue'
-import DeviceScene from '@/components/DeviceScene.vue'
+import GlassScene from '@/components/GlassScene.vue'
 import LanguageSwitch from '@/components/LanguageSwitch.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
-import { login, register } from '@/lib/auth'
+import { login } from '@/lib/auth'
 import { t } from '@/lib/i18n'
 import { withLoader } from '@/lib/loader'
 
-const route = useRoute()
+// Log in (there is no sign-up: the app is personal).
 const router = useRouter()
 
-// /login and /register share this view; the panels swap sides between them.
-const mode = computed(() => (route.meta.mode === 'register' ? 'register' : 'login'))
-const isRegister = computed(() => mode.value === 'register')
-
-const SWAP_MS = 850
-const swapping = ref(false)
-let swapTimer
-
-watch(mode, () => {
-  errors.value = {}
-  formError.value = ''
-  swapping.value = true
-  clearTimeout(swapTimer)
-  swapTimer = setTimeout(() => (swapping.value = false), SWAP_MS)
-})
-
-// Shared between both forms so a typed email survives switching modes.
-const form = reactive({ name: '', email: '', password: '', passwordConfirmation: '' })
+const form = reactive({ email: '', password: '' })
 const showPassword = ref(false)
-
-// Password strength (sign up only): 0–5 points, recomputed on every keystroke.
-const strength = computed(() => {
-  const pw = form.password
-  if (!pw) return 0
-  // Under 8 characters is always weak (and rejected by the server).
-  if (pw.length < 8) return 1
-  let score = 0
-  if (pw.length >= 8) score++
-  if (pw.length >= 12) score++
-  if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++
-  if (/\d/.test(pw)) score++
-  if (/[^A-Za-z0-9]/.test(pw)) score++
-  return score
-})
-const strengthLabel = computed(() => t('auth.strengthLevels')[strength.value])
 const submitting = ref(false)
 const errors = ref({})
 const formError = ref('')
@@ -59,8 +26,7 @@ async function submit() {
   formError.value = ''
 
   try {
-    if (isRegister.value) await register(form)
-    else await login(form)
+    await login(form)
   } catch (e) {
     if (e.response?.status === 422) {
       errors.value = Object.fromEntries(
@@ -85,8 +51,7 @@ async function submit() {
 </script>
 
 <template>
-  <div class="auth-page" :class="[mode, { swapping }]">
-    <!-- Pinned to the page, not a panel, so it stays put while the panels swap. -->
+  <div class="auth-page">
     <header class="form-top">
       <!-- Same corner as the landing page: the wordmark, which also leads back home. -->
       <RouterLink to="/" class="home" :aria-label="$t('auth.back')"><AppLogo /></RouterLink>
@@ -96,41 +61,21 @@ async function submit() {
       </div>
     </header>
 
-    <!-- Decorative side: the landing page's floating laptop + phone. -->
+    <!-- Decorative side (desktop): the landing page's floating glass cards. -->
     <section class="art" aria-hidden="true">
-      <DeviceScene layout="auth" />
+      <GlassScene class="scene" />
     </section>
 
-    <!-- Form side -->
     <section class="form-side">
-
       <div class="form-wrap">
-        <Transition name="form-swap" mode="out-in">
-          <form :key="mode" class="form" novalidate @submit.prevent="submit">
-            <h1>{{ isRegister ? $t('auth.registerTitle') : $t('auth.loginTitle') }}</h1>
-            <p class="lead">
-              {{ isRegister ? $t('auth.registerLead') : $t('auth.loginLead') }}
-            </p>
+        <form class="form" novalidate @submit.prevent="submit">
+          <h1>{{ $t('auth.loginTitle') }}</h1>
+          <p class="lead">{{ $t('auth.loginLead') }}</p>
 
-            <p v-if="formError" class="form-error" role="alert">{{ formError }}</p>
+          <p v-if="formError" class="form-error" role="alert">{{ formError }}</p>
 
-            <div v-if="isRegister" class="field">
-              <label for="name">{{ $t('auth.name') }}</label>
-              <input
-                id="name"
-                v-model.trim="form.name"
-                type="text"
-                autocomplete="name"
-                required
-                :aria-invalid="!!errors.name"
-                :aria-describedby="errors.name ? 'name-error' : undefined"
-              />
-              <p v-if="errors.name" id="name-error" class="field-error">
-                <InformationCircleIcon aria-hidden="true" />
-                {{ errors.name }}
-              </p>
-            </div>
-
+          <!-- Fields + submit on one glass card. -->
+          <div class="form-card">
             <div class="field">
               <label for="email">{{ $t('auth.email') }}</label>
               <input
@@ -156,7 +101,7 @@ async function submit() {
                   id="password"
                   v-model="form.password"
                   :type="showPassword ? 'text' : 'password'"
-                  :autocomplete="isRegister ? 'new-password' : 'current-password'"
+                  autocomplete="current-password"
                   required
                   :aria-invalid="!!errors.password"
                   :aria-describedby="errors.password ? 'password-error' : undefined"
@@ -176,138 +121,50 @@ async function submit() {
                 <InformationCircleIcon aria-hidden="true" />
                 {{ errors.password }}
               </p>
-              <div v-if="isRegister" class="strength">
-                <span class="strength-label">{{ $t('auth.strength') }}</span>
-                <div
-                  class="strength-track"
-                  role="meter"
-                  :aria-label="$t('auth.strengthAria')"
-                  aria-valuemin="0"
-                  aria-valuemax="5"
-                  :aria-valuenow="strength"
-                  :aria-valuetext="strengthLabel"
-                >
-                  <div class="strength-fill" :style="{ width: strength * 20 + '%' }" />
-                </div>
-              </div>
-            </div>
-
-            <div v-if="isRegister" class="field">
-              <label for="password-confirmation">{{ $t('auth.confirmPassword') }}</label>
-              <input
-                id="password-confirmation"
-                v-model="form.passwordConfirmation"
-                :type="showPassword ? 'text' : 'password'"
-                autocomplete="new-password"
-                required
-              />
             </div>
 
             <button type="submit" class="btn btn-primary btn-lg submit" :disabled="submitting">
               <span v-if="submitting" class="btn-spinner" aria-hidden="true" />
-              {{
-                submitting
-                  ? isRegister ? $t('auth.submittingRegister') : $t('auth.submittingLogin')
-                  : isRegister ? $t('auth.submitRegister') : $t('auth.submitLogin')
-              }}
+              {{ submitting ? $t('auth.submittingLogin') : $t('auth.submitLogin') }}
             </button>
-
-            <p class="switch">
-              <template v-if="isRegister">
-                {{ $t('auth.haveAccount') }}
-                <RouterLink :to="{ name: 'login' }">{{ $t('auth.switchToLogin') }}</RouterLink>
-              </template>
-              <template v-else>
-                {{ $t('auth.noAccount') }}
-                <RouterLink :to="{ name: 'register' }">{{ $t('auth.switchToRegister') }}</RouterLink>
-              </template>
-            </p>
-          </form>
-        </Transition>
+          </div>
+        </form>
       </div>
     </section>
   </div>
 </template>
 
 <style scoped>
+/* Desktop: the glass scene on the left, the form on the right. */
 .auth-page {
-  --swap-ease: cubic-bezier(0.76, 0, 0.24, 1);
-  --field-bg: color-mix(in srgb, var(--fg) 4%, transparent);
-
   position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
-  /* Same glow as the landing page. */
-  background:
-    radial-gradient(48rem 32rem at 50% 60%, var(--glow), transparent 70%),
-    var(--bg);
 }
 
-/* ---------- Split layout + swap ---------- */
-.art,
-.form-side {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 50%;
-  transition: transform 0.85s var(--swap-ease);
-  will-change: transform;
-}
-
-/* Login: art left, form right. Register: they trade places. */
-.login .art {
-  transform: translateX(0);
-}
-
-.login .form-side {
-  transform: translateX(100%);
-}
-
-.register .art {
-  transform: translateX(100%);
-}
-
-.register .form-side {
-  transform: translateX(0);
-}
-
-.swapping .art,
-.swapping .form-side {
-  animation: swap-blur 0.85s var(--swap-ease);
-}
-
-@keyframes swap-blur {
-  0% {
-    filter: blur(0);
-  }
-
-  45% {
-    filter: blur(14px);
-    opacity: 0.85;
-  }
-
-  100% {
-    filter: blur(0);
-  }
-}
-
-/* ---------- Art side: the device scene ---------- */
 .art {
   display: grid;
   place-items: center;
+  min-height: 0;
   padding: 96px 40px 40px;
 }
 
-/* ---------- Form side ---------- */
+.scene {
+  max-width: 460px;
+  max-height: 488px;
+}
+
 .form-side {
   display: flex;
   flex-direction: column;
+  min-height: 0;
   padding: 82px 40px 24px;
 }
 
-/* Wordmark (home) on the left, language + theme on the right, regardless of panel order. */
+/* Wordmark (home) on the left, language + theme on the right. */
 .form-top {
   position: absolute;
   top: 0;
@@ -351,22 +208,30 @@ async function submit() {
 }
 
 .form {
-  width: min(380px, 100%);
+  width: min(400px, 100%);
 }
 
 h1 {
   margin: 0;
-  font-size: 1.85rem;
+  font-size: 2.3rem;
   font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
 }
 
 .lead {
-  margin: 8px 0 28px;
+  margin: 8px 0 22px;
   color: var(--muted);
-  font-size: 0.92rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.form-card {
+  padding: 20px;
+  border: 1px solid var(--glass-edge);
+  border-radius: 28px;
+  background: var(--surface);
+  box-shadow: var(--glass-shadow);
 }
 
 .field {
@@ -375,30 +240,31 @@ h1 {
 
 label {
   display: block;
-  margin-bottom: 6px;
-  font-size: 0.78rem;
-  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
 input {
   width: 100%;
-  height: 46px;
-  padding: 0 14px;
+  height: 52px;
+  padding: 0 16px;
   border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--field-bg);
+  border-radius: 16px;
+  background: var(--field);
   color: var(--fg);
   font: inherit;
   /* 16px: anything smaller makes iOS Safari zoom in on focus. */
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 input:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent);
+  box-shadow: 0 0 0 1px var(--accent);
 }
 
 input[aria-invalid='true'] {
@@ -461,42 +327,13 @@ input[aria-invalid='true'] {
   stroke-width: 2;
 }
 
-/* Strength meter: muted label + accent bar that fills as the password improves. */
-.strength {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 8px;
-}
-
-.strength-label {
-  color: var(--muted);
-  font-size: 0.72rem;
-  font-weight: 700;
-}
-
-.strength-track {
-  flex: 1;
-  height: 4px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: var(--line);
-}
-
-.strength-fill {
-  height: 100%;
-  border-radius: inherit;
-  background: var(--accent);
-  transition: width 0.25s ease;
-}
-
 .form-error {
-  margin: -12px 0 20px;
+  margin: -6px 0 16px;
   padding: 10px 14px;
   border: 1px solid var(--line);
   border-left: 3px solid var(--accent);
   border-radius: 12px;
-  background: var(--field-bg);
+  background: var(--field);
   color: var(--fg);
   font-size: 0.85rem;
   font-weight: 700;
@@ -523,38 +360,7 @@ input[aria-invalid='true'] {
   }
 }
 
-.switch {
-  margin: 20px 0 0;
-  color: var(--muted);
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-align: center;
-}
-
-.switch a {
-  color: var(--accent);
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.switch a:hover {
-  text-decoration: underline;
-}
-
-/* Form content cross-fades with a blur while the panels slide. */
-.form-swap-enter-active,
-.form-swap-leave-active {
-  transition: opacity 0.35s ease, filter 0.35s ease, transform 0.35s ease;
-}
-
-.form-swap-enter-from,
-.form-swap-leave-to {
-  opacity: 0;
-  filter: blur(8px);
-  transform: translateY(8px);
-}
-
-/* ---------- Narrow screens: stacked, no side swap ---------- */
+/* ---------- Narrow screens: header + form only ---------- */
 @media (max-width: 860px) {
   .auth-page {
     display: flex;
@@ -564,26 +370,7 @@ input[aria-invalid='true'] {
     overflow: visible;
   }
 
-  .art,
-  .form-side,
-  .login .art,
-  .login .form-side,
-  .register .art,
-  .register .form-side {
-    position: static;
-    width: auto;
-    transform: none;
-    will-change: auto;
-  }
-
-  /* Panels don't trade places on phones; the form content still blurs/fades
-     via the form-swap transition. */
-  .swapping .art,
-  .swapping .form-side {
-    animation: none;
-  }
-
-  /* Phones: header + form only; the device scene would push the form off screen. */
+  /* The scene would push the form off screen. */
   .art {
     display: none;
   }
@@ -602,13 +389,15 @@ input[aria-invalid='true'] {
     padding: max(16px, var(--top-inset)) 16px 0;
   }
 
+  /* The page itself scrolls here; a scrolling wrapper would clip the card's shadow at the sides. */
   .form-wrap {
     place-items: start center;
-    padding-top: 28px;
+    padding-top: 20px;
+    overflow: visible;
   }
 
   h1 {
-    font-size: 1.55rem;
+    font-size: 2.1rem;
   }
 }
 </style>

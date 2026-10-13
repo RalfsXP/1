@@ -48,27 +48,26 @@ const router = useRouter()
 .tiles {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 10px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-/* Icon above the label, so full names fit two to a row. */
+/* Icon beside the label; two glass tiles to a row. */
 .tile {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
+  align-items: center;
   gap: 8px;
-  min-height: 76px;
-  padding: 12px 14px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
+  min-height: 58px;
+  padding: 8px 12px;
+  border: 1px solid var(--glass-edge);
+  border-radius: 18px;
   background: var(--surface);
   color: var(--fg);
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.2;
   text-decoration: none;
   transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 }
@@ -80,17 +79,26 @@ const router = useRouter()
   height: 22px;
 }
 
+.tile svg {
+  color: var(--link);
+}
+
+/* Long names wrap to a second line rather than being cut off. */
 .tile span {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .tile.active {
   border-color: var(--accent);
   background: var(--accent);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--accent) 30%, transparent);
   color: var(--on-accent);
+  font-weight: 700;
+}
+
+.tile.active svg {
+  color: currentColor;
 }
 
 .rows {
@@ -103,18 +111,22 @@ const router = useRouter()
 .row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: 48px;
-  padding: 0 12px;
+  gap: 14px;
+  min-height: 52px;
+  padding: 0 8px;
   border: 0;
   border-radius: 14px;
   background: transparent;
   color: var(--fg);
   font-size: 0.95rem;
-  font-weight: 700;
+  font-weight: 600;
   text-align: left;
   text-decoration: none;
   cursor: pointer;
+}
+
+.row svg {
+  color: var(--muted);
 }
 
 .row.active {
@@ -122,11 +134,11 @@ const router = useRouter()
   color: var(--on-accent);
 }
 
-.row.logout {
-  color: var(--muted);
+.row.active svg {
+  color: currentColor;
 }
 
 .version {
-  padding: 0 12px;
+  padding: 0 8px;
 }
 </style>
