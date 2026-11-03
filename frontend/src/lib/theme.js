@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { remember } from './consent'
 
 // index.html sets data-theme before first paint; this keeps Vue in sync with it.
 export const theme = ref(document.documentElement.dataset.theme === 'light' ? 'light' : 'dark')
@@ -7,11 +8,8 @@ export function toggleTheme() {
   theme.value = theme.value === 'dark' ? 'light' : 'dark'
   document.documentElement.dataset.theme = theme.value
   syncThemeColor()
-  try {
-    localStorage.setItem('merkis-theme', theme.value)
-  } catch {
-    // Storage can be unavailable (private mode); the toggle still works.
-  }
+  // Kept between visits only with functional-cookie consent (lib/consent.js).
+  remember('merkis-theme', theme.value)
 }
 
 /** Browser chrome (mobile address bar) matches the page background of the current theme. */
