@@ -1,5 +1,4 @@
 import { ref } from 'vue'
-import { remember } from './consent'
 
 /** True on touch-first devices (phones/tablets): there, tap = done and hold = edit. */
 const query = matchMedia('(hover: none) and (pointer: coarse)')
@@ -18,5 +17,9 @@ export const holdHintDismissed = ref(seen)
 
 export function dismissHoldHint() {
   holdHintDismissed.value = true
-  remember(HINT_KEY, 'dismissed')
+  try {
+    localStorage.setItem(HINT_KEY, 'dismissed')
+  } catch {
+    // Not remembered; fine.
+  }
 }

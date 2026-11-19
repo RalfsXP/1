@@ -1,5 +1,4 @@
 import { ref } from 'vue'
-import { remember } from './consent'
 import en from '@/lang/en.json'
 import lv from '@/lang/lv.json'
 
@@ -23,13 +22,16 @@ function initialLocale() {
 export const locale = ref(initialLocale())
 document.documentElement.lang = locale.value
 
-/** Switch the interface language (remembered on this device with functional-cookie consent). */
+/** Switch the interface language and remember it on this device. */
 export function setLocale(next) {
   if (!LOCALES.includes(next)) return
   locale.value = next
   document.documentElement.lang = next
-  // The account still stores it once signed in.
-  remember(STORAGE_KEY, next)
+  try {
+    localStorage.setItem(STORAGE_KEY, next)
+  } catch {
+    // Not persisted locally; the account still stores it once signed in.
+  }
 }
 
 const lookup = (lang, key) => key.split('.').reduce((node, part) => node?.[part], messages[lang])
