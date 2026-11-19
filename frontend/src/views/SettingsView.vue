@@ -75,7 +75,7 @@ function signOut() {
             <button type="button" :aria-pressed="theme === 'dark'" @click="setTheme('dark')">{{ $t('common.themeDark') }}</button>
           </div>
         </div>
-        <div class="pref">
+        <div v-if="LOCALES.length > 1" class="pref">
           <span class="pref-name">{{ $t('common.language') }}</span>
           <div class="segmented" role="group" :aria-label="$t('common.language')">
             <button v-for="code in LOCALES" :key="code" type="button" :aria-pressed="locale === code" @click="changeLocale(code)">

@@ -29,7 +29,7 @@
           <tr>
             <td align="center" style="padding:8px 0 32px;">
               <a href="{{ $siteUrl }}" style="text-decoration:none;">
-                <img src="{{ $logoUrl }}" width="160" alt="Merkis.app" style="display:block; width:160px; height:auto; border:0;">
+                <img src="{{ $logoUrl }}" width="64" alt="Merkis.app" style="display:block; width:64px; height:auto; border:0;">
               </a>
             </td>
           </tr>

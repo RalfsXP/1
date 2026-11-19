@@ -115,8 +115,8 @@ sizes.forEach(([s, buf], i) => {
 })
 write('frontend/public/favicon.ico', Buffer.concat([header, ...sizes.map(([, b]) => b)]))
 
-// Email header (ink background): Light Yellow wordmark, 3× its 160 px display width.
-write('frontend/public/email/logo.png', png(wordSvg(PARCHMENT), 480))
+// Email header (black background): Parchment m + Amber dot (v1.6.3: the mark, not the wordmark), 3× its 64 px display width.
+write('frontend/public/email/logo.png', png(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${markVB.join(' ')}">${markInner(PARCHMENT)}</svg>`, 192))
 
 // Data for the Vue components.
 fs.writeFileSync(path.join(REPO, 'frontend/scripts/logo-geometry.json'), JSON.stringify({ wordVB, wordPath, bar: { ...bar, x: r(bar.x), y: r(bar.y), w: r(bar.w) }, dot: { ...dot, cx: r(dot.cx), cy: r(dot.cy) }, markVB, mPath: m.d, markDot: { ...markDot, cx: r(markDot.cx), cy: r(markDot.cy) } }))

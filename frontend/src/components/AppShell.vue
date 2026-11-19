@@ -56,6 +56,8 @@ const showMenuButton = computed(() => route.name !== 'whiteboard')
     >
       <Bars3Icon aria-hidden="true" />
     </button>
+    <!-- Phone browser tab only: content dissolves before Safari's toolbar instead of being cut off. -->
+    <div class="bottom-fade" aria-hidden="true" />
     <MobileNav :open="menuOpen" @close="menuOpen = false" />
   </div>
 </template>
@@ -86,7 +88,7 @@ const showMenuButton = computed(() => route.name !== 'whiteboard')
   gap: 8px;
   height: var(--bar-h);
   padding: max(8px, var(--top-inset)) 20px 6px max(20px, env(safe-area-inset-left));
-  background: var(--mist), var(--bg);
+  background: var(--mist-edge), var(--mist), var(--bg);
   background-position: 0 0;
   background-repeat: no-repeat;
   background-size: 100vw var(--app-h);
@@ -99,7 +101,7 @@ const showMenuButton = computed(() => route.name !== 'whiteboard')
   right: 0;
   left: 0;
   height: 28px;
-  background: var(--mist), var(--bg);
+  background: var(--mist-edge), var(--mist), var(--bg);
   background-position: 0 calc(-1 * var(--bar-h));
   background-repeat: no-repeat;
   background-size: 100vw var(--app-h);

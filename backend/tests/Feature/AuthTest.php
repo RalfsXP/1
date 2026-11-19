@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Mail\WelcomeMail;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class AuthTest extends TestCase
@@ -20,17 +21,36 @@ class AuthTest extends TestCase
         ]);
     }
 
-    public function test_sign_up_is_closed(): void
+    public function test_a_user_can_register_and_is_logged_in(): void
     {
-        // v1.6: personal app — no public registration endpoint.
+        Mail::fake();
+
         $this->spa()->postJson('/api/register', [
             'name' => 'Ralfs',
             'email' => 'ralfs@example.com',
             'password' => 'secret123',
             'password_confirmation' => 'secret123',
-        ])->assertNotFound();
+            'locale' => 'en',
+        ])->assertCreated()
+            ->assertJsonPath('email', 'ralfs@example.com')
+            ->assertJsonPath('locale', 'en');
 
-        $this->assertDatabaseMissing('users', ['email' => 'ralfs@example.com']);
+        $this->assertAuthenticated('web');
+        $this->assertDatabaseHas('users', ['email' => 'ralfs@example.com', 'locale' => 'en']);
+
+        Mail::assertSent(WelcomeMail::class, fn (WelcomeMail $mail) => $mail->hasTo('ralfs@example.com') && $mail->locale === 'en');
+    }
+
+    public function test_registration_validates_input(): void
+    {
+        User::factory()->create(['email' => 'taken@example.com']);
+
+        $this->spa()->postJson('/api/register', [
+            'name' => '',
+            'email' => 'taken@example.com',
+            'password' => 'short',
+            'password_confirmation' => 'different',
+        ])->assertUnprocessable()->assertJsonValidationErrors(['name', 'email', 'password']);
     }
 
     public function test_a_user_can_log_in_with_correct_credentials(): void

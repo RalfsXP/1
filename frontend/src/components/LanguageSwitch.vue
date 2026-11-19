@@ -4,7 +4,8 @@ import { LOCALES, locale } from '@/lib/i18n'
 </script>
 
 <template>
-  <div class="lang" role="group" :aria-label="$t('common.language')">
+  <!-- Hidden while only one language is enabled (English only since v1.6.3, see lib/i18n.js LOCALES). -->
+  <div v-if="LOCALES.length > 1" class="lang" role="group" :aria-label="$t('common.language')">
     <button
       v-for="code in LOCALES"
       :key="code"

@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import api from './api'
-import { setLocale } from './i18n'
+import { locale, setLocale } from './i18n'
 
 /** The signed-in user, `null` when signed out, `undefined` until first checked. */
 export const user = ref(undefined)
@@ -31,6 +31,18 @@ export async function fetchUser({ force = false } = {}) {
 export async function login({ email, password, remember = true }) {
   await csrf()
   const { data } = await api.post('/login', { email, password, remember })
+  return applyUser(data)
+}
+
+export async function register({ name, email, password, passwordConfirmation }) {
+  await csrf()
+  const { data } = await api.post('/register', {
+    name,
+    email,
+    password,
+    password_confirmation: passwordConfirmation,
+    locale: locale.value,
+  })
   return applyUser(data)
 }
 

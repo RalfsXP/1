@@ -1,7 +1,7 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { ArrowRightStartOnRectangleIcon } from '@heroicons/vue/24/outline'
-import AppLogo from '@/components/AppLogo.vue'
+import LogoMark from '@/components/LogoMark.vue'
 import AppVersion from '@/components/AppVersion.vue'
 import { NAV_FOOT, NAV_LINKS as links, signOut as doSignOut } from '@/lib/nav'
 
@@ -15,7 +15,7 @@ const signOut = () => doSignOut(router)
   <nav class="nav" :aria-label="$t('nav.menu')">
     <div class="brand">
       <RouterLink :to="{ name: 'home' }" class="logo" :aria-label="$t('nav.home')" @click="emit('navigate')">
-        <AppLogo />
+        <LogoMark />
       </RouterLink>
     </div>
 
@@ -63,8 +63,8 @@ const signOut = () => doSignOut(router)
 
 .logo {
   display: block;
-  width: 128px;
-  height: 38px;
+  width: 58px;
+  height: 28px;
 }
 
 .links {

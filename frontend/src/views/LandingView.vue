@@ -1,6 +1,6 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import AppLogo from '@/components/AppLogo.vue'
+import LogoMark from '@/components/LogoMark.vue'
 import GlassScene from '@/components/GlassScene.vue'
 import LanguageSwitch from '@/components/LanguageSwitch.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
@@ -8,8 +8,8 @@ import { withLoader } from '@/lib/loader'
 
 const router = useRouter()
 
-// Short loading screen (logo) before showing the login page.
-const openLogin = () => withLoader(() => router.push({ name: 'login' }))
+// Short loading screen (logo) before showing the login / sign-up page.
+const open = (name) => withLoader(() => router.push({ name }))
 </script>
 
 <template>
@@ -22,16 +22,19 @@ const openLogin = () => withLoader(() => router.push({ name: 'login' }))
     </header>
 
     <main class="hero">
-      <h1 class="brand"><AppLogo /></h1>
+      <h1 class="brand"><LogoMark /><span class="visually-hidden">Merkis</span></h1>
       <GlassScene class="scene" />
-      <button type="button" class="btn btn-primary btn-lg login" @click="openLogin">{{ $t('landing.login') }}</button>
+      <div class="actions">
+        <button type="button" class="btn btn-primary btn-lg" @click="open('register')">{{ $t('landing.signup') }}</button>
+        <button type="button" class="btn btn-ghost btn-lg" @click="open('login')">{{ $t('landing.login') }}</button>
+      </div>
     </main>
   </div>
 </template>
 
 <style scoped>
-/* Exactly one screen tall: the landing page never scrolls. Controls top right; the wordmark,
-   the floating glass scene and the login button form one block, well above the bottom edge
+/* Exactly one screen tall: the landing page never scrolls. Controls top right; the m. mark,
+   the floating glass scene and the sign-up / login buttons form one block, well above the bottom edge
    so the button sits in easy thumb reach without hugging the edge. */
 .page {
   display: grid;
@@ -64,9 +67,9 @@ const openLogin = () => withLoader(() => router.push({ name: 'login' }))
 }
 
 .brand {
-  width: min(250px, 64vw);
+  width: min(132px, 34vw);
   height: auto;
-  aspect-ratio: 343.5 / 99.4;
+  aspect-ratio: 113.5 / 55.1;
   margin: 0;
 }
 
@@ -76,7 +79,9 @@ const openLogin = () => withLoader(() => router.push({ name: 'login' }))
   max-height: 382px;
 }
 
-.login {
+.actions {
+  display: grid;
+  gap: 10px;
   width: min(420px, 100%);
 }
 
@@ -90,8 +95,9 @@ const openLogin = () => withLoader(() => router.push({ name: 'login' }))
     max-height: 488px;
   }
 
-  .login {
-    width: 280px;
+  .actions {
+    grid-template-columns: 1fr 1fr;
+    width: 420px;
   }
 }
 </style>

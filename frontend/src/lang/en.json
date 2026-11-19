@@ -14,6 +14,7 @@
   },
   "landing": {
     "login": "Log in",
+    "signup": "Sign up",
     "sceneGoal": "Run 5 km"
   },
   "auth": {
@@ -27,7 +28,20 @@
     "submitLogin": "Log in",
     "submittingLogin": "Logging in…",
     "errorThrottle": "Too many attempts. Please wait a minute and try again.",
-    "errorGeneric": "Something went wrong. Please try again."
+    "errorGeneric": "Something went wrong. Please try again.",
+    "registerTitle": "Create your account",
+    "registerLead": "Sign up to start using Merkis.",
+    "name": "Name",
+    "confirmPassword": "Confirm password",
+    "strength": "Strength",
+    "strengthAria": "Password strength",
+    "strengthLevels": ["Empty", "Weak", "Weak", "Fair", "Good", "Strong"],
+    "submitRegister": "Create account",
+    "submittingRegister": "Creating account…",
+    "haveAccount": "Already have an account?",
+    "noAccount": "New to Merkis?",
+    "switchToLogin": "Log in",
+    "switchToRegister": "Sign up"
   },
   "nav": {
     "menu": "Menu",

@@ -1,23 +1,47 @@
 <script setup>
-import { reactive, ref } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { computed, reactive, ref, watch } from 'vue'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { EyeIcon, EyeSlashIcon, InformationCircleIcon } from '@heroicons/vue/24/outline'
-import AppLogo from '@/components/AppLogo.vue'
 import GlassScene from '@/components/GlassScene.vue'
 import LanguageSwitch from '@/components/LanguageSwitch.vue'
+import LogoMark from '@/components/LogoMark.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
-import { login } from '@/lib/auth'
+import { login, register } from '@/lib/auth'
 import { t } from '@/lib/i18n'
 import { withLoader } from '@/lib/loader'
 
-// Log in (there is no sign-up: the app is personal).
+// /login and /register share this view (same viewKey): the page stays put and only the form swaps.
+const route = useRoute()
 const router = useRouter()
 
-const form = reactive({ email: '', password: '' })
+const isRegister = computed(() => route.meta.mode === 'register')
+
+// Shared between both forms so a typed email survives switching modes.
+const form = reactive({ name: '', email: '', password: '', passwordConfirmation: '' })
 const showPassword = ref(false)
 const submitting = ref(false)
 const errors = ref({})
 const formError = ref('')
+
+watch(isRegister, () => {
+  errors.value = {}
+  formError.value = ''
+})
+
+// Password strength (sign up only): 0–5 points, recomputed on every keystroke.
+const strength = computed(() => {
+  const pw = form.password
+  if (!pw) return 0
+  // Under 8 characters is always weak (and rejected by the server).
+  if (pw.length < 8) return 1
+  let score = 1
+  if (pw.length >= 12) score++
+  if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) score++
+  if (/\d/.test(pw)) score++
+  if (/[^A-Za-z0-9]/.test(pw)) score++
+  return score
+})
+const strengthLabel = computed(() => t('auth.strengthLevels')[strength.value])
 
 async function submit() {
   if (submitting.value) return
@@ -26,7 +50,8 @@ async function submit() {
   formError.value = ''
 
   try {
-    await login(form)
+    if (isRegister.value) await register(form)
+    else await login(form)
   } catch (e) {
     if (e.response?.status === 422) {
       errors.value = Object.fromEntries(
@@ -41,7 +66,7 @@ async function submit() {
     return
   }
 
-  // Only a successful sign-in gets the spinning-logo loader on the way home.
+  // Only a successful sign-in / sign-up gets the spinning-logo loader on the way home.
   try {
     await withLoader(() => router.push({ name: 'home' }), 1400)
   } finally {
@@ -53,8 +78,8 @@ async function submit() {
 <template>
   <div class="auth-page">
     <header class="form-top">
-      <!-- Same corner as the landing page: the wordmark, which also leads back home. -->
-      <RouterLink to="/" class="home" :aria-label="$t('auth.back')"><AppLogo /></RouterLink>
+      <!-- The m. mark top left, which also leads back home. -->
+      <RouterLink to="/" class="home" :aria-label="$t('auth.back')"><LogoMark /></RouterLink>
       <div class="controls">
         <LanguageSwitch />
         <ThemeToggle />
@@ -68,67 +93,126 @@ async function submit() {
 
     <section class="form-side">
       <div class="form-wrap">
-        <form class="form" novalidate @submit.prevent="submit">
-          <h1>{{ $t('auth.loginTitle') }}</h1>
-          <p class="lead">{{ $t('auth.loginLead') }}</p>
+        <Transition name="form-swap" mode="out-in">
+          <form :key="isRegister ? 'register' : 'login'" class="form" novalidate @submit.prevent="submit">
+            <h1>{{ isRegister ? $t('auth.registerTitle') : $t('auth.loginTitle') }}</h1>
+            <p class="lead">{{ isRegister ? $t('auth.registerLead') : $t('auth.loginLead') }}</p>
 
-          <p v-if="formError" class="form-error" role="alert">{{ formError }}</p>
+            <p v-if="formError" class="form-error" role="alert">{{ formError }}</p>
 
-          <!-- Fields + submit on one glass card. -->
-          <div class="form-card">
-            <div class="field">
-              <label for="email">{{ $t('auth.email') }}</label>
-              <input
-                id="email"
-                v-model.trim="form.email"
-                type="email"
-                autocomplete="email"
-                inputmode="email"
-                required
-                :aria-invalid="!!errors.email"
-                :aria-describedby="errors.email ? 'email-error' : undefined"
-              />
-              <p v-if="errors.email" id="email-error" class="field-error">
-                <InformationCircleIcon aria-hidden="true" />
-                {{ errors.email }}
-              </p>
-            </div>
-
-            <div class="field">
-              <label for="password">{{ $t('auth.password') }}</label>
-              <div class="password">
+            <!-- Fields + submit on one glass card. -->
+            <div class="form-card">
+              <div v-if="isRegister" class="field">
+                <label for="name">{{ $t('auth.name') }}</label>
                 <input
-                  id="password"
-                  v-model="form.password"
-                  :type="showPassword ? 'text' : 'password'"
-                  autocomplete="current-password"
+                  id="name"
+                  v-model.trim="form.name"
+                  type="text"
+                  autocomplete="name"
                   required
-                  :aria-invalid="!!errors.password"
-                  :aria-describedby="errors.password ? 'password-error' : undefined"
+                  :aria-invalid="!!errors.name"
+                  :aria-describedby="errors.name ? 'name-error' : undefined"
                 />
-                <button
-                  type="button"
-                  class="reveal"
-                  :aria-label="showPassword ? $t('auth.hidePassword') : $t('auth.showPassword')"
-                  :aria-pressed="showPassword"
-                  @click="showPassword = !showPassword"
-                >
-                  <EyeIcon v-if="!showPassword" aria-hidden="true" />
-                  <EyeSlashIcon v-else aria-hidden="true" />
-                </button>
+                <p v-if="errors.name" id="name-error" class="field-error">
+                  <InformationCircleIcon aria-hidden="true" />
+                  {{ errors.name }}
+                </p>
               </div>
-              <p v-if="errors.password" id="password-error" class="field-error">
-                <InformationCircleIcon aria-hidden="true" />
-                {{ errors.password }}
-              </p>
+
+              <div class="field">
+                <label for="email">{{ $t('auth.email') }}</label>
+                <input
+                  id="email"
+                  v-model.trim="form.email"
+                  type="email"
+                  autocomplete="email"
+                  inputmode="email"
+                  required
+                  :aria-invalid="!!errors.email"
+                  :aria-describedby="errors.email ? 'email-error' : undefined"
+                />
+                <p v-if="errors.email" id="email-error" class="field-error">
+                  <InformationCircleIcon aria-hidden="true" />
+                  {{ errors.email }}
+                </p>
+              </div>
+
+              <div class="field">
+                <label for="password">{{ $t('auth.password') }}</label>
+                <div class="password">
+                  <input
+                    id="password"
+                    v-model="form.password"
+                    :type="showPassword ? 'text' : 'password'"
+                    :autocomplete="isRegister ? 'new-password' : 'current-password'"
+                    required
+                    :aria-invalid="!!errors.password"
+                    :aria-describedby="errors.password ? 'password-error' : undefined"
+                  />
+                  <button
+                    type="button"
+                    class="reveal"
+                    :aria-label="showPassword ? $t('auth.hidePassword') : $t('auth.showPassword')"
+                    :aria-pressed="showPassword"
+                    @click="showPassword = !showPassword"
+                  >
+                    <EyeIcon v-if="!showPassword" aria-hidden="true" />
+                    <EyeSlashIcon v-else aria-hidden="true" />
+                  </button>
+                </div>
+                <p v-if="errors.password" id="password-error" class="field-error">
+                  <InformationCircleIcon aria-hidden="true" />
+                  {{ errors.password }}
+                </p>
+                <div v-if="isRegister" class="strength">
+                  <span class="strength-label">{{ $t('auth.strength') }}</span>
+                  <div
+                    class="strength-track"
+                    role="meter"
+                    :aria-label="$t('auth.strengthAria')"
+                    aria-valuemin="0"
+                    aria-valuemax="5"
+                    :aria-valuenow="strength"
+                    :aria-valuetext="strengthLabel"
+                  >
+                    <div class="strength-fill" :style="{ width: strength * 20 + '%' }" />
+                  </div>
+                </div>
+              </div>
+
+              <div v-if="isRegister" class="field">
+                <label for="password-confirmation">{{ $t('auth.confirmPassword') }}</label>
+                <input
+                  id="password-confirmation"
+                  v-model="form.passwordConfirmation"
+                  :type="showPassword ? 'text' : 'password'"
+                  autocomplete="new-password"
+                  required
+                />
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-lg submit" :disabled="submitting">
+                <span v-if="submitting" class="btn-spinner" aria-hidden="true" />
+                {{
+                  submitting
+                    ? isRegister ? $t('auth.submittingRegister') : $t('auth.submittingLogin')
+                    : isRegister ? $t('auth.submitRegister') : $t('auth.submitLogin')
+                }}
+              </button>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-lg submit" :disabled="submitting">
-              <span v-if="submitting" class="btn-spinner" aria-hidden="true" />
-              {{ submitting ? $t('auth.submittingLogin') : $t('auth.submitLogin') }}
-            </button>
-          </div>
-        </form>
+            <p class="switch">
+              <template v-if="isRegister">
+                {{ $t('auth.haveAccount') }}
+                <RouterLink :to="{ name: 'login' }">{{ $t('auth.switchToLogin') }}</RouterLink>
+              </template>
+              <template v-else>
+                {{ $t('auth.noAccount') }}
+                <RouterLink :to="{ name: 'register' }">{{ $t('auth.switchToRegister') }}</RouterLink>
+              </template>
+            </p>
+          </form>
+        </Transition>
       </div>
     </section>
   </div>
@@ -164,7 +248,7 @@ async function submit() {
   padding: 82px 40px 24px;
 }
 
-/* Wordmark (home) on the left, language + theme on the right. */
+/* Mark (home) on the left, language + theme on the right. */
 .form-top {
   position: absolute;
   top: 0;
@@ -190,8 +274,8 @@ async function submit() {
 
 .home {
   display: block;
-  width: 132px;
-  height: 40px;
+  width: 54px;
+  height: 26px;
   border-radius: 6px;
 }
 
@@ -360,6 +444,66 @@ input[aria-invalid='true'] {
   }
 }
 
+/* Strength meter (sign up): muted label + accent bar that fills as the password improves. */
+.strength {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.strength-label {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.strength-track {
+  flex: 1;
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--line);
+}
+
+.strength-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+  transition: width 0.25s ease;
+}
+
+/* "New to Merkis? Sign up" under the card. */
+.switch {
+  margin: 20px 0 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.switch a {
+  color: var(--link);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.switch a:hover {
+  text-decoration: underline;
+}
+
+/* Log in <-> Sign up: the form cross-fades. */
+.form-swap-enter-active,
+.form-swap-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.form-swap-enter-from,
+.form-swap-leave-to {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
 /* ---------- Narrow screens: header + form only ---------- */
 @media (max-width: 860px) {
   .auth-page {
@@ -376,8 +520,8 @@ input[aria-invalid='true'] {
   }
 
   .home {
-    width: 112px;
-    height: 34px;
+    width: 46px;
+    height: 22px;
   }
 
   .form-side {

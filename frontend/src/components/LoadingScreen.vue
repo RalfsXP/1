@@ -26,7 +26,7 @@ import LogoMark from './LogoMark.vue'
   display: grid;
   place-items: center;
   background-color: var(--bg);
-  background-image: var(--mist);
+  background-image: var(--mist-edge), var(--mist);
 }
 
 .spinner {

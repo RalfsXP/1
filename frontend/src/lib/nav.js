@@ -4,7 +4,6 @@ import {
   CalendarDaysIcon,
   CalendarIcon,
   Cog6ToothIcon,
-  SignalIcon,
   Squares2X2Icon,
   StarIcon,
   SunIcon,
@@ -28,7 +27,7 @@ export const NAV_LINKS = [
 
 export const NAV_FOOT = [
   { to: { name: 'settings' }, label: 'nav.settings', icon: Cog6ToothIcon },
-  { to: { name: 'health' }, label: 'nav.health', icon: SignalIcon },
+  // Site health (/health) is hidden from the menus since v1.6.3; the page still works by URL.
 ]
 
 export function signOut(router) {

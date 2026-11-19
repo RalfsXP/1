@@ -4,8 +4,13 @@ import lv from '@/lang/lv.json'
 
 const messages = { lv, en }
 
-/** Supported interface languages; the first is the default. */
-export const LOCALES = ['lv', 'en']
+/**
+ * Interface languages users can switch to; the first is the default.
+ * English only since v1.6.3: the Latvian strings (lang/lv.json) stay in the repo, but the
+ * switcher is hidden and a saved 'lv' (this device or the account) is ignored.
+ * To bring Latvian back: add 'lv' here and show <LanguageSwitch /> again.
+ */
+export const LOCALES = ['en']
 
 const STORAGE_KEY = 'merkis-locale'
 

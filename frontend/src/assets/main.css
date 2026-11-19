@@ -133,7 +133,7 @@ body::before {
   z-index: -1;
   width: 100vw;
   height: var(--app-h);
-  background: var(--mist), var(--bg);
+  background: var(--mist-edge), var(--mist), var(--bg);
   background-repeat: no-repeat;
   pointer-events: none;
 }
@@ -184,6 +184,67 @@ textarea {
 
 /* Home Screen web app (html.standalone, set pre-paint): the page draws under the status bar, and iOS 26 blurs
    the top edge — the mist and the glass top bar continue up there, content starts a little lower. */
+/* Phone/tablet in a browser tab (not the Home Screen app): the page can't draw under the status bar or
+   the toolbar — Safari fills those strips with plain --bg (viewport-fit=cover doesn't change that in a
+   tab, tested on iOS 26.5). So the mist fades into --bg at its top and bottom edges and runs on into
+   Safari's bars without a seam. Every mist painter puts --mist-edge first (layer, shell top bar, loader). */
+:root {
+  --mist-edge: linear-gradient(transparent, transparent);
+}
+
+@media (hover: none) and (pointer: coarse) {
+  :root:not(.standalone) {
+    --mist-edge: linear-gradient(to bottom, var(--bg), transparent 90px, transparent calc(100% - 110px), var(--bg));
+  }
+}
+
+/* A browser tab ends the page above Safari's toolbar (nothing can be drawn under it), so scrolled
+   content would stop in a hard line there. This continues the mist copy upwards from the bottom edge
+   and fades it in — the twin of .topbar::after. Off in the Home Screen app (content runs to the
+   screen edge there) and on desktop. Placed from the top like every full-screen piece (see --app-h). */
+.bottom-fade {
+  display: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  :root:not(.standalone) .bottom-fade {
+    position: fixed;
+    top: calc(var(--app-h) - 36px);
+    right: 0;
+    left: 0;
+    z-index: 30;
+    display: block;
+    height: 36px;
+    background: var(--mist-edge), var(--mist), var(--bg);
+    background-position: 0 calc(36px - var(--app-h));
+    background-repeat: no-repeat;
+    background-size: 100vw var(--app-h);
+    -webkit-mask-image: linear-gradient(to top, black, transparent);
+    mask-image: linear-gradient(to top, black, transparent);
+    pointer-events: none;
+  }
+}
+
+/* Phone browser tab, signed-in shell: Safari counts <main>'s scrolling content as page height, so a swipe
+   could scroll the whole page (collapsing Safari's toolbar, leaving an empty band). Only <main> scrolls. */
+@media (hover: none) and (pointer: coarse) {
+  :root:not(.standalone):has(.shell),
+  :root:not(.standalone):has(.shell) body {
+    overflow: hidden;
+  }
+}
+
+/* Phone browser tab: bottom sheets can't reach the screen edge (Safari's toolbar sits there), so instead of
+   ending in a hard line on the toolbar strip they float as a rounded card just above it. */
+@media (hover: none) and (pointer: coarse) and (max-width: 639px) {
+  :root:not(.standalone) .sheet {
+    width: calc(100% - 16px);
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--glass-edge);
+    border-radius: 32px;
+  }
+}
+
 .standalone {
   --top-inset: calc(env(safe-area-inset-top, 0px) + 14px);
   /* iOS 26 Home Screen apps: once the keyboard has been open, 100% / 100dvh / fixed `inset: 0` / bottom

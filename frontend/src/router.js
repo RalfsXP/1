@@ -6,9 +6,9 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', name: 'landing', component: LandingView },
-    { path: '/login', name: 'login', component: () => import('./views/AuthView.vue'), meta: { guestOnly: true } },
-    // No sign-up (personal app): old links land on the login page.
-    { path: '/register', redirect: '/login' },
+    // Same view key for both: the page stays mounted and only the form swaps.
+    { path: '/login', name: 'login', component: () => import('./views/AuthView.vue'), meta: { mode: 'login', guestOnly: true, viewKey: 'auth' } },
+    { path: '/register', name: 'register', component: () => import('./views/AuthView.vue'), meta: { mode: 'register', guestOnly: true, viewKey: 'auth' } },
     {
       // Signed-in app: side nav + one shared shell (viewKey keeps it mounted between pages).
       path: '/home',
@@ -48,6 +48,13 @@ router.beforeEach(async (to) => {
   if (to.meta.requiresAuth && !current) return { name: 'login' }
   if (to.meta.guestOnly && current) return { name: 'home' }
   return true
+})
+
+// iOS scrolls the whole page to show a focused field (login keyboard) and leaves it there. The app shell
+// never scrolls the window (only <main> scrolls), so start every page from the top — a leftover offset
+// hid the greeting under the top bar and let Safari collapse its toolbar mid-page.
+router.afterEach(() => {
+  if (window.scrollY) window.scrollTo(0, 0)
 })
 
 export default router
