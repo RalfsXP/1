@@ -4,7 +4,7 @@
 > **Keep it current:** every change that alters behaviour, structure, env vars, design rules or the version MUST update this file in the same change (see "Maintaining this file"). Keep it dense — it is loaded every session, so every line costs tokens.
 
 ## What it is
-Mērķis = Latvian for "goal". A minimal planner web app, live at **https://merkis.app**. Current version: **v1.6.3** (`frontend/VERSION`). Owner: Ralfs (GitHub `RalfsXP/1`). Landing, auth, and the signed-in planner: side nav, Overview dashboard (/home), Calendar, Events (once / weekly / monthly / yearly, countdowns, badges, shown in the calendar), Daily/Weekly/Monthly/Yearly/Custom-period goals (priorities, recurrence, completion per occurrence, time left, custom badges), Sign up + log in, Settings, Site health (hidden from the menus since v1.6.3, still at /health; admins see internals + can run migrations), Whiteboards (Fabric.js; hidden from the menus since v1.6, still at /whiteboards). **English only since v1.6.3** (Latvian strings kept, switch hidden).
+Mērķis = Latvian for "goal". A minimal planner web app, live at **https://merkis.app**. Current version: **v1.6.4** (`frontend/VERSION`). Owner: Ralfs (GitHub `RalfsXP/1`). Landing, auth, and the signed-in planner: side nav, Overview dashboard (/home), Calendar, Events (once / weekly / monthly / yearly, countdowns, badges, shown in the calendar), Daily/Weekly/Monthly/Yearly/Custom-period goals (priorities, recurrence, completion per occurrence, time left, custom badges), Sign up + log in, Guide (v1.6.4; step-by-step help with real screenshots), Settings, Site health (hidden from the menus since v1.6.3, still at /health; admins see internals + can run migrations), Whiteboards (Fabric.js; hidden from the menus since v1.6, still at /whiteboards). **English only since v1.6.3** (Latvian strings kept, switch hidden).
 
 ## Stack & hosting (all free tier except the domain)
 | Part | Tech | Where |
@@ -40,18 +40,19 @@ Request flow: browser → merkis.app → `frontend/vercel.json` rewrites `/api/*
 frontend/
   index.html            theme pre-paint script, icons, Montserrat font; viewport WITHOUT viewport-fit=cover in Safari tabs — the script adds it
                         + html.standalone when opened from the Home Screen (iOS 26 opens those as web apps; the mist + glass bar run up under the clock)
-  VERSION               "v1.6.3" → shown bottom-left (AppVersion.vue; inside the side nav in the app shell)
+  VERSION               "v1.6.4" → shown bottom-left (AppVersion.vue; inside the side nav in the app shell)
   vercel.json           /api + /sanctum proxy to backend, SPA fallback
   public/               (icon URLs carry ?v=4 in index.html + manifest — bump on any icon change) favicon.svg (Teal tile + Parchment m), favicon-32.png, favicon.ico (16/32/48), apple-touch-icon.png + icon-192/512.png
                         (black, Parchment m + Amber dot; maskable), site.webmanifest, email/logo.png (Parchment wordmark), brand/ (logo-on-dark|light.svg, mark.svg — README uses these)
+  public/guide/          Guide screenshots, 16 × dark/light webp (390×844 @1.5x). Retake after any UI change they show: scripts/guide-shots.mjs (header = how)
   scripts/build-logo.mjs  generates all of the above from Montserrat 800 outlines (deps installed --no-save; see its header)
   src/main.js           registers router + global $t (+ iOS pinch-zoom guard)
   src/App.vue           <Analytics/> (Vercel Web Analytics, @vercel/analytics — enable it in Vercel → merkis → Analytics), page transition, AppVersion, LoadingScreen
   src/router.js         / landing · /login + /register (AuthView, meta.mode login|register, shared viewKey 'auth' so only the form swaps) · /home = AppShell (requiresAuth, viewKey 'app') with
                         children '' → DashboardView (name 'home'), /calendar → CalendarView, /events → EventsView, /goals/:period(daily|weekly|monthly|yearly|custom)?date= → GoalsView,
                         /whiteboards → WhiteboardsView, /whiteboards/:id → WhiteboardView (Fabric chunk; not in the menus),
-                        /settings → SettingsView, /health → HealthView (every signed-in user; not in the menus since v1.6.3). Nav order: Overview, Calendar, Events, Daily…Yearly, Custom;
-                        Settings + Log out at the bottom
+                        /guide → GuideView, /settings → SettingsView, /health → HealthView (every signed-in user; not in the menus since v1.6.3). Nav order: Overview, Calendar, Events, Daily…Yearly, Custom;
+                        Guide + Settings + Log out at the bottom
   src/lib/api.js        axios (baseURL /api, withCredentials, withXSRFToken, Accept-Language = locale)
   src/lib/auth.js       user ref, fetchUser/login/logout, changeLocale (PATCH when signed in); a signed-in user's locale wins
   src/lib/i18n.js       tiny i18n: locale ref, t(key, params), setLocale; LOCALES = ['en'] (v1.6.3) — setLocale ignores anything else, so a saved 'lv' (localStorage 'merkis-locale' or users.locale) falls back to English
@@ -66,6 +67,7 @@ frontend/
   src/lib/events.js     event store (whole list, 30 s fresh, refreshTick, cleared on account switch), nextOccurrence / eventOccurrences(from,to) (monthly/yearly keep the day,
                         clamp to month end: 31st→30th, 29 Feb→28 Feb), daysUntil, countdown (Intl relative "šodien/rīt/pēc 27 dienām"), dayUnit (diena/dienas), eventBadge
   src/lib/nav.js        NAV_LINKS / NAV_FOOT / signOut — shared by SideNav and MobileNav
+  src/lib/guide.js      Guide content (English only by owner's choice, NOT in lang/*.json): GUIDE sections {id, title, shots[{name, alt}], steps ('**Button**' = bold)} + parts()
   src/lib/timeLeft.js   timeLeft(deadline) via Intl.RelativeTimeFormat (LV plurals for free) + shared 30s `now` and `todayISO` (rolls over at midnight — use it, not a one-off today());
                         completionInfo(occ) → early (done on an earlier day than the deadline) / late / on time + date (LV day counts hand-declined: "1 dienu", "4 dienas")
   src/lib/icons.js      badge icon name → Heroicon component
@@ -78,6 +80,8 @@ frontend/
                         EventsView (upcoming sorted by next occurrence, past one-offs in a collapsed group; FAB / header button → EventForm)
                         CalendarView (month + selected-day panel: events group, then goal groups) · GoalsView (one category; glass period card = navigator ("Šodien" + date)
                         + progress — custom: no navigator — FAB, completed group)
+                        GuideView (contents pills — one swipeable row on phones — jump by scrolling <main>, never scrollIntoView; numbered topic cards: steps + phone shots,
+                        side by side ≥1180px; img src follows the theme: /guide/<name>-<theme>.webp, lazy)
                         SettingsView (appearance card: theme (+ language when >1 locale); default badge accordion for every period + Events; account card)
                         WhiteboardsView (cards: white preview, title rename, two-tap delete) · WhiteboardView (Fabric 7 + @erase2d/fabric: select, pan, pen,
                         eraser, text, StickyNote (custom Textbox class), rect/ellipse/line/arrow; ink stored black and swapped to white in dark mode;
@@ -128,7 +132,7 @@ backend/
   tests/Feature/WhiteboardTest.php     5 tests: auth, CRUD + LV default title, list without data, ownership 404, size/preview limits
   tests/Feature/EventTest.php          5 tests: auth, CRUD + trimming, validation, ownership 404, default event badge
   tests/Feature/DemoSeederTest.php     2 tests: full demo account (incl. 8 events), re-runnable, refuses without DEMO_PASSWORD (41 total in suite)
-  database/seeders/DemoSeeder.php  demo@demo.lv "Demo": habits with ~6 weeks of history, goals around today, week/month/year/custom goals,
+  database/seeders/DemoSeeder.php  demo@demo.lv "Demo" (English data + locale en since v1.6.4; the Guide shots use it): habits with ~6 weeks of history, goals around today, week/month/year/custom goals,
                         badges, 8 events (birthdays, rent, weekly football, appointments), 2 boards — dates relative to the run day; replaces only the demo user; password from DEMO_PASSWORD (never in the repo)
 ```
 
@@ -186,11 +190,13 @@ APP_KEY, APP_ENV=production, APP_DEBUG=false, APP_NAME, APP_URL, FRONTEND_URL=ht
 
 ## Efficient workflow (save tokens, keep quality)
 - Trust the map above; read only the files you'll touch. Don't re-explore the tree or re-derive facts listed here.
-- For UI changes verify in the browser pane: desktop 1280×800 + mobile 375×812 (+ 375×667), both themes, both languages, `scrollHeight === innerHeight` on landing/home.
+- For UI changes verify in the browser pane: desktop 1280×800 + mobile 375×812 (+ 375×667), both themes, `scrollHeight === innerHeight` on landing/home.
 - After code changes: `php artisan test` + frontend build. Add a feature test for new backend behaviour.
+- A UI change that shows up in the Guide → update `src/lib/guide.js` steps and retake the affected shots (`node scripts/guide-shots.mjs name,name`).
 - Owner is learning hosting — give click-by-click steps for dashboards (Vercel/Supabase/Resend), with direct links when possible.
 
 ## Changelog
+- **v1.6.4** — **Guide** page (/guide, menu entry above Settings): 10 step-by-step topics in English with real phone screenshots (dark + light, follow the theme), taken by scripts/guide-shots.mjs from the demo account; DemoSeeder data + locale switched to English.
 - **v1.6.3** — phone Safari tab now looks like the Home Screen app: mist fades into Safari's plain `--bg` strips at top/bottom (`--mist-edge`, tabs only), list content dissolves above the toolbar (`.bottom-fade`), sheets float as rounded cards, page scroll locked in the shell (`:has(.shell)` overflow hidden + scroll snap-back in main.js/router afterEach — the iOS keyboard left the window shifted after login); Home Screen app unchanged. English only (Latvian kept, LV/EN switch + Settings row hidden). Sign up is back (landing button, /register, POST /api/register, welcome email). Site health hidden from the menus. m. mark replaces the wordmark everywhere (landing, auth, side nav, email logo).
 - **v1.6.2** — Cheklet cookie banner and consent gating removed (script tag, lib/consent.js): Vercel Analytics always on, theme/language/hold-hint always remembered in localStorage again.
 - **v1.6.1** — iPhone Home Screen app polish (verified on an iPhone 16 / iOS 26.5 simulator): the mist now reaches the rounded bottom corners (iOS reports 100%/svh 59 pt short, and dvh/fixed bottoms shrink after the keyboard and stay so → `--app-h` = 100lvh in standalone, floating buttons/version placed from the top); the top bar is an invisible opaque copy of the mist with a soft fade (one effect instead of iOS's blur + ours); light-mode status bar needs no band (iOS 26 draws it dark). Site health no longer warns about Supabase/Vercel incidents in products mērķis doesn't use. Overview: week/month/year/overdue tiles removed; today + yesterday shown as filling progress rings above the activity chart. Calendar: "Šodien" moved beside the year so long month names stay on one line.

@@ -34,7 +34,7 @@ class DemoSeeder extends Seeder
             'name' => 'Demo',
             'email' => self::EMAIL,
             'password' => $password,
-            'locale' => 'lv',
+            'locale' => 'en',
             'goal_styles' => [
                 'day' => ['color' => '#489fb5', 'icon' => 'sun'],
                 'week' => ['color' => '#82c0cc', 'icon' => 'bolt'],
@@ -58,10 +58,10 @@ class DemoSeeder extends Seeder
     {
         $start = $today->copy()->subWeeks(6)->startOfWeek(Carbon::MONDAY);
         $habits = [
-            ['Izdzert 2 l ūdens', 'low', '#16697a', 'beaker', null, 0.9],
-            ['Lasīt 20 min', 'low', '#c98a12', 'book-open', null, 0.75],
-            ['Sporta zāle', 'high', '#e5604d', 'bolt', [1, 3, 5], 0.85],
-            ['Meditēt 10 min', 'low', null, null, [2, 4, 6, 7], 0.6],
+            ['Drink 2 l of water', 'low', '#16697a', 'beaker', null, 0.9],
+            ['Read 20 minutes', 'low', '#c98a12', 'book-open', null, 0.75],
+            ['Gym', 'high', '#e5604d', 'bolt', [1, 3, 5], 0.85],
+            ['Meditate 10 minutes', 'low', null, null, [2, 4, 6, 7], 0.6],
         ];
 
         foreach ($habits as $i => [$title, $priority, $color, $icon, $days, $rate]) {
@@ -84,19 +84,19 @@ class DemoSeeder extends Seeder
     {
         $yesterday = $today->copy()->subDay();
 
-        $invoice = $this->goal($user, 'day', $yesterday, 'Nosūtīt rēķinu klientam', 'high', '#489fb5', 'banknotes');
+        $invoice = $this->goal($user, 'day', $yesterday, 'Send the invoice to the client', 'high', '#489fb5', 'banknotes');
         $this->done($invoice, $yesterday, $yesterday->copy()->setTime(16, 40));
-        $this->goal($user, 'day', $yesterday, 'Pierakstīties pie zobārsta', 'important', null, 'heart');
+        $this->goal($user, 'day', $yesterday, 'Book a dentist appointment', 'important', null, 'heart');
 
-        $run = $this->goal($user, 'day', $today, 'Skriet 5 km', 'important', '#489fb5', 'fire');
+        $run = $this->goal($user, 'day', $today, 'Run 5 km', 'important', '#489fb5', 'fire');
         $this->done($run, $today, $today->copy()->setTime(7, 15));
-        $this->goal($user, 'day', $today, 'Komandas sapulce', 'high', '#82c0cc', 'user-group', ['due_at' => $today->copy()->setTime(17, 0)]);
-        $this->goal($user, 'day', $today, 'Nopirkt dāvanu Annai', 'low', '#c98a12', 'gift');
+        $this->goal($user, 'day', $today, 'Team meeting', 'high', '#82c0cc', 'user-group', ['due_at' => $today->copy()->setTime(17, 0)]);
+        $this->goal($user, 'day', $today, 'Buy a present for Anna', 'low', '#c98a12', 'gift');
 
-        $this->goal($user, 'day', $today->copy()->addDay(), 'Iesniegt atskaiti', 'important', '#489fb5', 'briefcase');
-        $this->goal($user, 'day', $today->copy()->addDays(2), 'Ģitāras nodarbība', 'low', '#e5604d', 'musical-note');
-        $this->goal($user, 'day', $today->copy()->addDays(4), 'Cept kūku', 'low', '#ffa62b', 'cake');
-        $this->goal($user, 'day', $today->copy()->addDays(6), 'Pārgājiens Siguldā', 'high', '#16697a', 'globe-europe-africa');
+        $this->goal($user, 'day', $today->copy()->addDay(), 'Submit the report', 'important', '#489fb5', 'briefcase');
+        $this->goal($user, 'day', $today->copy()->addDays(2), 'Guitar lesson', 'low', '#e5604d', 'musical-note');
+        $this->goal($user, 'day', $today->copy()->addDays(4), 'Bake a cake', 'low', '#ffa62b', 'cake');
+        $this->goal($user, 'day', $today->copy()->addDays(6), 'Hike in Sigulda', 'high', '#16697a', 'globe-europe-africa');
     }
 
     /** Weekly, monthly, yearly and custom-period goals. */
@@ -105,12 +105,12 @@ class DemoSeeder extends Seeder
         $week = $today->copy()->startOfWeek(Carbon::MONDAY);
         $lastWeek = $week->copy()->subWeek();
 
-        $slides = $this->goal($user, 'week', $lastWeek, 'Sagatavot prezentāciju', 'important', '#489fb5', 'light-bulb');
+        $slides = $this->goal($user, 'week', $lastWeek, 'Prepare the presentation', 'important', '#489fb5', 'light-bulb');
         $this->done($slides, $lastWeek, $lastWeek->copy()->addDays(2)->setTime(18, 5));
-        $this->goal($user, 'week', $week, 'Izlasīt 3 nodaļas', 'high', '#c98a12', 'book-open');
-        $this->goal($user, 'week', $week, 'Iztīrīt garāžu', 'low', null, 'home');
+        $this->goal($user, 'week', $week, 'Read 3 chapters', 'high', '#c98a12', 'book-open');
+        $this->goal($user, 'week', $week, 'Clean the garage', 'low', null, 'home');
 
-        $training = $this->goal($user, 'week', $week->copy()->subWeeks(5), '3× treniņš', 'high', '#7fa98a', 'fire', ['repeats' => true]);
+        $training = $this->goal($user, 'week', $week->copy()->subWeeks(5), 'Work out 3 times', 'high', '#7fa98a', 'fire', ['repeats' => true]);
         for ($w = $week->copy()->subWeeks(5); $w->lt($week); $w->addWeek()) {
             if ($w->weekOfYear % 4 !== 0) {
                 $this->done($training, $w, $w->copy()->addDays(5)->setTime(19, 30));
@@ -118,35 +118,35 @@ class DemoSeeder extends Seeder
         }
 
         $month = $today->copy()->startOfMonth();
-        $budget = $this->goal($user, 'month', $month->copy()->subMonths(3), 'Budžeta pārskats', 'high', '#16697a', 'banknotes', ['repeats' => true]);
+        $budget = $this->goal($user, 'month', $month->copy()->subMonths(3), 'Budget review', 'high', '#16697a', 'banknotes', ['repeats' => true]);
         for ($m = $month->copy()->subMonths(3); $m->lt($month); $m->addMonth()) {
             $this->done($budget, $m, $m->copy()->addDays(24)->setTime(20, 0));
         }
-        $this->goal($user, 'month', $month, 'Iekrāt 300 €', 'high', '#ffa62b', 'banknotes');
-        $this->goal($user, 'month', $month, 'Izlasīt 2 grāmatas', 'low', null, 'book-open');
+        $this->goal($user, 'month', $month, 'Save €300', 'high', '#ffa62b', 'banknotes');
+        $this->goal($user, 'month', $month, 'Read 2 books', 'low', null, 'book-open');
 
         $year = $today->copy()->startOfYear();
-        $this->goal($user, 'year', $year, 'Noskriet pusmaratonu', 'important', '#489fb5', 'trophy');
-        $this->goal($user, 'year', $year, 'Iemācīties spāņu valodu', 'high', '#c98a12', 'academic-cap');
-        $trip = $this->goal($user, 'year', $year, 'Apceļot 3 jaunas valstis', 'low', '#489fb5', 'paper-airplane');
+        $this->goal($user, 'year', $year, 'Run a half marathon', 'important', '#489fb5', 'trophy');
+        $this->goal($user, 'year', $year, 'Learn Spanish', 'high', '#c98a12', 'academic-cap');
+        $trip = $this->goal($user, 'year', $year, 'Visit 3 new countries', 'low', '#489fb5', 'paper-airplane');
         $this->done($trip, $year, $today->copy()->subDays(20)->setTime(12, 0));
 
-        $this->goal($user, 'custom', $today->copy()->subDays(5), 'Remonts virtuvē', 'high', '#ffa62b', 'home', ['period_end' => $today->copy()->addDays(5)]);
-        $this->goal($user, 'custom', $today->copy()->addDays(10), 'Atvaļinājums Itālijā', 'low', '#c98a12', 'paper-airplane', ['period_end' => $today->copy()->addDays(17)]);
+        $this->goal($user, 'custom', $today->copy()->subDays(5), 'Kitchen renovation', 'high', '#ffa62b', 'home', ['period_end' => $today->copy()->addDays(5)]);
+        $this->goal($user, 'custom', $today->copy()->addDays(10), 'Holiday in Italy', 'low', '#c98a12', 'paper-airplane', ['period_end' => $today->copy()->addDays(17)]);
     }
 
     /** Birthdays and a few one-off events spread around today, so the countdown list has a mix. */
     private function events(User $user, Carbon $today): void
     {
         $events = [
-            ['Annas dzimšanas diena', $today->copy()->addDays(27)->subYears(31), null, 'year', '#e5604d', 'cake'],
-            ['Mammas dzimšanas diena', $today->copy()->addDays(74)->subYears(58), null, 'year', '#ffa62b', 'gift'],
-            ['Kāzu gadadiena', $today->copy()->addDays(160)->subYears(4), null, 'year', '#e5604d', 'heart'],
-            ['Īres maksājums', $today->copy()->startOfMonth()->addDays(14), null, 'month', '#16697a', 'banknotes'],
-            ['Futbols ar draugiem', $today->copy()->subWeeks(3)->addDays(2), '19:30', 'week', '#7fa98a', 'user-group'],
-            ['Zobārsts', $today->copy()->addDays(3), '09:15', null, null, null],
-            ['Koncerts Arēnā Rīga', $today->copy()->addDays(19), '20:00', null, '#489fb5', 'musical-note'],
-            ['Lidojums uz Romu', $today->copy()->addDays(10), '06:40', null, '#82c0cc', 'paper-airplane'],
+            ["Anna's birthday", $today->copy()->addDays(27)->subYears(31), null, 'year', '#e5604d', 'cake'],
+            ["Mum's birthday", $today->copy()->addDays(74)->subYears(58), null, 'year', '#ffa62b', 'gift'],
+            ['Wedding anniversary', $today->copy()->addDays(160)->subYears(4), null, 'year', '#e5604d', 'heart'],
+            ['Rent payment', $today->copy()->startOfMonth()->addDays(14), null, 'month', '#16697a', 'banknotes'],
+            ['Football with friends', $today->copy()->subWeeks(3)->addDays(2), '19:30', 'week', '#7fa98a', 'user-group'],
+            ['Dentist', $today->copy()->addDays(3), '09:15', null, null, null],
+            ['Concert at Arena Riga', $today->copy()->addDays(19), '20:00', null, '#489fb5', 'musical-note'],
+            ['Flight to Rome', $today->copy()->addDays(10), '06:40', null, '#82c0cc', 'paper-airplane'],
         ];
 
         foreach ($events as [$title, $date, $time, $repeat, $color, $icon]) {
@@ -184,26 +184,26 @@ class DemoSeeder extends Seeder
         ];
 
         $user->whiteboards()->create([
-            'title' => 'Nedēļas plāns',
+            'title' => 'Weekly plan',
             'data' => ['version' => '7.4.0', 'objects' => [
-                $text('Šī nedēļa', 330, 60, 40),
-                $note("Pirmdiena\nSporta zāle\nRēķini", 140, 200, '#489fb5'),
-                $note("Trešdiena\nPrezentācija\nklientam", 380, 200, '#489fb5', '#ffffff'),
-                $note("Piektdiena\nPārgājiens\nSiguldā", 620, 200, '#ffa62b'),
+                $text('This week', 330, 60, 40),
+                $note("Monday\nGym\nInvoices", 140, 200, '#489fb5'),
+                $note("Wednesday\nClient\npresentation", 380, 200, '#489fb5', '#ffffff'),
+                $note("Friday\nHike in\nSigulda", 620, 200, '#ffa62b'),
             ], 'viewport' => [1, 0, 0, 1, 0, 0]],
         ]);
 
         $user->whiteboards()->create([
-            'title' => 'Idejas lietotnei',
+            'title' => 'App ideas',
             'data' => ['version' => '7.4.0', 'objects' => [
-                $text('Mērķis → paradums → rezultāts', 380, 60, 28),
+                $text('Goal → habit → result', 380, 60, 28),
                 $box(160, 220, 200, 110),
-                $text('Mērķis', 160, 220, 26),
+                $text('Goal', 160, 220, 26),
                 $arrow(270, 220, 390, 220),
                 $box(500, 220, 200, 110, '#e5604d'),
-                $text('Paradums', 500, 220, 26),
+                $text('Habit', 500, 220, 26),
                 $arrow(610, 220, 730, 220),
-                $note("Rezultāts:\nkatru dienu\nnedaudz labāk", 840, 220, '#c98a12'),
+                $note("Result:\na little better\nevery day", 840, 220, '#c98a12'),
             ], 'viewport' => [1, 0, 0, 1, 0, 0]],
         ]);
     }

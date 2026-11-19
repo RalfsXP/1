@@ -28,6 +28,7 @@ const router = createRouter({
         { path: '/whiteboards/:id(\\d+)', name: 'whiteboard', component: () => import('./views/WhiteboardView.vue') },
         { path: '/settings', name: 'settings', component: () => import('./views/SettingsView.vue') },
         // Every signed-in user; admins (ADMIN_EMAILS) also see internals and can run migrations.
+        { path: '/guide', name: 'guide', component: () => import('./views/GuideView.vue') },
         { path: '/health', name: 'health', component: () => import('./views/HealthView.vue') },
       ],
     },

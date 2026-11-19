@@ -1,4 +1,5 @@
 import {
+  BookOpenIcon,
   CakeIcon,
   CalendarDateRangeIcon,
   CalendarDaysIcon,
@@ -26,6 +27,7 @@ export const NAV_LINKS = [
 ]
 
 export const NAV_FOOT = [
+  { to: { name: 'guide' }, label: 'nav.guide', icon: BookOpenIcon },
   { to: { name: 'settings' }, label: 'nav.settings', icon: Cog6ToothIcon },
   // Site health (/health) is hidden from the menus since v1.6.3; the page still works by URL.
 ]

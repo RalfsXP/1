@@ -50,6 +50,7 @@
     "events": "Notikumi",
     "logout": "Iziet",
     "home": "Pārskats",
+    "guide": "Ceļvedis",
     "settings": "Iestatījumi",
     "health": "Sistēmas stāvoklis",
     "whiteboards": "Tāfeles"
@@ -140,6 +141,11 @@
     "fromToday": "no šodienas: {range}",
     "clear": "Notīrīt",
     "until": "līdz {date}"
+  },
+  "guide": {
+    "title": "Ceļvedis",
+    "lead": "Viss, ko var darīt Merkis, soli pa solim.",
+    "contents": "Saturs"
   },
   "settings": {
     "title": "Iestatījumi",

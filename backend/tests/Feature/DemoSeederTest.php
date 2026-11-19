@@ -39,7 +39,7 @@ class DemoSeederTest extends TestCase
             ->withHeaders(['Origin' => 'http://localhost:5173', 'Referer' => 'http://localhost:5173/'])
             ->getJson('/api/goals?from='.now()->startOfMonth()->toDateString().'&to='.now()->endOfMonth()->toDateString())
             ->assertOk()
-            ->assertJsonFragment(['title' => 'Skriet 5 km']);
+            ->assertJsonFragment(['title' => 'Run 5 km']);
     }
 
     public function test_it_refuses_to_run_without_a_password(): void

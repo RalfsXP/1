@@ -50,6 +50,7 @@
     "events": "Events",
     "logout": "Log out",
     "home": "Overview",
+    "guide": "Guide",
     "settings": "Settings",
     "health": "Site health",
     "whiteboards": "Whiteboards"
@@ -140,6 +141,11 @@
     "fromToday": "from today: {range}",
     "clear": "Clear",
     "until": "until {date}"
+  },
+  "guide": {
+    "title": "Guide",
+    "lead": "Everything you can do in Merkis, step by step.",
+    "contents": "Contents"
   },
   "settings": {
     "title": "Settings",
