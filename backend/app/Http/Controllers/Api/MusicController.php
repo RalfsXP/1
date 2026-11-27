@@ -11,50 +11,84 @@ use Illuminate\Support\Facades\Http;
 use Throwable;
 
 /**
- * Music prototype (/music): find songs from a lyric snippet and attach a 30-second preview.
+ * Music prototype (/music): find songs from a lyric snippet (or a song name) and attach a 30-second preview.
  *
- * 1. Genius search (GENIUS_ACCESS_TOKEN, free client token) matches lyric text → title + artist.
- *    Without a token it falls back to a plain Deezer search (titles/artists only, mode "title").
- * 2. Each hit is looked up on Deezer (no key) for a preview MP3; iTunes Search (no key) fills the gaps.
+ * by=lyrics (default; needs GENIUS_ACCESS_TOKEN, a free client token): one Genius search, in Genius's own order.
+ *   (Tried: searching several variants of the phrase + rank fusion + a page-view boost to tolerate a wrong word —
+ *   the owner found the results worse, so it was taken out again.)
+ * by=title: a plain Deezer search (titles + artists; also the fallback without a token → mode "title").
+ * Each lyric hit is looked up on Deezer (no key) for a preview MP3; iTunes Search (no key) fills the gaps.
  * Lyrics themselves are never returned (copyright) — only metadata, the preview and page links. apple_url is filled only
  * when iTunes was asked anyway; the page looks it up itself (iTunes allows CORS) when "Open in" opens.
  * album + source (Deezer | iTunes | Genius = where the album and preview came from) tell same-named songs apart;
  * true duplicates (explicit + clean editions, re-releases of one recording) are merged — see unique().
+ * Paged: 5 songs per page (?page=1, 2, …; has_more says whether "Load more" can fetch another). Lyrics: Genius gives
+ * up to 20 songs, each page looks up previews only for its own 5. Song name: one Deezer search of 50, merged, sliced.
  */
 class MusicController extends Controller
 {
-    private const LIMIT = 6;
-    // Title search asks Deezer for more than it shows, so the list still fills after duplicates are merged.
-    private const FETCH = 20;
+    private const PAGE = 5;
+    // Song name: Deezer results fetched once per request (merged, then sliced into pages).
+    private const DEEZER_FETCH = 50;
     private const TIMEOUT = 6;
 
     public function search(Request $request): JsonResponse
     {
-        $data = $request->validate(['q' => ['required', 'string', 'min:3', 'max:300']]);
+        $data = $request->validate([
+            'q' => ['required', 'string', 'min:3', 'max:300'],
+            'by' => ['nullable', 'in:lyrics,title'],
+            'page' => ['nullable', 'integer', 'min:1', 'max:20'],
+        ]);
         $q = trim(preg_replace('/\s+/u', ' ', $data['q']));
+        $page = (int) ($data['page'] ?? 1);
+        $offset = ($page - 1) * self::PAGE;
 
         $token = config('services.genius.token');
-        if (! $token) {
-            return response()->json(['mode' => 'title', 'results' => $this->deezerSearch($q)]);
+        if (($data['by'] ?? 'lyrics') === 'title' || ! $token) {
+            $songs = $this->deezerSearch($q);
+
+            return response()->json([
+                'mode' => 'title',
+                'page' => $page,
+                'results' => array_slice($songs, $offset, self::PAGE),
+                'has_more' => count($songs) > $offset + self::PAGE,
+            ]);
         }
 
+        $songs = $this->lyricSongs($q, $token);
+        if ($songs === null) {
+            return response()->json(['message' => 'Lyrics search is unavailable right now.'], 502);
+        }
+
+        return response()->json([
+            'mode' => 'lyrics',
+            'page' => $page,
+            'results' => $this->unique($this->attachPreviews(array_slice($songs, $offset, self::PAGE))),
+            'has_more' => count($songs) > $offset + self::PAGE,
+        ]);
+    }
+
+    /** One Genius search → all its song hits (up to 20) in the shape attachPreviews() expects, or null when Genius didn't answer. */
+    private function lyricSongs(string $q, string $token): ?array
+    {
         try {
             $res = Http::withToken($token)->acceptJson()->timeout(self::TIMEOUT)
-                ->get('https://api.genius.com/search', ['q' => $q]);
+                ->get('https://api.genius.com/search', ['q' => $q, 'per_page' => 20]);
         } catch (Throwable $e) {
             report($e);
 
-            return response()->json(['message' => 'Lyrics search is unavailable right now.'], 502);
+            return null;
         }
 
         if (! $res->successful()) {
-            return response()->json(['message' => 'Lyrics search is unavailable right now.'], 502);
+            return null;
         }
 
-        $songs = collect($res->json('response.hits', []))
+        return collect($res->json('response.hits', []))
             ->where('type', 'song')
             ->pluck('result')
-            ->take(self::LIMIT)
+            // Genius's own translation pages ("Genius English Translations", "Genius Farsi Translations"…) aren't songs.
+            ->reject(fn ($s) => preg_match('/^Genius\b/u', $s['primary_artist']['name'] ?? ''))
             ->map(fn (array $s) => [
                 'title' => $s['title'] ?? '',
                 'artist' => $s['artist_names'] ?? ($s['primary_artist']['name'] ?? ''),
@@ -69,8 +103,6 @@ class MusicController extends Controller
             ])
             ->values()
             ->all();
-
-        return response()->json(['mode' => 'lyrics', 'results' => $this->unique($this->attachPreviews($songs))]);
     }
 
     /** Deezer first (strict artist + track query), iTunes for whatever is still without a preview. */
@@ -111,7 +143,9 @@ class MusicController extends Controller
 
             foreach ($missing as $i => $_) {
                 $track = $itunes[$i]?->json('results.0');
-                if ($track && ! empty($track['previewUrl'])) {
+                // iTunes always answers with something: only take it when the artist matches.
+                if ($track && ! empty($track['previewUrl'])
+                    && $this->sameArtist($songs[$i]['lookup_artist'], $track['artistName'] ?? '')) {
                     $songs[$i]['preview'] = $track['previewUrl'];
                     $songs[$i]['cover'] ??= $track['artworkUrl100'] ?? null;
                     $songs[$i]['apple_url'] = $track['trackViewUrl'] ?? null;
@@ -128,12 +162,26 @@ class MusicController extends Controller
         }, $songs);
     }
 
+    /** Loose artist match: one name contains the other, or they share a word of 3+ letters ("Queen" ~ "Queen & David Bowie"). */
+    private function sameArtist(string $a, string $b): bool
+    {
+        $words = fn (string $v) => array_filter(
+            preg_split('/[^\p{L}\p{N}]+/u', mb_strtolower($v)) ?: [],
+            fn ($w) => mb_strlen($w) >= 3 && ! in_array($w, ['the', 'and', 'feat', 'with'], true),
+        );
+        $na = implode(' ', $words($a));
+        $nb = implode(' ', $words($b));
+
+        return $na !== '' && $nb !== ''
+            && (str_contains($na, $nb) || str_contains($nb, $na) || array_intersect($words($a), $words($b)));
+    }
+
     /** No Genius token: plain Deezer search (matches titles and artists, not lyrics). */
     private function deezerSearch(string $q): array
     {
         try {
             $res = Http::acceptJson()->timeout(self::TIMEOUT)
-                ->get('https://api.deezer.com/search', ['q' => $q, 'limit' => self::FETCH]);
+                ->get('https://api.deezer.com/search', ['q' => $q, 'limit' => self::DEEZER_FETCH]);
         } catch (Throwable $e) {
             report($e);
 
@@ -157,7 +205,7 @@ class MusicController extends Controller
     }
 
     /**
-     * Drops repeats, keeping the first (most relevant) one, up to LIMIT. A repeat = same title + artist + album
+     * Drops repeats, keeping the first (most relevant) one. A repeat = same title + artist + album
      * (Deezer lists an album's explicit and clean editions as separate tracks) or the same preview file (one
      * recording released on several albums / re-released — Deezer gives them the same clip).
      */
@@ -179,9 +227,6 @@ class MusicController extends Controller
                 $seen[$key] = true;
             }
             $out[] = $song;
-            if (count($out) === self::LIMIT) {
-                break;
-            }
         }
 
         return $out;
