@@ -323,5 +323,27 @@
     "notePlaceholder": "Note",
     "create": "Create",
     "untitled": "Untitled board"
+  },
+  "music": {
+    "title": "Music",
+    "sub": "Got a song stuck in your head but can’t name it? Type any line you remember and find the matching songs, play a preview, then open it in your favourite app.",
+    "label": "Lyrics",
+    "placeholder": "…and the words go",
+    "search": "Search",
+    "searching": "Searching",
+    "empty": "No songs found.",
+    "error": "Search failed. Try again.",
+    "throttle": "Too many searches. Wait a minute.",
+    "titleMode": "Lyrics search is off, so only titles and artists match.",
+    "play": "Play preview",
+    "pause": "Pause preview",
+    "noPreview": "No preview",
+    "lyrics": "Lyrics on Genius",
+    "deezer": "Open in Deezer",
+    "openIn": "Open in",
+    "album": "Album",
+    "source": "Source",
+    "songLink": "opens the song",
+    "searchLink": "opens a search"
   }
 }

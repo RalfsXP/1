@@ -2,13 +2,14 @@
 import LogoMark from './LogoMark.vue'
 
 // Brand lockup (v1.8): the sticker mark + "mērķis" set in Bricolage Grotesque ExtraBold.
-// The size comes from the parent's font-size (the mark is 1.75em).
+// The size comes from the parent's font-size (the mark is 1.75em). `word` swaps the text (/music shows "music").
+defineProps({ word: { type: String, default: 'mērķis' } })
 </script>
 
 <template>
   <span class="logo">
     <LogoMark class="logo-mark" />
-    <span class="word">mērķis</span>
+    <span class="word">{{ word }}</span>
   </span>
 </template>
 

@@ -5,11 +5,15 @@ use App\Http\Controllers\Api\EventController;
 use App\Http\Controllers\Api\GoalController;
 use App\Http\Controllers\Api\GoalStyleController;
 use App\Http\Controllers\Api\HealthController;
+use App\Http\Controllers\Api\MusicController;
 use App\Http\Controllers\Api\SystemHealthController;
 use App\Http\Controllers\Api\WhiteboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthController::class);
+
+// Music prototype (/music, public): lyric snippet → songs + 30 s previews. Each search costs ~7 outside calls.
+Route::get('/music/search', [MusicController::class, 'search'])->middleware('throttle:20,1');
 
 Route::middleware('throttle:10,1')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);

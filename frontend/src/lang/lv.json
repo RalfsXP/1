@@ -323,5 +323,27 @@
     "notePlaceholder": "Piezīme",
     "create": "Izveidot",
     "untitled": "Tāfele bez nosaukuma"
+  },
+  "music": {
+    "title": "Mūzika",
+    "sub": "Dziesma galvā, bet nevari atcerēties nosaukumu? Ieraksti jebkuru rindu, ko atceries, atrodi atbilstošās dziesmas, noklausies fragmentu un atver to savā mīļākajā lietotnē.",
+    "label": "Vārdi",
+    "placeholder": "…un dziesmā skan",
+    "search": "Meklēt",
+    "searching": "Meklē",
+    "empty": "Dziesmas netika atrastas.",
+    "error": "Meklēšana neizdevās. Mēģini vēlreiz.",
+    "throttle": "Pārāk daudz meklējumu. Pagaidi minūti.",
+    "titleMode": "Vārdu meklēšana ir izslēgta, tāpēc meklē tikai nosaukumos un izpildītājos.",
+    "play": "Atskaņot fragmentu",
+    "pause": "Apturēt fragmentu",
+    "noPreview": "Nav fragmenta",
+    "lyrics": "Vārdi Genius",
+    "deezer": "Atvērt Deezer",
+    "openIn": "Atvērt",
+    "album": "Albums",
+    "source": "Avots",
+    "songLink": "atver dziesmu",
+    "searchLink": "atver meklēšanu"
   }
 }
