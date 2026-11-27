@@ -6,10 +6,8 @@ import LogoMark from './LogoMark.vue'
 <template>
   <Transition name="loader">
     <div v-if="loading" class="loader" role="status" aria-live="polite">
-      <div class="spinner">
-        <span class="ring" aria-hidden="true" />
-        <div class="mark"><LogoMark /></div>
-      </div>
+      <div class="mark"><LogoMark animated /></div>
+      <span class="dots" aria-hidden="true"><i /><i /><i /></span>
       <span class="visually-hidden">{{ $t('common.loading') }}</span>
     </div>
   </Transition>
@@ -24,52 +22,58 @@ import LogoMark from './LogoMark.vue'
   height: var(--app-h);
   z-index: 100;
   display: grid;
-  place-items: center;
+  place-content: center;
+  justify-items: center;
+  gap: 26px;
   background-color: var(--bg);
-  background-image: var(--mist-edge), var(--mist);
 }
 
-.spinner {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 132px;
-  height: 132px;
-}
-
-/* The "m." breathes inside the orbiting ring (a spinning letter reads oddly). */
+/* The sticker wobbles while its dot bounces; three pastel dots pulse underneath. */
 .mark {
-  width: 64px;
-  height: 34px;
-  animation: breathe 1.4s ease-in-out infinite;
+  width: 88px;
+  height: 88px;
 }
 
-@keyframes breathe {
-  50% {
-    transform: scale(0.88);
-    opacity: 0.75;
-  }
+.dots {
+  display: flex;
+  gap: 8px;
 }
 
-/* A thin accent arc orbiting the mark. */
-.ring {
-  position: absolute;
-  inset: 0;
+.dots i {
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  border: 2px solid color-mix(in srgb, var(--accent) 18%, transparent);
-  border-top-color: var(--accent);
-  animation: spin 0.9s linear infinite;
+  background: var(--lav);
+  animation: pulse 1.1s var(--ease) infinite;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+.dots i:nth-child(2) {
+  background: var(--mint);
+  animation-delay: 0.15s;
+}
+
+.dots i:nth-child(3) {
+  background: var(--peach);
+  animation-delay: 0.3s;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  40% {
+    transform: translateY(-8px) scale(1.15);
   }
 }
 
 .loader-enter-active,
 .loader-leave-active {
-  transition: opacity 0.25s ease, backdrop-filter 0.25s ease;
+  transition: opacity 0.3s ease;
+}
+
+.loader-enter-active .mark {
+  transition: transform 0.5s var(--spring);
 }
 
 .loader-enter-from,
@@ -77,9 +81,7 @@ import LogoMark from './LogoMark.vue'
   opacity: 0;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .mark {
-    animation: none;
-  }
+.loader-enter-from .mark {
+  transform: scale(0.6) rotate(-20deg);
 }
 </style>

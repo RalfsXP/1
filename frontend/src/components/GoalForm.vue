@@ -5,9 +5,10 @@ import BadgePicker from '@/components/BadgePicker.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
 import DateField from '@/components/DateField.vue'
 import DatePicker from '@/components/DatePicker.vue'
+import Expand from '@/components/Expand.vue'
 import GoalBadge from '@/components/GoalBadge.vue'
 import PriorityFlag from '@/components/PriorityFlag.vue'
-import { PRIORITIES, categoryStyle, createGoal, deleteGoal, updateGoal } from '@/lib/goals'
+import { PRIORITIES, categoryStyle, createGoal, deleteGoal, paletteColor, updateGoal } from '@/lib/goals'
 import { t } from '@/lib/i18n'
 import { PERIODS, periodEnd, periodStart, toISO } from '@/lib/periods'
 
@@ -48,7 +49,7 @@ function reset() {
     dueDate: g?.due_at ? toISO(new Date(g.due_at)) : '',
     dueTime: g?.due_at ? timeOf(new Date(g.due_at)) : '18:00',
     customBadge: Boolean(g?.badge_color || g?.badge_icon),
-    color: g?.badge_color ?? style.color,
+    color: paletteColor(g?.badge_color) ?? style.color,
     icon: g?.badge_icon ?? style.icon,
   })
   errors.value = []
@@ -205,7 +206,8 @@ async function remove() {
         <DatePicker v-model="form.date" v-model:end="form.endDate" :mode="form.period" :series="series" />
       </div>
 
-      <template v-if="!isCustom">
+      <Expand>
+      <div v-if="!isCustom" class="sub">
         <div class="form-field">
           <span class="form-label">{{ $t('goal.repeat') }}</span>
           <div class="segmented" role="group" :aria-label="$t('goal.repeat')">
@@ -214,7 +216,9 @@ async function remove() {
           </div>
         </div>
 
-        <template v-if="form.repeats">
+        <Expand>
+        <div v-if="form.repeats" class="sub">
+          <Expand>
           <div v-if="form.period === 'day'" class="form-field">
             <span class="form-label">{{ $t('goal.onDays') }}</span>
             <div class="days" role="group" :aria-label="$t('goal.onDays')">
@@ -232,23 +236,30 @@ async function remove() {
             </div>
             <span class="hint">{{ repeatSummary }}</span>
           </div>
+          </Expand>
           <div class="form-field">
             <span class="form-label">{{ $t('goal.until') }}</span>
             <DateField v-model="form.repeatUntil" :label="$t('goal.until')" :mode="form.period" :min="form.date" :series="series" />
           </div>
-        </template>
+        </div>
+        </Expand>
 
-        <template v-else>
+        <Expand>
+        <div v-if="!form.repeats" class="sub">
           <label class="toggle">
-            <input v-model="form.hasDeadline" type="checkbox" />
+            <input v-model="form.hasDeadline" type="checkbox" class="switch-input" />
             <span>{{ $t('goal.deadline') }}</span>
           </label>
+          <Expand>
           <div v-if="form.hasDeadline" class="deadline">
             <DateField v-model="form.dueDate" :label="$t('goal.deadline')" :min="form.date" :max="lastDay" />
             <input v-model="form.dueTime" class="input time" type="time" :aria-label="$t('goal.time')" />
           </div>
-        </template>
-      </template>
+          </Expand>
+        </div>
+        </Expand>
+      </div>
+      </Expand>
 
       <div class="form-field">
         <span class="form-label">{{ $t('priority.label') }}</span>
@@ -269,16 +280,18 @@ async function remove() {
         <div class="badge-row">
           <GoalBadge :title="form.title || $t('goal.title')" :color="form.color" :icon="form.icon" />
           <label class="toggle">
-            <input v-model="form.customBadge" type="checkbox" @change="useCategoryBadge" />
+            <input v-model="form.customBadge" type="checkbox" class="switch-input" @change="useCategoryBadge" />
             <span>{{ $t('goal.customBadge') }}</span>
           </label>
         </div>
       </div>
-      <BadgePicker v-if="form.customBadge" v-model:color="form.color" v-model:icon="form.icon" />
+      <Expand><BadgePicker v-if="form.customBadge" v-model:color="form.color" v-model:icon="form.icon" /></Expand>
 
+      <Expand>
       <ul v-if="errors.length" class="errors" role="alert">
         <li v-for="msg in errors" :key="msg"><InformationCircleIcon aria-hidden="true" />{{ msg }}</li>
       </ul>
+      </Expand>
 
       <div class="actions">
         <button v-if="goal" type="button" class="btn btn-ghost btn-lg" :disabled="saving" @click="remove">
@@ -293,7 +306,8 @@ async function remove() {
 </template>
 
 <style scoped>
-.form {
+.form,
+.sub {
   display: grid;
   gap: 18px;
 }
@@ -311,44 +325,44 @@ async function remove() {
 }
 
 .day-chip {
-  height: 42px;
+  height: 44px;
   padding: 0;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: transparent;
+  border: 0;
+  border-radius: 14px;
+  background: var(--surface-2);
   color: var(--fg);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+  transition: background-color 0.2s, color 0.2s, transform 0.25s var(--spring);
 }
 
-.day-chip:hover {
-  border-color: var(--accent);
+@media (hover: hover) {
+  .day-chip:hover {
+    background: var(--line);
+  }
+}
+
+.day-chip:active {
+  transform: scale(0.9);
 }
 
 .day-chip[aria-pressed='true'] {
-  border-color: var(--accent);
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--lav);
+  color: var(--ink);
 }
 
 .toggle {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 32px;
-  font-size: 0.9rem;
+  gap: 12px;
+  min-height: 36px;
+  font-size: 0.92rem;
   font-weight: 600;
   cursor: pointer;
 }
 
-.toggle input {
-  width: 20px;
-  height: 20px;
-  margin: 0;
-  accent-color: var(--accent);
-}
+
 
 .badge-row {
   display: flex;
@@ -370,7 +384,7 @@ async function remove() {
 /* Five period options on a phone: tighter pills. */
 .segmented.tight button {
   padding: 0 4px;
-  font-size: 0.74rem;
+  font-size: 0.78rem;
 }
 
 .errors {
@@ -392,7 +406,7 @@ async function remove() {
   flex-shrink: 0;
   width: 18px;
   height: 18px;
-  color: var(--accent);
+  color: var(--flag-important);
 }
 
 .actions {

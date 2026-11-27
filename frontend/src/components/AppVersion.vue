@@ -21,7 +21,7 @@ const version = raw.trim()
   transform: translateY(-100%);
   z-index: 50;
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.02em;
   pointer-events: none;

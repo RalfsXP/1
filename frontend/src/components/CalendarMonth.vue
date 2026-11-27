@@ -1,21 +1,18 @@
 <script setup>
-import { computed, ref } from 'vue'
-import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/outline'
+import { computed } from 'vue'
 import { FlagIcon } from '@heroicons/vue/20/solid'
 import GoalBadge from '@/components/GoalBadge.vue'
 import { eventBadge } from '@/lib/events'
 import { badgeFor } from '@/lib/goals'
-import { touchUI } from '@/lib/input'
-import { usePress } from '@/lib/press'
 import { t } from '@/lib/i18n'
+import { useSwipe } from '@/lib/motion'
 import { todayISO } from '@/lib/timeLeft'
-import { addDays, isoWeek, parseISO, periodEnd, periodLabel, periodStart, shiftPeriod, toISO } from '@/lib/periods'
+import { addDays, isoWeek, periodEnd, periodLabel, periodStart, toISO } from '@/lib/periods'
 
 /**
- * Month grid (Monday first) with week numbers. Days show their daily goals as
- * badges on wide screens and coloured dots on phones; custom periods run as
- * bands through their days. Monthly, yearly and custom goals touching the
- * month sit in a strip above the grid. Swipe sideways to change month.
+ * Month grid (Monday first) with week numbers, on one white board. Days show their events and daily
+ * goals as pastel chips on wide screens and coloured dots on phones; custom periods run as bands
+ * through their days. Swipe sideways to change month (the page header has the arrows).
  */
 const props = defineProps({
   month: { type: String, required: true }, // first day, YYYY-MM-DD
@@ -23,31 +20,10 @@ const props = defineProps({
   occurrences: { type: Array, required: true },
   // Event occurrences ({ key, date, event }) in the visible weeks.
   events: { type: Array, default: () => [] },
+  // Which way the last page turn went: the new month slides in from that side.
+  direction: { type: String, default: 'next' },
 })
-const emit = defineEmits(['update:month', 'select', 'open-week', 'open', 'toggle'])
-
-// Strip badges: desktop click edits; touch tap ticks off, hold edits (same as goal rows).
-const press = usePress({ onTap: (occ) => emit('toggle', occ), onHold: (occ) => emit('open', occ) })
-const onBadge = (e, occ) => (touchUI.value ? press.click(e, occ) : emit('open', occ))
-
-const direction = ref('next')
-
-// Big month name as the page title, the year under it.
-const monthTitle = computed(() => t('common.months')[parseISO(props.month).getMonth()])
-const yearLabel = computed(() => parseISO(props.month).getFullYear())
-
-function go(n) {
-  direction.value = n > 0 ? 'next' : 'prev'
-  emit('update:month', toISO(shiftPeriod('month', props.month, n)))
-}
-
-function goToday() {
-  const target = toISO(periodStart('month', todayISO.value))
-  direction.value = target > props.month ? 'next' : 'prev'
-  emit('update:month', target)
-  emit('select', todayISO.value)
-}
-
+const emit = defineEmits(['swipe', 'select', 'open-week'])
 const byStart = (period) => {
   const map = {}
   for (const occ of props.occurrences) if (occ.goal.period === period) (map[occ.start] ??= []).push(occ)
@@ -87,16 +63,6 @@ const weeks = computed(() => {
   return rows
 })
 
-const monthEndISO = computed(() => toISO(periodEnd('month', props.month)))
-const strip = computed(() =>
-  props.occurrences.filter(
-    (o) =>
-      (o.goal.period === 'month' && o.start === props.month) ||
-      (o.goal.period === 'year' && o.start === `${props.month.slice(0, 4)}-01-01`) ||
-      (o.goal.period === 'custom' && o.start <= monthEndISO.value && o.end >= props.month),
-  ),
-)
-
 const dayLabel = (day) =>
   [
     periodLabel('day', day.iso),
@@ -106,261 +72,137 @@ const dayLabel = (day) =>
     .filter(Boolean)
     .join(' · ')
 
-const isCurrentMonth = computed(() => props.month === toISO(periodStart('month', todayISO.value)))
-
-/* Swipe left/right on the grid to change month. */
-let touch = null
-const onTouchStart = (e) => (touch = { x: e.touches[0].clientX, y: e.touches[0].clientY })
-function onTouchEnd(e) {
-  if (!touch) return
-  const dx = e.changedTouches[0].clientX - touch.x
-  const dy = e.changedTouches[0].clientY - touch.y
-  touch = null
-  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1)
-}
+/* Swipe left/right to change month: the grid follows the finger, then pages (or springs back). */
+const swipe = useSwipe((n) => emit('swipe', n))
 </script>
 
 <template>
-  <section class="calendar">
-    <header class="page-head cal-head">
-      <div>
-        <h1 class="page-title month-title">{{ monthTitle }}</h1>
-        <!-- "Today" sits beside the year, not by the arrows: the header width never changes while paging. -->
-        <p class="page-sub year-line">
-          {{ yearLabel }}
-          <button v-if="!isCurrentMonth" type="button" class="today-btn" @click="goToday">{{ $t('calendar.today') }}</button>
-        </p>
-      </div>
-      <div class="cal-nav">
-        <button type="button" class="icon-btn" :aria-label="$t('calendar.prev')" @click="go(-1)">
-          <ChevronLeftIcon aria-hidden="true" />
-        </button>
-        <button type="button" class="icon-btn" :aria-label="$t('calendar.next')" @click="go(1)">
-          <ChevronRightIcon aria-hidden="true" />
-        </button>
-      </div>
-    </header>
-
-    <div v-if="strip.length" class="strip">
-      <button
-        v-for="occ in strip"
-        :key="occ.key"
-        type="button"
-        class="strip-item"
-        :class="{ pressing: press.pressing.value === occ }"
-        @pointerdown="touchUI && press.down($event, occ)"
-        @pointermove="press.move"
-        @pointerup="press.up"
-        @pointercancel="press.up"
-        @contextmenu="touchUI && $event.preventDefault()"
-        @click="onBadge($event, occ)"
-      >
-        <GoalBadge :title="occ.goal.title" v-bind="badgeFor(occ.goal)" :done="occ.done" />
-      </button>
+  <section
+    class="board"
+    @touchstart.passive="swipe.down"
+    @touchmove.passive="swipe.move"
+    @touchend="swipe.up"
+    @touchcancel="swipe.up"
+  >
+    <div class="row head" aria-hidden="true">
+      <span class="wk">{{ $t('calendar.weekShort') }}</span>
+      <span v-for="(name, i) in $t('common.weekdaysShort')" :key="name" class="dow" :class="{ weekend: i > 4 }">{{ name }}</span>
     </div>
 
-    <div class="grid-wrap" @touchstart.passive="onTouchStart" @touchend="onTouchEnd">
-      <div class="row head" aria-hidden="true">
-        <span class="wk">{{ $t('calendar.weekShort') }}</span>
-        <span v-for="name in $t('common.weekdaysShort')" :key="name" class="dow">{{ name }}</span>
-      </div>
+    <div class="drag" :class="{ dragging: swipe.dragging.value }" :style="{ transform: `translateX(${swipe.dx.value}px)` }">
+    <Transition :name="`slide-${direction}`" mode="out-in">
+      <div :key="month" class="weeks">
+        <div v-for="week in weeks" :key="week.monday" class="row">
+          <button
+            type="button"
+            class="wk wk-btn"
+            :aria-label="$t('calendar.week', { n: week.number })"
+            @click="emit('open-week', week.monday)"
+          >
+            {{ week.number }}
+            <span class="wk-marks">
+              <span
+                v-for="occ in week.weekly.slice(0, 3)"
+                :key="occ.key"
+                class="wk-mark"
+                :class="{ done: occ.done }"
+                :style="{ '--c': badgeFor(occ.goal).color }"
+              />
+            </span>
+          </button>
 
-      <Transition :name="`slide-${direction}`" mode="out-in">
-        <div :key="month" class="weeks">
-          <div v-for="week in weeks" :key="week.monday" class="row">
-            <button
-              type="button"
-              class="wk wk-btn"
-              :aria-label="$t('calendar.week', { n: week.number })"
-              @click="emit('open-week', week.monday)"
-            >
-              {{ week.number }}
-              <span class="wk-marks">
-                <span
-                  v-for="occ in week.weekly.slice(0, 3)"
-                  :key="occ.key"
-                  class="wk-mark"
-                  :class="{ done: occ.done }"
-                  :style="{ '--c': badgeFor(occ.goal).color }"
-                />
-              </span>
-            </button>
+          <button
+            v-for="day in week.days"
+            :key="day.iso"
+            type="button"
+            class="cell"
+            :class="{ out: !day.inMonth, today: day.iso === todayISO, selected: day.iso === selected }"
+            :aria-pressed="day.iso === selected"
+            :aria-label="dayLabel(day)"
+            @click="emit('select', day.iso)"
+          >
+            <span class="num">{{ day.day }}</span>
+            <FlagIcon v-if="day.important" class="important" aria-hidden="true" />
 
-            <button
-              v-for="day in week.days"
-              :key="day.iso"
-              type="button"
-              class="cell"
-              :class="{ out: !day.inMonth, today: day.iso === todayISO, selected: day.iso === selected }"
-              :aria-pressed="day.iso === selected"
-              :aria-label="dayLabel(day)"
-              @click="emit('select', day.iso)"
-            >
-              <span class="num">{{ day.day }}</span>
-              <FlagIcon v-if="day.important" class="important" aria-hidden="true" />
+            <span v-if="day.items.length || day.events.length" class="dots">
+              <!-- Events: a small rounded square in their badge colour; goals: round dots. -->
+              <span
+                v-for="occ in day.events.slice(0, 2)"
+                :key="occ.key"
+                class="dot event"
+                :style="{ '--c': eventBadge(occ.event).color }"
+              />
+              <span
+                v-for="occ in day.items.slice(0, 4 - Math.min(2, day.events.length))"
+                :key="occ.key"
+                class="dot"
+                :class="{ done: occ.done }"
+                :style="{ '--c': badgeFor(occ.goal).color }"
+              />
+            </span>
 
-              <span v-if="day.items.length || day.events.length" class="dots">
-                <!-- Events: a small rounded square in their badge colour; goals: round dots. -->
-                <span
-                  v-for="occ in day.events.slice(0, 2)"
-                  :key="occ.key"
-                  class="dot event"
-                  :style="{ '--c': eventBadge(occ.event).color }"
-                />
-                <span
-                  v-for="occ in day.items.slice(0, 4 - Math.min(2, day.events.length))"
-                  :key="occ.key"
-                  class="dot"
-                  :class="{ done: occ.done }"
-                  :style="{ '--c': badgeFor(occ.goal).color }"
-                />
-              </span>
+            <span v-if="day.items.length || day.events.length" class="badges">
+              <GoalBadge
+                v-for="occ in day.events.slice(0, 2)"
+                :key="occ.key"
+                compact
+                :title="occ.event.title"
+                v-bind="eventBadge(occ.event)"
+              />
+              <GoalBadge
+                v-for="occ in day.items.slice(0, 2 - Math.min(2, day.events.length))"
+                :key="occ.key"
+                compact
+                :title="occ.goal.title"
+                v-bind="badgeFor(occ.goal)"
+                :done="occ.done"
+              />
+              <span v-if="day.items.length + day.events.length > 2" class="more">+{{ day.items.length + day.events.length - 2 }}</span>
+            </span>
 
-              <span v-if="day.items.length || day.events.length" class="badges">
-                <GoalBadge
-                  v-for="occ in day.events.slice(0, 2)"
-                  :key="occ.key"
-                  compact
-                  :title="occ.event.title"
-                  v-bind="eventBadge(occ.event)"
-                />
-                <GoalBadge
-                  v-for="occ in day.items.slice(0, 2 - Math.min(2, day.events.length))"
-                  :key="occ.key"
-                  compact
-                  :title="occ.goal.title"
-                  v-bind="badgeFor(occ.goal)"
-                  :done="occ.done"
-                />
-                <span v-if="day.items.length + day.events.length > 2" class="more">+{{ day.items.length + day.events.length - 2 }}</span>
-              </span>
-
-              <!-- Custom periods: a band through every day they cover. -->
-              <span v-if="day.spans.length" class="spans" aria-hidden="true">
-                <span
-                  v-for="occ in day.spans.slice(0, 2)"
-                  :key="occ.key"
-                  class="span"
-                  :class="{ first: occ.start === day.iso, last: occ.end === day.iso, done: occ.done }"
-                  :style="{ '--c': badgeFor(occ.goal).color }"
-                />
-              </span>
-            </button>
-          </div>
+            <!-- Custom periods: a band through every day they cover. -->
+            <span v-if="day.spans.length" class="spans" aria-hidden="true">
+              <span
+                v-for="occ in day.spans.slice(0, 2)"
+                :key="occ.key"
+                class="span"
+                :class="{ first: occ.start === day.iso, last: occ.end === day.iso, done: occ.done }"
+                :style="{ '--c': badgeFor(occ.goal).color }"
+              />
+            </span>
+          </button>
         </div>
-      </Transition>
+      </div>
+    </Transition>
     </div>
   </section>
 </template>
 
 <style scoped>
-.calendar {
-  display: grid;
-  gap: 14px;
+/* The month sits on one white board. */
+.board {
   min-width: 0;
-}
-
-/* One line even for "septembris": a little smaller than other page titles. */
-.month-title {
-  font-size: clamp(1.9rem, 8.6vw, 2.6rem);
-  white-space: nowrap;
-}
-
-.year-line {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 28px;
-}
-
-.today-btn {
-  height: 28px;
-  padding: 0 12px;
-  border: 0;
-  border-radius: 999px;
-  background: var(--accent);
-  color: var(--on-accent);
-  font-size: 0.78rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.today-btn:active {
-  transform: scale(0.95);
-}
-
-.cal-nav {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 6px;
-}
-
-.strip {
-  display: flex;
-  gap: 8px;
-  margin: 0 -20px;
-  padding: 2px 20px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  mask-image: linear-gradient(90deg, transparent, var(--black) 16px, var(--black) calc(100% - 24px), transparent);
-}
-
-.strip::-webkit-scrollbar {
-  display: none;
-}
-
-.strip-item {
-  flex-shrink: 0;
-  max-width: 70vw;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: none;
-  cursor: pointer;
-  transition: transform 0.15s, opacity 0.15s;
-}
-
-.strip-item:hover {
-  opacity: 0.85;
-}
-
-.strip-item.pressing {
-  transform: scale(0.94);
-  opacity: 0.8;
-  transition: transform 0.45s linear, opacity 0.45s linear;
-}
-
-.strip-item {
-  -webkit-touch-callout: none;
-  user-select: none;
-}
-
-.strip-item:active {
-  transform: scale(0.97);
-}
-
-/* The month sits on one glass panel. */
-.grid-wrap {
   padding: 12px 8px 8px;
   overflow: hidden;
-  border: 1px solid var(--glass-edge);
-  border-radius: 28px;
+  border-radius: 30px;
   background: var(--surface);
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--card-shadow), inset 0 0 0 1px var(--card-edge);
   touch-action: pan-y;
+}
+
+.drag:not(.dragging) {
+  transition: transform 0.4s var(--ease);
 }
 
 .weeks {
   display: grid;
-  gap: 2px;
+  gap: 3px;
 }
 
 .row {
   display: grid;
-  grid-template-columns: 26px repeat(7, minmax(0, 1fr));
-  gap: 4px;
+  grid-template-columns: 24px repeat(7, minmax(0, 1fr));
+  gap: 3px;
 }
 
 .row.head {
@@ -375,8 +217,12 @@ function onTouchEnd(e) {
   text-align: center;
 }
 
+.dow.weekend {
+  opacity: 0.7;
+}
+
 .wk {
-  opacity: 0.75;
+  opacity: 0.7;
 }
 
 .wk-btn {
@@ -384,17 +230,20 @@ function onTouchEnd(e) {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 11px 0 0; /* lines up with the day numbers */
+  padding: 12px 0 0; /* lines up with the day numbers */
   border: 0;
-  border-radius: 8px;
+  border-radius: 10px;
   background: transparent;
   font-family: inherit;
   cursor: pointer;
 }
 
-.wk-btn:hover,
-.wk-btn:focus-visible {
-  color: var(--accent);
+@media (hover: hover) {
+  .wk-btn:hover,
+  .wk-btn:focus-visible {
+    color: var(--fg);
+    opacity: 1;
+  }
 }
 
 .wk-marks {
@@ -403,7 +252,7 @@ function onTouchEnd(e) {
 }
 
 .wk-mark {
-  width: 14px;
+  width: 12px;
   height: 4px;
   border-radius: 2px;
   background: var(--c);
@@ -420,52 +269,57 @@ function onTouchEnd(e) {
   align-items: center;
   gap: 4px;
   min-width: 0;
-  height: 60px;
+  height: 58px;
   padding: 4px 2px;
-  border: 1px solid transparent;
-  border-radius: 16px;
+  border: 0;
+  border-radius: 18px;
   background: transparent;
   color: var(--fg);
   font-family: inherit;
   cursor: pointer;
-  transition: border-color 0.2s, background-color 0.2s;
+  transition: background-color 0.25s var(--ease), box-shadow 0.25s var(--ease), transform 0.25s var(--spring);
+}
+
+.cell:active {
+  transform: scale(0.94);
 }
 
 .cell.out {
   color: var(--muted);
-  opacity: 0.55;
+  opacity: 0.5;
 }
 
-.cell:hover {
-  background: var(--pill);
+@media (hover: hover) {
+  .cell:hover {
+    background: var(--surface-2);
+  }
 }
 
 .cell.selected {
-  border-color: var(--accent);
-  background: color-mix(in srgb, var(--pill-active) 55%, transparent);
+  background: color-mix(in srgb, var(--lav) var(--wash-strong), var(--surface));
 }
 
 .cell:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--link);
   outline-offset: 1px;
 }
 
 .num {
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  font-size: 0.92rem;
-  font-weight: 600;
+  font-size: 0.95rem;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
+  transition: background-color 0.25s, color 0.25s;
 }
 
-/* Today: a glowing highlight disc. */
+/* Today: the ink disc. */
 .today .num {
-  background: var(--highlight);
-  box-shadow: 0 6px 16px color-mix(in srgb, var(--highlight) 45%, transparent);
-  color: var(--on-highlight);
+  background: var(--accent);
+  color: var(--on-accent);
   font-weight: 800;
 }
 
@@ -491,16 +345,17 @@ function onTouchEnd(e) {
   height: 6px;
   border-radius: 50%;
   background: var(--c);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12);
 }
 
 .dot.event {
   border-radius: 2px;
 }
 
-/* Completed: hollow ring in the same colour. */
+/* Completed: hollow ring in the same colour (deepened a little so pastels still show on white). */
 .dot.done {
   background: transparent;
-  box-shadow: inset 0 0 0 1.5px var(--c);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--c) 75%, var(--fg));
 }
 
 .badges {
@@ -509,15 +364,15 @@ function onTouchEnd(e) {
 
 .spans {
   position: absolute;
-  right: -3px;
+  right: -2px;
   bottom: 2px;
-  left: -3px;
+  left: -2px;
   display: grid;
   gap: 2px;
 }
 
 .span {
-  height: 4px;
+  height: 5px;
   background: var(--c);
 }
 
@@ -537,38 +392,62 @@ function onTouchEnd(e) {
 
 .more {
   color: var(--muted);
-  font-size: 0.66rem;
+  font-size: 0.68rem;
   font-weight: 700;
 }
 
 @media (min-width: 860px) {
+  .board {
+    padding: 16px;
+  }
+
   .row {
-    grid-template-columns: 32px repeat(7, minmax(0, 1fr));
+    grid-template-columns: 30px repeat(7, minmax(0, 1fr));
     gap: 6px;
   }
 
-  .grid-wrap {
-    padding: 14px;
+  .weeks {
+    gap: 6px;
+  }
+
+  .dow {
+    text-align: left;
+    padding-left: 10px;
   }
 
   .cell {
     align-items: stretch;
-    height: 104px;
-    padding: 6px;
-    background: var(--pill);
+    height: 108px;
+    padding: 7px;
+    background: var(--surface-2);
+  }
+
+  @media (hover: hover) {
+    .cell:hover {
+      background: color-mix(in srgb, var(--surface-2) 50%, var(--line));
+    }
   }
 
   .cell.out {
     background: transparent;
+    box-shadow: inset 0 0 0 1.5px var(--surface-2);
+  }
+
+  .cell.selected {
+    background: color-mix(in srgb, var(--lav) var(--wash-strong), var(--surface));
+    box-shadow: inset 0 0 0 2px var(--fg);
   }
 
   .num {
     align-self: flex-start;
+    width: 30px;
+    height: 30px;
+    font-size: 0.98rem;
   }
 
   .important {
-    top: 10px;
-    right: 10px;
+    top: 11px;
+    right: 11px;
   }
 
   .dots {
@@ -583,21 +462,24 @@ function onTouchEnd(e) {
 }
 
 .slide-next-enter-active,
+.slide-prev-enter-active {
+  transition: transform 0.4s var(--ease), opacity 0.3s ease;
+}
+
 .slide-next-leave-active,
-.slide-prev-enter-active,
 .slide-prev-leave-active {
-  transition: transform 0.18s ease, opacity 0.18s ease;
+  transition: transform 0.15s ease-in, opacity 0.15s ease-in;
 }
 
 .slide-next-enter-from,
 .slide-prev-leave-to {
-  transform: translateX(24px);
+  transform: translateX(40px);
   opacity: 0;
 }
 
 .slide-next-leave-to,
 .slide-prev-enter-from {
-  transform: translateX(-24px);
+  transform: translateX(-40px);
   opacity: 0;
 }
 </style>

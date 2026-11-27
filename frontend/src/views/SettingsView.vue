@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChevronDownIcon, InformationCircleIcon } from '@heroicons/vue/24/outline'
 import BadgePicker from '@/components/BadgePicker.vue'
+import Expand from '@/components/Expand.vue'
 import GoalBadge from '@/components/GoalBadge.vue'
 import { changeLocale, logout, user } from '@/lib/auth'
 import { categoryStyle, saveCategoryStyle } from '@/lib/goals'
@@ -58,7 +59,7 @@ function signOut() {
 </script>
 
 <template>
-  <div class="page narrow">
+  <div class="page narrow stagger">
     <header class="page-head">
       <div>
         <h1 class="page-title">{{ $t('settings.title') }}</h1>
@@ -66,7 +67,7 @@ function signOut() {
     </header>
 
     <section class="section">
-      <h2 class="section-label">{{ $t('settings.appearance') }}</h2>
+      <h2 class="section-title">{{ $t('settings.appearance') }}</h2>
       <div class="card prefs">
         <div class="pref">
           <span class="pref-name">{{ $t('settings.theme') }}</span>
@@ -88,7 +89,7 @@ function signOut() {
 
     <section class="section">
       <header>
-        <h2 class="section-label">{{ $t('settings.badges') }}</h2>
+        <h2 class="section-title">{{ $t('settings.badges') }}</h2>
         <p class="lead">{{ $t('settings.badgesLead') }}</p>
       </header>
 
@@ -102,6 +103,7 @@ function signOut() {
             <ChevronDownIcon class="chevron" aria-hidden="true" />
           </button>
 
+          <Expand>
           <form v-if="openPeriod === period" class="row-body" @submit.prevent="save(period)">
             <BadgePicker v-model:color="draft.color" v-model:icon="draft.icon" />
             <p v-if="error" class="error" role="alert"><InformationCircleIcon aria-hidden="true" />{{ error }}</p>
@@ -109,12 +111,13 @@ function signOut() {
               {{ saving ? $t('goal.saving') : $t('goal.save') }}
             </button>
           </form>
+          </Expand>
         </li>
       </ul>
     </section>
 
     <section class="section">
-      <h2 class="section-label">{{ $t('common.account') }}</h2>
+      <h2 class="section-title">{{ $t('common.account') }}</h2>
       <div class="card account">
         <span class="avatar" aria-hidden="true">{{ initial }}</span>
         <div class="who">
@@ -133,7 +136,7 @@ function signOut() {
   gap: 10px;
 }
 
-.section .section-label {
+.section .section-title {
   margin: 0;
   padding: 0 4px;
 }
@@ -193,7 +196,7 @@ function signOut() {
 }
 
 .row-head:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--link);
   outline-offset: 2px;
   border-radius: 12px;
 }
@@ -203,7 +206,7 @@ function signOut() {
   width: 20px;
   height: 20px;
   color: var(--muted);
-  transition: transform 0.2s;
+  transition: transform 0.3s var(--spring);
 }
 
 .open .chevron {
@@ -227,7 +230,7 @@ function signOut() {
 .error svg {
   width: 18px;
   height: 18px;
-  color: var(--accent);
+  color: var(--flag-important);
 }
 
 .account {
@@ -244,9 +247,10 @@ function signOut() {
   width: 46px;
   height: 46px;
   border-radius: 50%;
-  background: var(--highlight);
-  color: var(--on-highlight);
-  font-size: 1.15rem;
+  background: var(--peach);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.25rem;
   font-weight: 800;
 }
 
@@ -262,7 +266,10 @@ function signOut() {
 }
 
 .name {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
   font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .email {

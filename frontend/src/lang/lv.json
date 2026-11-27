@@ -15,7 +15,8 @@
   "landing": {
     "login": "Pieslēgties",
     "signup": "Reģistrēties",
-    "sceneGoal": "Skriet 5 km"
+    "sceneGoal": "Skriet 5 km",
+    "sceneEvent": "Annas dzimšanas diena"
   },
   "auth": {
     "back": "Atpakaļ",
@@ -53,7 +54,9 @@
     "guide": "Ceļvedis",
     "settings": "Iestatījumi",
     "health": "Sistēmas stāvoklis",
-    "whiteboards": "Tāfeles"
+    "whiteboards": "Tāfeles",
+    "goals": "Mērķi",
+    "add": "Pievienot"
   },
   "periods": {
     "day": "Dienas mērķi",
@@ -132,7 +135,12 @@
     "weekShort": "N",
     "weekRange": "{n}. nedēļa · {range}",
     "monthYear": "{month} {year}",
-    "goalCount": "mērķi: {n}"
+    "goalCount": "mērķi: {n}",
+    "monthView": "Mēnesis",
+    "weekView": "Nedēļa",
+    "view": "Kalendāra skats",
+    "free": "Nekas nav ieplānots",
+    "dailyDone": "Paveikti dienas mērķi: {done} no {total}"
   },
   "picker": {
     "day1": "diena",
@@ -169,9 +177,13 @@
     "focus": "Šobrīd aktuāli",
     "allDone": "Šobrīd nekas nav atvērts.",
     "completedCount": "Izpildīti: {n}",
-    "yesterday": "Mērķi vakar"
+    "yesterday": "Mērķi vakar",
+    "streak": "Sērija",
+    "daysInRow": "dienas pēc kārtas ar visiem dienas mērķiem",
+    "upcoming": "Drīzumā",
+    "noUpcoming": "Nav gaidāmu notikumu"
   },
-  "colors": ["Okeāna zila", "Debeszila", "Vētras zilganzaļa", "Dzintara", "Koraļļu", "Okera", "Salvijas zaļa", "Tintes"],
+  "colors": ["Lavanda", "Piparmētra", "Persiks", "Sviests", "Debesis", "Roze", "Violets", "Tinte"],
   "icons": {
     "flag": "Karogs",
     "star": "Zvaigzne",

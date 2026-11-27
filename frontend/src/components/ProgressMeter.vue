@@ -21,7 +21,7 @@ const percent = computed(() => (props.total ? Math.round((props.done / props.tot
     :aria-label="$t('goal.progress')"
   >
     <span class="count">{{ done }}/{{ total }}</span>
-    <span class="track"><span class="fill" :style="{ width: `${percent}%` }" /></span>
+    <span class="track"><span class="fill" :style="{ transform: `translateX(${percent - 100}%)` }" /></span>
   </div>
 </template>
 
@@ -29,13 +29,14 @@ const percent = computed(() => (props.total ? Math.round((props.done / props.tot
 .meter {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .count {
   order: 2;
   min-width: 2.6em;
-  font-size: 0.9rem;
+  font-family: var(--font-display);
+  font-size: 1rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   text-align: right;
@@ -43,17 +44,27 @@ const percent = computed(() => (props.total ? Math.round((props.done / props.tot
 
 .track {
   flex: 1;
-  height: 8px;
+  height: 12px;
   overflow: hidden;
   border-radius: 999px;
-  background: var(--pill);
+  background: var(--surface-2);
 }
 
+/* Fills from empty when it appears, then follows every tick. A full-width bar slid in from the left
+   (transform only, so it never re-lays out the page); the track's rounded clip shapes its left end. */
 .fill {
   display: block;
+  width: 100%;
   height: 100%;
   border-radius: 999px;
   background: var(--accent);
-  transition: width 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: transform 0.6s var(--spring);
+  animation: fill-in 0.9s var(--ease) backwards 0.15s;
+}
+
+@keyframes fill-in {
+  from {
+    transform: translateX(-100%);
+  }
 }
 </style>

@@ -1,9 +1,8 @@
 <script setup>
 import { computed } from 'vue'
-import { CheckCircleIcon as DoneIcon } from '@heroicons/vue/24/solid'
 import { ArrowPathIcon } from '@heroicons/vue/20/solid'
 import PriorityFlag from '@/components/PriorityFlag.vue'
-import { badgeFor, readableOn } from '@/lib/goals'
+import { badgeFor, justTicked, readableOn } from '@/lib/goals'
 import { GOAL_ICONS } from '@/lib/icons'
 import { rangeLabel } from '@/lib/periods'
 import { touchUI } from '@/lib/input'
@@ -29,12 +28,15 @@ const goal = computed(() => props.occurrence.goal)
 const badge = computed(() => badgeFor(goal.value))
 const left = computed(() => (props.occurrence.done ? null : timeLeft(props.occurrence.deadline, now.value)))
 const finished = computed(() => (props.occurrence.done ? completionInfo(props.occurrence) : null))
+// The pop + drawn check only right after ticking (also when the row reappears in "Completed"), not on every page visit.
+const ticked = computed(() => props.occurrence.done && justTicked(props.occurrence.key))
 </script>
 
 <template>
   <li
     class="item"
-    :class="{ done: occurrence.done, touch: touchUI, pressing: press.pressing.value }"
+    :class="{ done: occurrence.done, ticked, touch: touchUI, pressing: press.pressing.value }"
+    :style="{ '--tint': badge.color }"
     @pointerdown="touchUI && press.down($event)"
     @pointermove="press.move"
     @pointerup="press.up"
@@ -48,8 +50,9 @@ const finished = computed(() => (props.occurrence.done ? completionInfo(props.oc
       :aria-label="$t('goal.toggle', { title: goal.title })"
       @click="onCheck"
     >
-      <DoneIcon v-if="occurrence.done" aria-hidden="true" />
-      <span v-else class="ring" />
+      <span class="box">
+        <svg v-if="occurrence.done" viewBox="0 0 24 24" aria-hidden="true"><path d="m5.5 12.5 4.2 4.2 8.8-9.4" pathLength="1" /></svg>
+      </span>
     </button>
 
     <button type="button" class="body" @click="onBody">
@@ -66,107 +69,130 @@ const finished = computed(() => (props.occurrence.done ? completionInfo(props.oc
       </span>
     </button>
 
-    <span class="dot" :style="{ background: badge.color, color: readableOn(badge.color) }" aria-hidden="true">
+    <span class="tile" :style="{ background: badge.color, color: readableOn(badge.color) }" aria-hidden="true">
       <component :is="GOAL_ICONS[badge.icon] ?? GOAL_ICONS.flag" />
     </span>
   </li>
 </template>
 
 <style scoped>
-/* A glass row. */
+/* A white row; done rows take on a wash of their badge colour. */
 .item {
   display: flex;
   align-items: center;
-  gap: 4px;
-  min-height: 70px;
-  padding: 6px 14px 6px 6px;
-  border: 1px solid var(--glass-edge);
-  border-radius: 20px;
+  gap: 2px;
+  min-height: 72px;
+  padding: 6px 12px 6px 6px;
+  border-radius: 24px;
   background: var(--surface);
-  box-shadow: var(--glass-shadow);
-  transition: background-color 0.2s;
+  box-shadow: var(--card-shadow), inset 0 0 0 1px var(--card-edge);
+  transition: background-color 0.35s var(--ease), box-shadow 0.35s var(--ease), transform 0.25s var(--spring);
 }
 
-/* Done rows recede (no fill, muted title) but keep their status text readable. */
-/* Touch: the row is one press target; a hold fills the ring, then edit opens. */
+.item.done {
+  background: color-mix(in srgb, var(--tint) var(--wash), var(--surface));
+  box-shadow: none;
+}
+
+/* Touch: the row is one press target; a hold fills the box, then edit opens. */
 .item.touch {
   -webkit-touch-callout: none;
   user-select: none;
-  transition: background-color 0.2s, transform 0.2s;
 }
 
 .item.pressing {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
-.item.pressing .ring {
+.item.pressing .box {
   animation: hold-fill 450ms linear forwards;
 }
 
 @keyframes hold-fill {
   to {
     border-color: var(--accent);
-    box-shadow: inset 0 0 0 12px var(--accent);
+    box-shadow: inset 0 0 0 14px var(--accent);
   }
-}
-
-.item.done {
-  background: color-mix(in srgb, var(--surface) 55%, transparent);
-  box-shadow: none;
-}
-
-.done .title {
-  color: var(--muted);
-  text-decoration: line-through;
-}
-
-.done .dot {
-  opacity: 0.45;
 }
 
 .check {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 48px;
-  height: 48px;
+  width: 50px;
+  height: 50px;
   padding: 0;
   border: 0;
   background: transparent;
-  color: var(--accent);
   cursor: pointer;
 }
 
-.check svg {
+.box {
+  display: grid;
+  place-items: center;
   width: 30px;
   height: 30px;
-}
-
-.ring {
-  width: 26px;
-  height: 26px;
-  border: 2px solid color-mix(in srgb, var(--fg) 30%, transparent);
+  border: 2px dashed color-mix(in srgb, var(--fg) 28%, transparent);
   border-radius: 50%;
-  transition: border-color 0.2s;
+  color: var(--on-accent);
+  transition: border-color 0.2s, background-color 0.25s var(--ease), transform 0.25s var(--spring);
 }
 
-.check:hover .ring {
-  border-color: var(--accent);
+@media (hover: hover) {
+  .check:hover .box {
+    border-color: var(--fg);
+    border-style: solid;
+  }
+}
+
+.check:active .box {
+  transform: scale(0.85);
+}
+
+/* Ticked: the box pops into an ink disc and the check draws itself. */
+.done .box {
+  border: 0;
+  background: var(--accent);
+}
+
+.ticked .box {
+  animation: pop 0.45s var(--spring);
+}
+
+.box svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+}
+
+.ticked .box svg {
+  animation: tick 0.35s var(--ease) 0.12s backwards;
+}
+
+@keyframes tick {
+  from {
+    stroke-dashoffset: 1;
+  }
 }
 
 .check:focus-visible,
 .body:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--link);
   outline-offset: -2px;
-  border-radius: 12px;
+  border-radius: 14px;
 }
 
 .body {
   display: grid;
   flex: 1;
-  gap: 4px;
+  gap: 5px;
   min-width: 0;
-  padding: 6px 4px;
+  padding: 6px 6px 6px 2px;
   border: 0;
   background: transparent;
   color: inherit;
@@ -176,12 +202,18 @@ const finished = computed(() => (props.occurrence.done ? completionInfo(props.oc
 
 .title {
   overflow: hidden;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.02rem;
+  font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: color 0.3s;
 }
 
+.done .title {
+  color: var(--muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
 
 .meta {
   display: flex;
@@ -189,12 +221,16 @@ const finished = computed(() => (props.occurrence.done ? completionInfo(props.oc
   gap: 6px;
   line-height: 16px;
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   font-weight: 600;
 }
 
+.when {
+  min-width: 0;
+}
+
 .when.early {
-  color: var(--accent);
+  color: var(--flag-low);
 }
 
 .when.soon {
@@ -213,26 +249,28 @@ const finished = computed(() => (props.occurrence.done ? completionInfo(props.oc
   height: 16px;
 }
 
-.when {
-  min-width: 0;
-}
-
 .range {
   flex-shrink: 0;
   white-space: nowrap;
 }
 
-.dot {
+/* The badge: a pastel tile with its icon. */
+.tile {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  transition: transform 0.3s var(--spring);
 }
 
-.dot svg {
-  width: 16px;
-  height: 16px;
+.done .tile {
+  transform: rotate(-8deg) scale(0.92);
+}
+
+.tile svg {
+  width: 20px;
+  height: 20px;
 }
 </style>

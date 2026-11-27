@@ -4,7 +4,7 @@
 // Needs the local dev setup against a THROWAWAY database (never prod), seeded with the demo account:
 //   DemoSeeder (DEMO_PASSWORD=… php artisan db:seed --class=DemoSeeder --force with the scratch DB_* vars, see CLAUDE.md),
 //   the PHP server on :8000 and `npm run dev` on :5173. Then, from frontend/:
-//   DEMO_PASSWORD=… node scripts/guide-shots.mjs [name,name]   (no names = all 16 shots × 2 themes)
+//   DEMO_PASSWORD=… node scripts/guide-shots.mjs [name,name]   (no names = all 17 shots × 2 themes)
 // Google Chrome must be installed in /Applications.
 import { spawn } from 'node:child_process'
 import fs from 'node:fs'
@@ -102,7 +102,7 @@ async function hold(sel) {
 
 for (const theme of ['dark', 'light']) {
   await go('/')
-  await js(`localStorage.setItem('merkis-theme', '${theme}'); localStorage.setItem('merkis-locale', 'en'); localStorage.setItem('merkis-hold-hint', 'dismissed');
+  await js(`localStorage.setItem('merkis-theme', '${theme}'); localStorage.setItem('merkis-locale', 'en'); localStorage.setItem('merkis-hold-hint', 'dismissed'); localStorage.setItem('merkis-cal-view', 'month');
     const x = decodeURIComponent((document.cookie.match(/XSRF-TOKEN=([^;]+)/) || [])[1] || '');
     if (x) await fetch('/api/logout', { method: 'POST', headers: { 'X-XSRF-TOKEN': x, Accept: 'application/json' } }); return true`)
 
@@ -126,13 +126,17 @@ for (const theme of ['dark', 'light']) {
 
   await go('/calendar')
   await shot('calendar', theme)
-  await scrollMainTo('section.day')
+  await scrollMainTo('.day-panel')
   await sleep(400)
   await shot('calendar-day', theme)
+  await js(`document.querySelector('main.main').scrollTop = 0; [...document.querySelectorAll('.view-switch button')][1].click(); return true`)
+  await sleep(900)
+  await shot('calendar-week', theme)
+  await js(`localStorage.setItem('merkis-cal-view', 'month'); return true`)
 
   await go('/events')
   await shot('events', theme)
-  await click('.float-btn.add')
+  await click('.dock-add')
   await sleep(900)
   await type('.sheet input[type=text]', "Grandma's birthday")
   await js(`[...document.querySelectorAll('.sheet .segmented button')].find((b) => b.getAttribute('aria-label') === 'Every year').click(); return true`)
@@ -141,7 +145,7 @@ for (const theme of ['dark', 'light']) {
 
   await go('/goals/daily')
   await shot('daily', theme)
-  await click('.float-btn.add')
+  await click('.dock-add')
   await sleep(900)
   await type('.sheet input[type=text]', 'Morning walk')
   await sleep(300)

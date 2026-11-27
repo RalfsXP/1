@@ -1,96 +1,100 @@
-/* Harbour fog (v1.6): the only design. Parchment mist + frosted glass in light mode, pure black + teal mist in dark.
-   Components use ONLY the role tokens below (--accent, --surface…), never the palette or raw hex. */
+/* Paper & Pills (v1.7): the only design. Warm paper ground, white cards, ink pills, pastel colour-coding.
+   Components use ONLY the tokens below (roles + the pastel set), never raw hex. */
 :root {
-  --teal: #16697a;
-  --pacific: #489fb5;
-  --skyblue: #82c0cc;
-  --parchment: #ede7e3;
-  --amberglow: #ffa62b;
+  /* Pastels: the colour-coding set (badges, day tiles, highlights). Same in both themes, always with ink text. */
+  --lav: #cbbcff;
+  --mint: #bdebc9;
+  --peach: #ffc9a6;
+  --butter: #ffe27a;
+  --sky: #c2e1ff;
+  --rose: #ffbfd0;
 
-  /* Space above the top bar / headers. Home Screen web app (html.standalone): iOS 26 blurs ~the top of the
+  --font-display: 'Bricolage Grotesque', 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'DM Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Motion: one ease-out for everything that settles, one spring for things that pop. */
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --sheet-ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Space above the top bar / headers. Home Screen web app (html.standalone): iOS 26 blurs the top of the
      page under the status bar, so content starts a little lower there. */
   --top-inset: env(safe-area-inset-top, 0px);
-  /* Height of the app (shell, landing, login, sheets, mist). Browsers: the dynamic viewport. Home Screen
+  /* Height of the app (shell, landing, login, sheets). Browsers: the dynamic viewport. Home Screen
      web app: see .standalone — iOS 26 there shrinks the viewport by the status bar after the keyboard. */
   --app-h: 100dvh;
 
-  /* --ink / --paper = darkest + lightest colour (text on badges and accents). --black / --white are aliases. */
-  --ink: #0a2128;
-  --paper: var(--parchment);
+  /* --ink / --paper = darkest + lightest colour (text on pastels and on the accent). */
+  --ink: #17171c;
+  --paper: #fffdf8;
 
-  /* ---------- Dark: pure black, Parchment text, Pacific Blue actions (ink text ~5.5:1),
-     Amber Glow highlights (ink text ~8:1), Sky Blue links ---------- */
-  --bg: #000000;
-  --fg: var(--paper);
-  --muted: #9db2b7;
-  --line: rgb(237 231 227 / 0.12);
-  --backdrop: rgb(0 0 0 / 0.6);
+  /* ---------- Light (default): paper ground, white cards, ink pills ---------- */
+  --bg: #f3efe7;
+  --fg: var(--ink);
+  --muted: #6f6b62;
+  --line: #e7e0d3;
+  --backdrop: rgb(23 23 28 / 0.34);
 
-  /* Glass: translucent panels over the mist. --surface = cards and rows, --surface-strong = sheets,
-     --glass-edge = their 1 px rim, --field = inputs, --pill / --pill-active = segmented controls. */
-  --surface: rgb(255 255 255 / 0.07);
-  --surface-strong: rgb(22 26 28 / 0.9);
-  --glass-edge: rgb(255 255 255 / 0.12);
-  --glass-shadow: 0 12px 32px rgb(0 0 0 / 0.35);
-  --float-shadow: 0 10px 30px rgb(0 0 0 / 0.5);
-  --field: rgb(255 255 255 / 0.06);
-  --pill: rgb(255 255 255 / 0.08);
-  --pill-active: rgb(255 255 255 / 0.18);
-  --mist:
-    radial-gradient(65% 40% at 100% 18%, rgb(22 105 122 / 0.7), transparent),
-    radial-gradient(55% 35% at 0% 58%, rgb(72 159 181 / 0.26), transparent),
-    radial-gradient(50% 30% at 90% 96%, rgb(255 166 43 / 0.14), transparent);
+  /* --surface = cards, rows, sheets; --surface-2 = quiet fills inside them (tracks, fields, chips). */
+  --surface: #ffffff;
+  --surface-2: #f6f2ea;
+  --field: var(--surface-2);
+  --card-shadow: 0 1px 2px rgb(23 23 28 / 0.04), 0 10px 28px -16px rgb(23 23 28 / 0.18);
+  --card-edge: transparent;
+  --float-shadow: 0 18px 40px -14px rgb(23 23 28 / 0.45);
+  /* The ink surfaces: the phone's floating nav pill and the next-event card. */
+  --dock: var(--ink);
+  /* Pastel washes over a card (color-mix strength) and the white-ish fill for controls sitting on them;
+     dark mode keeps them faint so tinted cards stay dark and readable. */
+  --wash: 32%;
+  --wash-strong: 50%;
+  --wash-fill: rgb(255 255 255 / 0.62);
 
-  --accent: var(--pacific);
-  --on-accent: var(--ink);
-  --highlight: var(--amberglow);
+  /* Actions are ink pills with white text (~17:1); highlight = lavender with ink text (~11:1). */
+  --accent: var(--ink);
+  --on-accent: #ffffff;
+  --highlight: var(--lav);
   --on-highlight: var(--ink);
-  --link: var(--skyblue);
+  --link: #5b46d6;
   /* Quiet data colour (chart bars, secondary marks). */
-  --soft: color-mix(in srgb, var(--skyblue) 80%, transparent);
+  --soft: var(--lav);
 
   /* Priority flags: low / high / important. */
-  --flag-low: var(--skyblue);
-  --flag-high: var(--amberglow);
-  --flag-important: #e5604d;
-
-  --black: var(--ink);
-  --white: var(--paper);
-
-  color-scheme: dark;
-}
-
-/* ---------- Light: Parchment ground, Stormy Teal actions (parchment text ~5:1),
-   Amber Glow highlights (ink text), Sky Blue + Pacific mist ---------- */
-:root[data-theme='light'] {
-  --bg: var(--paper);
-  --fg: var(--ink);
-  --muted: #4d656b;
-  --line: rgb(10 33 40 / 0.1);
-  --backdrop: rgb(10 33 40 / 0.32);
-
-  --surface: rgb(255 255 255 / 0.55);
-  --surface-strong: rgb(245 241 238 / 0.92);
-  --glass-edge: rgb(255 255 255 / 0.85);
-  --glass-shadow: 0 12px 32px rgb(10 33 40 / 0.07);
-  --float-shadow: 0 10px 30px rgb(10 33 40 / 0.16);
-  --field: rgb(255 255 255 / 0.75);
-  --pill: rgb(10 33 40 / 0.06);
-  --pill-active: #ffffff;
-  --mist:
-    radial-gradient(60% 38% at 100% 22%, rgb(130 192 204 / 0.75), transparent),
-    radial-gradient(55% 35% at 0% 55%, rgb(72 159 181 / 0.35), transparent),
-    radial-gradient(50% 30% at 90% 92%, rgb(255 166 43 / 0.22), transparent);
-
-  --accent: var(--teal);
-  --on-accent: var(--paper);
-  --link: var(--teal);
-
-  --flag-low: var(--teal);
-  --flag-high: #c98a12;
-  --flag-important: #c8412e;
+  --flag-low: #3f9a5d;
+  --flag-high: #d99a00;
+  --flag-important: #e5484d;
 
   color-scheme: light;
+}
+
+/* ---------- Dark: near-black ground, charcoal cards, cream pills, the same pastels ---------- */
+:root[data-theme='dark'] {
+  --bg: #111113;
+  --fg: #f3efe7;
+  --muted: #a39e94;
+  --line: #2c2c32;
+  --backdrop: rgb(0 0 0 / 0.62);
+
+  --surface: #1c1c20;
+  --surface-2: #26262c;
+  --card-shadow: 0 10px 28px -18px rgb(0 0 0 / 0.8);
+  --card-edge: rgb(255 255 255 / 0.05);
+  --float-shadow: 0 18px 40px -12px rgb(0 0 0 / 0.85);
+  --dock: #2a2a31;
+  --wash: 14%;
+  --wash-strong: 24%;
+  --wash-fill: rgb(255 255 255 / 0.08);
+
+  --accent: #f3efe7;
+  --on-accent: var(--ink);
+  --link: #b9a8ff;
+  --soft: color-mix(in srgb, var(--lav) 75%, var(--bg));
+
+  --flag-low: #6fcf8f;
+  --flag-high: #ffcc4d;
+  --flag-important: #ff6b6b;
+
+  color-scheme: dark;
 }
 
 *,
@@ -116,26 +120,18 @@ html {
 
 body {
   margin: 0;
+  background-color: var(--bg);
   color: var(--fg);
-  font-family: Montserrat, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family: var(--font-body);
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* The mist: one fixed full-screen layer behind everything, so scrolling content glides over a still
-   background. Body stays transparent (its in-flow background would paint over this negative-z layer);
-   html carries --bg. The phone top bar paints a pixel-identical copy (100vw × --app-h from 0 0). */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: -1;
-  width: 100vw;
-  height: var(--app-h);
-  background: var(--mist-edge), var(--mist), var(--bg);
-  background-repeat: no-repeat;
-  pointer-events: none;
+/* Theme switch: the whole page cross-fades (View Transitions; lib/theme.js). Browsers without them switch at once. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.4s;
+  animation-timing-function: ease;
 }
 
 svg {
@@ -143,7 +139,7 @@ svg {
   max-width: 100%;
 }
 
-/* Form controls don't inherit the page font by default; keep everything in Montserrat. */
+/* Form controls don't inherit the page font by default. */
 button,
 input,
 select,
@@ -182,49 +178,6 @@ textarea {
   }
 }
 
-/* Home Screen web app (html.standalone, set pre-paint): the page draws under the status bar, and iOS 26 blurs
-   the top edge — the mist and the glass top bar continue up there, content starts a little lower. */
-/* Phone/tablet in a browser tab (not the Home Screen app): the page can't draw under the status bar or
-   the toolbar — Safari fills those strips with plain --bg (viewport-fit=cover doesn't change that in a
-   tab, tested on iOS 26.5). So the mist fades into --bg at its top and bottom edges and runs on into
-   Safari's bars without a seam. Every mist painter puts --mist-edge first (layer, shell top bar, loader). */
-:root {
-  --mist-edge: linear-gradient(transparent, transparent);
-}
-
-@media (hover: none) and (pointer: coarse) {
-  :root:not(.standalone) {
-    --mist-edge: linear-gradient(to bottom, var(--bg), transparent 90px, transparent calc(100% - 110px), var(--bg));
-  }
-}
-
-/* A browser tab ends the page above Safari's toolbar (nothing can be drawn under it), so scrolled
-   content would stop in a hard line there. This continues the mist copy upwards from the bottom edge
-   and fades it in — the twin of .topbar::after. Off in the Home Screen app (content runs to the
-   screen edge there) and on desktop. Placed from the top like every full-screen piece (see --app-h). */
-.bottom-fade {
-  display: none;
-}
-
-@media (hover: none) and (pointer: coarse) {
-  :root:not(.standalone) .bottom-fade {
-    position: fixed;
-    top: calc(var(--app-h) - 36px);
-    right: 0;
-    left: 0;
-    z-index: 30;
-    display: block;
-    height: 36px;
-    background: var(--mist-edge), var(--mist), var(--bg);
-    background-position: 0 calc(36px - var(--app-h));
-    background-repeat: no-repeat;
-    background-size: 100vw var(--app-h);
-    -webkit-mask-image: linear-gradient(to top, black, transparent);
-    mask-image: linear-gradient(to top, black, transparent);
-    pointer-events: none;
-  }
-}
-
 /* Phone browser tab, signed-in shell: Safari counts <main>'s scrolling content as page height, so a swipe
    could scroll the whole page (collapsing Safari's toolbar, leaving an empty band). Only <main> scrolls. */
 @media (hover: none) and (pointer: coarse) {
@@ -240,7 +193,6 @@ textarea {
   :root:not(.standalone) .sheet {
     width: calc(100% - 16px);
     margin-bottom: 8px;
-    border-bottom: 1px solid var(--glass-edge);
     border-radius: 32px;
   }
 }
@@ -256,13 +208,13 @@ textarea {
 
 /* One focus ring for everything keyboard-focusable. */
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--link);
   outline-offset: 2px;
 }
 
 ::selection {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--lav);
+  color: var(--ink);
 }
 
 .visually-hidden {
@@ -274,21 +226,15 @@ textarea {
   white-space: nowrap;
 }
 
-/* ---------- Glass ---------- */
-/* Panels: translucent over the mist. Plain fills only — the mist is soft already, and a backdrop blur on
-   every row would make long lists scroll slowly on phones. Floating chrome uses .glass-float (real blur). */
-.glass {
-  border: 1px solid var(--glass-edge);
-  background: var(--surface);
-  box-shadow: var(--glass-shadow);
+/* ---------- Type ---------- */
+.display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.04em;
 }
 
-.glass-float {
-  border: 1px solid var(--glass-edge);
-  background: var(--surface);
-  box-shadow: var(--float-shadow);
-  -webkit-backdrop-filter: blur(24px) saturate(1.4);
-  backdrop-filter: blur(24px) saturate(1.4);
+.num {
+  font-variant-numeric: tabular-nums;
 }
 
 /* ---------- Buttons ---------- */
@@ -297,94 +243,94 @@ textarea {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  height: 40px;
-  padding: 0 18px;
+  height: 44px;
+  padding: 0 20px;
+  border: 0;
   border-radius: 999px;
   font: inherit;
-  font-size: 0.85rem;
+  font-size: 0.92rem;
   font-weight: 700;
-  letter-spacing: -0.01em;
   white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s, color 0.2s, transform 0.2s, opacity 0.2s, box-shadow 0.2s;
+  transition: background-color 0.2s, color 0.2s, transform 0.25s var(--spring), opacity 0.2s, box-shadow 0.2s;
 }
 
-.btn:active {
-  transform: scale(0.97);
+.btn:active:not(:disabled) {
+  transform: scale(0.95);
 }
 
 .btn:focus-visible {
-  outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
 
 .btn:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: default;
 }
 
 .btn svg {
-  width: 18px;
-  height: 18px;
+  width: 19px;
+  height: 19px;
+  stroke-width: 2.2;
 }
 
-/* Secondary: a glass pill. */
+/* Secondary: a white pill. */
 .btn-ghost {
-  border: 1px solid var(--glass-edge);
   background: var(--surface);
+  box-shadow: var(--card-shadow), inset 0 0 0 1px var(--card-edge);
   color: var(--fg);
 }
 
-.btn-ghost:hover {
-  border-color: var(--accent);
+@media (hover: hover) {
+  .btn-ghost:hover:not(:disabled) {
+    background: var(--surface-2);
+  }
 }
 
+/* Primary: the ink pill. */
 .btn-primary {
-  border: 1px solid var(--accent);
   background: var(--accent);
   color: var(--on-accent);
-  box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
-.btn-primary:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--accent) 88%, var(--fg));
-  border-color: color-mix(in srgb, var(--accent) 88%, var(--fg));
+@media (hover: hover) {
+  .btn-primary:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--accent) 86%, var(--bg));
+  }
 }
 
 .btn-lg {
   height: 54px;
-  padding: 0 24px;
+  padding: 0 26px;
   font-size: 1rem;
 }
 
-/* Round icon-only button (Heroicons inside): a glass disc. */
+/* Round icon-only button (Heroicons inside): a white disc. */
 .icon-btn {
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   padding: 0;
-  border: 1px solid var(--glass-edge);
+  border: 0;
   border-radius: 50%;
   background: var(--surface);
+  box-shadow: var(--card-shadow), inset 0 0 0 1px var(--card-edge);
   color: var(--fg);
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, background-color 0.2s, transform 0.2s;
+  transition: background-color 0.2s, color 0.2s, transform 0.25s var(--spring);
 }
 
-.icon-btn:hover {
-  border-color: var(--accent);
+@media (hover: hover) {
+  .icon-btn:hover {
+    background: var(--surface-2);
+  }
 }
 
 .icon-btn:active {
-  transform: scale(0.94);
-}
-
-.icon-btn:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  transform: scale(0.9);
 }
 
 .icon-btn svg {
@@ -392,10 +338,38 @@ textarea {
   height: 20px;
 }
 
+/* Inside a card or sheet: a quiet filled disc. */
 .icon-btn.bare {
-  border-color: transparent;
-  background: var(--pill);
+  background: var(--surface-2);
   box-shadow: none;
+}
+
+@media (hover: hover) {
+  .icon-btn.bare:hover {
+    background: var(--line);
+  }
+}
+
+/* Small pill tag ("Week 48", counts). */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--highlight);
+  color: var(--on-highlight);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+
+.chip.quiet {
+  background: var(--surface-2);
+  color: var(--fg);
 }
 
 /* ---------- App pages (shared by every signed-in view) ---------- */
@@ -404,7 +378,7 @@ textarea {
   gap: 16px;
   align-content: start;
   min-width: 0;
-  padding: 14px 20px max(32px, calc(env(safe-area-inset-bottom) + 24px));
+  padding: 10px 18px 32px;
 }
 
 .page.narrow {
@@ -412,30 +386,35 @@ textarea {
 }
 
 .page.wide {
-  max-width: 1080px;
+  max-width: 1180px;
 }
 
-/* Big editorial title with an optional muted line under it (.page-sub). */
+/* Big display title with an optional muted line (.page-sub) and actions on the right. */
 .page-head {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 12px;
-  padding: 6px 0 8px;
+  padding: 6px 0 6px;
 }
 
 .page-head > div:first-child {
   display: grid;
-  gap: 4px;
+  gap: 6px;
   min-width: 0;
 }
 
 .page-title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 14px;
   margin: 0;
-  font-size: clamp(2.1rem, 10vw, 2.6rem);
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 10vw, 3rem);
   font-weight: 800;
-  line-height: 1.08;
-  letter-spacing: -0.035em;
+  line-height: 1;
+  letter-spacing: -0.045em;
   overflow-wrap: anywhere;
 }
 
@@ -447,33 +426,55 @@ textarea {
 .page-sub {
   margin: 0;
   color: var(--muted);
-  font-size: 0.95rem;
+  font-size: 0.98rem;
   font-weight: 500;
+}
+
+.page-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
 }
 
 .section-title {
   margin: 0;
-  font-size: 1.2rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 .section-label {
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.02em;
   text-decoration: none;
-  text-transform: uppercase;
 }
 
 .card {
-  padding: 18px;
-  border: 1px solid var(--glass-edge);
+  padding: 20px;
   border-radius: 28px;
   background: var(--surface);
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--card-shadow), inset 0 0 0 1px var(--card-edge);
   color: var(--fg);
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.card-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .list {
@@ -484,7 +485,7 @@ textarea {
   list-style: none;
 }
 
-/* Nothing to show: one muted line in a dashed glass box (optionally with an action). */
+/* Nothing to show: one muted line in a dashed box (optionally with an action). */
 .empty-state {
   display: flex;
   flex-wrap: wrap;
@@ -492,55 +493,59 @@ textarea {
   justify-content: space-between;
   gap: 12px;
   margin: 0;
-  padding: 18px;
-  border: 1px dashed color-mix(in srgb, var(--fg) 22%, transparent);
-  border-radius: 22px;
-  background: color-mix(in srgb, var(--surface) 60%, transparent);
+  padding: 18px 20px;
+  border: 1.5px dashed color-mix(in srgb, var(--fg) 18%, transparent);
+  border-radius: 24px;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.92rem;
+  font-weight: 500;
 }
 
-/* Round floating buttons (phones): Menu bottom-left, add bottom-right. Never a full-width bar —
-   Safari would paint that into its toolbar area. */
-.float-btn {
-  position: fixed;
-  /* Placed from the top (see --app-h): bottom-anchored fixed boxes drift up in iOS web apps. */
-  top: calc(var(--app-h) - max(20px, calc(env(safe-area-inset-bottom) + 10px)) - 56px);
-  z-index: 40;
+/* Collapsible group ("Completed (3)", "Past (2)") — components/Fold.vue: the header toggles, the body opens smoothly. */
+.fold {
   display: grid;
-  place-items: center;
-  width: 56px;
-  height: 56px;
-  padding: 0;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: transform 0.2s;
 }
 
-.float-btn:active {
-  transform: scale(0.94);
-}
-
-.float-btn svg {
-  width: 26px;
-  height: 26px;
-}
-
-.float-btn.add {
-  right: max(20px, env(safe-area-inset-right));
+.fold-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-self: start;
+  min-height: 36px;
+  padding: 0 4px;
   border: 0;
-  background: var(--accent);
-  color: var(--on-accent);
-  box-shadow: 0 12px 28px color-mix(in srgb, var(--accent) 45%, transparent);
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.fold-head::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.3s var(--spring);
+}
+
+.fold.open .fold-head::before {
+  transform: rotate(45deg) translate(-2px, -1px);
+}
+
+.fold-body {
+  padding-top: 6px;
+}
+
+@media (hover: hover) {
+  .fold-head:hover {
+    color: var(--fg);
+  }
 }
 
 @media (min-width: 860px) {
   .page {
-    padding: 8px 32px 32px;
-  }
-
-  .float-btn.add {
-    display: none;
+    padding: 4px 32px 40px;
   }
 }
 
@@ -552,26 +557,26 @@ textarea {
 
 .form-label {
   color: var(--muted);
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.82rem;
+  font-weight: 700;
 }
 
 .input {
   width: 100%;
   min-height: 52px;
   padding: 12px 16px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
+  border: 1.5px solid transparent;
+  border-radius: 18px;
   background: var(--field);
   color: var(--fg);
   font-size: 16px; /* ≥16px stops iOS zooming in on focus */
   font-weight: 500;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition: border-color 0.2s, background-color 0.2s;
 }
 
 .input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent);
+  border-color: var(--fg);
+  background: var(--surface);
   outline: none;
 }
 
@@ -580,13 +585,13 @@ textarea.input {
   resize: vertical;
 }
 
-/* Pill group of mutually exclusive options: the chosen one is a raised pill. */
+/* Pill group of mutually exclusive options: the chosen one is the ink pill. */
 .segmented {
   display: flex;
-  gap: 4px;
+  gap: 2px;
   padding: 4px;
   border-radius: 999px;
-  background: var(--pill);
+  background: var(--surface-2);
 }
 
 .segmented button {
@@ -596,42 +601,164 @@ textarea.input {
   justify-content: center;
   gap: 6px;
   min-width: 0;
-  min-height: 38px;
-  padding: 0 10px;
+  min-height: 40px;
+  padding: 0 12px;
   border: 0;
   border-radius: 999px;
   background: transparent;
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: 0.86rem;
   font-weight: 700;
+  white-space: nowrap;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+  transition: background-color 0.25s var(--ease), color 0.25s var(--ease), transform 0.25s var(--spring);
 }
 
-.segmented button:hover {
-  color: var(--fg);
+@media (hover: hover) {
+  .segmented button:hover {
+    color: var(--fg);
+  }
+}
+
+.segmented button:active {
+  transform: scale(0.95);
 }
 
 .segmented button[aria-pressed='true'] {
-  background: var(--pill-active);
-  box-shadow: 0 2px 8px rgb(10 33 40 / 0.1);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+/* Outline variant: keeps coloured content (priority flags) readable — a white raised pill with an ink rim. */
+.segmented.outline button[aria-pressed='true'] {
+  background: var(--surface);
+  box-shadow: inset 0 0 0 2px var(--fg);
   color: var(--fg);
 }
 
-/* Outline variant: keeps coloured content (priority flags) readable, with an accent rim when chosen. */
-.segmented.outline button[aria-pressed='true'] {
-  box-shadow: inset 0 0 0 2px var(--accent);
+/* On the paper ground (page headers): a white track. */
+.segmented.raised {
+  background: var(--surface);
+  box-shadow: var(--card-shadow), inset 0 0 0 1px var(--card-edge);
 }
 
-.segmented button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+/* Toggle switch (checkbox styled as a pill). */
+.switch-input {
+  position: relative;
+  flex-shrink: 0;
+  width: 46px;
+  height: 28px;
+  margin: 0;
+  border-radius: 999px;
+  background: var(--line);
+  appearance: none;
+  cursor: pointer;
+  transition: background-color 0.25s var(--ease);
+}
+
+.switch-input::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.25);
+  transition: transform 0.3s var(--spring);
+}
+
+.switch-input:checked {
+  background: var(--accent);
+}
+
+.switch-input:checked::after {
+  background: var(--bg);
+  transform: translateX(18px);
+}
+
+/* ---------- Motion ---------- */
+/* Page content rises in on mount: `.stagger` children one after another, `.rise` on its own. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes draw {
+  from {
+    stroke-dashoffset: var(--len, 24);
+  }
+}
+
+.rise {
+  animation: rise 0.5s var(--ease) backwards;
+}
+
+.stagger > * {
+  animation: rise 0.5s var(--ease) backwards;
+}
+
+.stagger > :nth-child(2) { animation-delay: 0.04s; }
+.stagger > :nth-child(3) { animation-delay: 0.08s; }
+.stagger > :nth-child(4) { animation-delay: 0.12s; }
+.stagger > :nth-child(5) { animation-delay: 0.16s; }
+.stagger > :nth-child(6) { animation-delay: 0.2s; }
+.stagger > :nth-child(7) { animation-delay: 0.24s; }
+.stagger > :nth-child(8) { animation-delay: 0.28s; }
+.stagger > :nth-child(9) { animation-delay: 0.32s; }
+.stagger > :nth-child(n + 10) { animation-delay: 0.36s; }
+
+/* Rows of an AnimatedList that change place glide there (adding/removing is animated in lib/motion.js). */
+.list-move {
+  transition: transform 0.4s var(--ease);
+}
+
+/* Chips entering/leaving (TransitionGroup name="row", e.g. the calendar strip). */
+.row-enter-active {
+  transition: opacity 0.35s var(--ease), transform 0.35s var(--ease);
+}
+
+.row-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.row-enter-from {
+  opacity: 0;
+  transform: translateY(10px) scale(0.98);
+}
+
+.row-leave-to {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+.row-move {
+  transition: transform 0.4s var(--ease);
 }
 
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
     transition: none !important;
   }
 }

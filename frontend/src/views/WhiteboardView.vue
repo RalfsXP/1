@@ -51,7 +51,7 @@ class StickyNote extends Textbox {
 classRegistry.setClass(StickyNote)
 
 /** UI colour (handles, cursors) from the theme; note colours are content and stay put. */
-const accent = () => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#16697a'
+const accent = () => getComputedStyle(document.documentElement).getPropertyValue('--link').trim() || '#5b46d6'
 const NOTE_DEFAULT = SWATCHES[3]
 const INK_LIGHT = '#000000'
 const INK_DARK = '#ffffff'
@@ -102,7 +102,7 @@ const isDark = () => theme.value === 'dark'
 const ink = () => (isDark() ? INK_DARK : INK_LIGHT)
 const paint = (c) => (c === 'ink' ? ink() : c)
 const isNote = (o) => o instanceof StickyNote || o.type === 'StickyNote'
-const noteText = (bg) => (readableOn(bg) === 'var(--black)' ? INK_LIGHT : INK_DARK)
+const noteText = (bg) => (readableOn(bg) === 'var(--ink)' ? INK_LIGHT : INK_DARK)
 
 const usesColor = computed(() => !['hand', 'eraser'].includes(tool.value) || hasSelection.value)
 const canUndo = computed(() => historyIndex.value > 0)
@@ -311,7 +311,7 @@ function pinTopLeft(obj, x, y) {
 
 function placeText(p) {
   const text = new IText('', {
-    fontFamily: 'Montserrat',
+    fontFamily: 'DM Sans',
     fontWeight: 700,
     fontSize: SIZES[size.value].text,
     fill: paint(color.value),
@@ -327,7 +327,7 @@ function placeNote(p) {
   const bg = color.value === 'ink' ? NOTE_DEFAULT : color.value
   const note = new StickyNote(t('whiteboard.notePlaceholder'), {
     width: 200,
-    fontFamily: 'Montserrat',
+    fontFamily: 'DM Sans',
     fontWeight: 600,
     fontSize: 20,
     lineHeight: 1.25,
@@ -759,7 +759,7 @@ onBeforeUnmount(() => {
   touch-action: none;
 }
 
-/* Floating glass bars over the board. */
+/* Floating bars over the board. */
 .bar {
   position: absolute;
   z-index: 5;
@@ -767,9 +767,9 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 4px;
   padding: 6px;
-  border: 1px solid var(--glass-edge);
+  border: 1px solid var(--card-edge);
   border-radius: 24px;
-  background: color-mix(in srgb, var(--surface-strong) 80%, transparent);
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
   box-shadow: var(--float-shadow);
   -webkit-backdrop-filter: blur(24px) saturate(1.4);
   backdrop-filter: blur(24px) saturate(1.4);
@@ -800,10 +800,12 @@ onBeforeUnmount(() => {
   letter-spacing: -0.01em;
 }
 
-.title:hover,
-.title:focus {
-  border-color: var(--line);
-  outline: none;
+@media (hover: hover) {
+  .title:hover,
+  .title:focus {
+    border-color: var(--line);
+    outline: none;
+  }
 }
 
 .status {
@@ -839,7 +841,7 @@ onBeforeUnmount(() => {
   padding: 0 12px;
   border: 0;
   border-radius: 999px;
-  background: var(--pill);
+  background: var(--surface-2);
   color: var(--fg);
   font-size: 0.78rem;
   font-weight: 800;
@@ -847,8 +849,10 @@ onBeforeUnmount(() => {
   cursor: pointer;
 }
 
-.zoom:hover {
-  color: var(--accent);
+@media (hover: hover) {
+  .zoom:hover {
+    color: var(--accent);
+  }
 }
 
 .zoom svg {
@@ -878,8 +882,10 @@ onBeforeUnmount(() => {
   transition: background-color 0.15s, color 0.15s;
 }
 
-.tool:hover {
-  color: var(--accent);
+@media (hover: hover) {
+  .tool:hover {
+    color: var(--accent);
+  }
 }
 
 .tool[aria-pressed='true'] {
@@ -946,7 +952,7 @@ onBeforeUnmount(() => {
 }
 
 .size[aria-pressed='true'] {
-  background: var(--pill);
+  background: var(--surface-2);
 }
 
 .divider {
@@ -963,7 +969,7 @@ onBeforeUnmount(() => {
   right: 16px;
   left: 16px;
   z-index: 6;
-  background: var(--surface-strong);
+  background: var(--surface);
 }
 
 @media (max-width: 860px) {

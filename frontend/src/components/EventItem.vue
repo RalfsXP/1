@@ -57,15 +57,19 @@ const when = computed(() =>
 
 <style scoped>
 .item {
-  border: 1px solid var(--glass-edge);
-  border-radius: 20px;
+  border-radius: 24px;
   background: var(--surface);
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--card-shadow), inset 0 0 0 1px var(--card-edge);
+  transition: transform 0.25s var(--spring);
+}
+
+.item:active {
+  transform: scale(0.98);
 }
 
 .item.past {
-  background: color-mix(in srgb, var(--surface) 55%, transparent);
-  box-shadow: none;
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--line);
 }
 
 .row {
@@ -73,8 +77,8 @@ const when = computed(() =>
   align-items: center;
   gap: 14px;
   width: 100%;
-  min-height: 70px;
-  padding: 12px 14px;
+  min-height: 72px;
+  padding: 12px 16px 12px 12px;
   border: 0;
   border-radius: inherit;
   background: transparent;
@@ -84,7 +88,7 @@ const when = computed(() =>
 }
 
 .row:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--link);
   outline-offset: -2px;
 }
 
@@ -92,9 +96,9 @@ const when = computed(() =>
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 42px;
-  height: 42px;
-  border-radius: 14px;
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
 }
 
 .past .badge {
@@ -115,8 +119,8 @@ const when = computed(() =>
 
 .title {
   overflow: hidden;
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.02rem;
+  font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -128,7 +132,7 @@ const when = computed(() =>
 .meta {
   overflow: hidden;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   font-weight: 500;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -142,17 +146,17 @@ const when = computed(() =>
 
 .pill {
   flex-shrink: 0;
-  padding: 6px 12px;
+  padding: 7px 12px;
   border-radius: 999px;
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--surface-2);
+  color: var(--fg);
   font-size: 0.8rem;
   font-weight: 700;
 }
 
 .pill.today {
-  background: var(--highlight);
-  color: var(--on-highlight);
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
 .count {
@@ -164,18 +168,15 @@ const when = computed(() =>
 }
 
 .num {
-  font-size: 1.5rem;
+  font-family: var(--font-display);
+  font-size: 1.75rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.03em;
-}
-
-.count.soon .num {
-  color: var(--accent);
+  letter-spacing: -0.05em;
 }
 
 .unit {
-  margin-top: 3px;
+  margin-top: 2px;
   color: var(--muted);
   font-size: 0.72rem;
   font-weight: 600;

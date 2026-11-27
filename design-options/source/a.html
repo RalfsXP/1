@@ -1,0 +1,238 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@500;600&display=block" rel="stylesheet">
+<script src="data.js"></script>
+<style>
+:root{
+  --bg:#0b0c0a; --tile:#141612; --cell:#1a1d17; --cell2:#20241c; --line:#262a22;
+  --fg:#f1f4ec; --muted:#8b9184; --dim:#4a4f45;
+  --lime:#d4ff3f; --ink:#0b0c0a; --lilac:#b9a6ff; --coral:#ff7a59; --sky:#7cc7ff; --sun:#ffd36b; --mint:#7ee0b5;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:2400px;height:1260px;background:#e9ebe4;font-family:Geist,Inter,system-ui,sans-serif;color:var(--fg);position:relative;overflow:hidden;-webkit-font-smoothing:antialiased}
+.label{position:absolute;left:70px;top:46px;display:flex;align-items:center;gap:22px;color:#0b0c0a}
+.label b{font-size:30px;font-weight:800;letter-spacing:-.02em}
+.label span{font-size:18px;color:#5d6257;font-weight:500}
+.sw{display:flex;gap:6px}.sw i{width:26px;height:26px;border-radius:50%;display:block;border:1px solid rgba(0,0,0,.08)}
+.frame{position:absolute;left:70px;top:130px;width:1660px;height:1060px;border-radius:26px;background:var(--bg);overflow:hidden;box-shadow:0 40px 90px -30px rgba(10,20,0,.45);display:flex}
+/* rail */
+.rail{width:88px;border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:26px 0;gap:10px}
+.rail .nav{display:flex;flex-direction:column;gap:8px;margin-top:34px}
+.rbtn{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;color:var(--muted)}
+.rbtn.on{background:var(--lime);color:var(--ink)}
+.rail .sp{flex:1}
+.ava{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#3a3f33,#20241c);display:grid;place-items:center;font-weight:700;font-size:15px;color:var(--fg);border:1px solid var(--line)}
+/* logo */
+.mark{width:46px;height:46px;position:relative}
+.wordmark{display:flex;align-items:center;gap:10px;font-weight:800;font-size:24px;letter-spacing:-.04em}
+/* main */
+.main{flex:1;padding:30px 34px 30px;display:flex;flex-direction:column;min-width:0}
+.head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px}
+.title{display:flex;align-items:baseline;gap:16px}
+.title h1{font-size:72px;font-weight:700;letter-spacing:-.05em;line-height:.9}
+.title .yr{font-size:72px;font-weight:300;letter-spacing:-.05em;color:var(--dim);line-height:.9}
+.kick{font-family:'Geist Mono',monospace;font-size:13px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;display:flex;gap:14px;align-items:center}
+.kick .dot{width:8px;height:8px;border-radius:50%;background:var(--lime)}
+.ctrls{display:flex;gap:10px;align-items:center}
+.search{height:48px;width:220px;border-radius:24px;background:var(--tile);border:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:0 18px;color:var(--muted);font-size:15px}
+.seg{display:flex;background:var(--tile);border:1px solid var(--line);border-radius:24px;padding:4px;height:48px}
+.seg span{padding:0 18px;display:grid;place-items:center;font-size:15px;font-weight:500;color:var(--muted);border-radius:20px}
+.seg span.on{background:var(--fg);color:var(--ink);font-weight:600}
+.ib{width:48px;height:48px;border-radius:50%;background:var(--tile);border:1px solid var(--line);display:grid;place-items:center;color:var(--fg)}
+.new{height:48px;padding:0 22px 0 16px;border-radius:24px;background:var(--lime);color:var(--ink);font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px}
+.body{flex:1;display:grid;grid-template-columns:1fr 430px;grid-template-rows:minmax(0,1fr);gap:18px;min-height:0}
+.tile{background:var(--tile);border-radius:28px;border:1px solid var(--line)}
+/* month */
+.month{padding:18px 18px 18px 10px;display:grid;grid-template-columns:38px repeat(7,1fr);grid-template-rows:30px repeat(6,minmax(0,1fr));gap:8px;min-height:0}
+.wdh{font-family:'Geist Mono',monospace;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;padding-left:12px}
+.wdh.we{color:var(--dim)}
+.wk{font-family:'Geist Mono',monospace;font-size:11px;color:var(--dim);display:flex;align-items:flex-start;justify-content:center;padding-top:14px}
+.wk.cur{color:var(--lime)}
+.cell{background:var(--cell);border-radius:18px;padding:11px 10px 10px 12px;display:flex;flex-direction:column;gap:5px;position:relative;overflow:hidden}
+.cell .n{font-size:19px;font-weight:600;letter-spacing:-.02em}
+.cell.out{background:transparent;border:1px dashed var(--line)}
+.cell.out .n{color:var(--dim)}
+.cell.past .n{color:#c6cbbd}
+.cell .ring{position:absolute;right:10px;top:11px}
+.cell.today{background:var(--lime);color:var(--ink)}
+.cell.today .n{color:var(--ink)}
+.cell.sel{outline:2px solid var(--lime);outline-offset:2px}
+.ev{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;padding:4px 8px;border-radius:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--fg);background:var(--cell2)}
+.ev i{width:6px;height:6px;border-radius:50%;flex:none}
+.ev em{font-style:normal;color:var(--muted);font-family:'Geist Mono',monospace;font-size:11px}
+.cell.today .ev{background:rgba(11,12,10,.1);color:var(--ink)}
+.cell.today .ev em{color:rgba(11,12,10,.6)}
+.cell .sp{flex:1}
+.bar{display:flex;gap:3px}
+.bar b{height:4px;flex:1;border-radius:2px;background:var(--cell2)}
+.bar b.on{background:var(--lime)}
+.cell.today .bar b{background:rgba(11,12,10,.15)}.cell.today .bar b.on{background:var(--ink)}
+.band{position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--lilac)}
+/* right column */
+.side{display:flex;flex-direction:column;gap:18px;min-height:0}
+.today{padding:24px 24px 18px}
+.thead{display:flex;justify-content:space-between;align-items:flex-start}
+.big{font-size:104px;font-weight:700;letter-spacing:-.06em;line-height:.8}
+.big small{font-size:20px;letter-spacing:-.01em;font-weight:500;color:var(--muted);display:block;margin-top:14px;line-height:1.2}
+.ringbig{position:relative;width:104px;height:104px}
+.ringbig div{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-weight:700;font-size:24px;letter-spacing:-.03em;line-height:1}
+.ringbig div small{display:block;font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.06em;font-family:'Geist Mono',monospace;margin-top:4px}
+.tl{margin-top:22px;display:flex;flex-direction:column;gap:8px}
+.tli{display:grid;grid-template-columns:58px 40px 1fr auto;align-items:center;gap:12px;padding:10px 12px 10px 4px;border-radius:16px}
+.tli .t{font-family:'Geist Mono',monospace;font-size:14px;color:var(--muted);text-align:right}
+.tli .ico{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;color:var(--ink)}
+.tli .tt{font-size:16px;font-weight:600}
+.tli .tt small{display:block;font-size:13px;color:var(--muted);font-weight:400;margin-top:2px}
+.tli .chip{font-size:12px;font-family:'Geist Mono',monospace;color:var(--lime);border:1px solid rgba(212,255,63,.35);padding:4px 9px;border-radius:20px}
+.tli.now{background:var(--cell)}
+.habits{padding:20px 22px}
+.sh{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.sh h3{font-size:15px;font-weight:600;letter-spacing:.01em}
+.streak{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--lime);font-weight:600}
+.hb{display:flex;align-items:center;gap:14px;padding:9px 0;border-top:1px solid var(--line)}
+.hb:first-of-type{border-top:0}
+.ck{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--dim);display:grid;place-items:center;flex:none}
+.ck.on{background:var(--lime);border-color:var(--lime);color:var(--ink)}
+.hb .ht{flex:1;font-size:15px;font-weight:500}
+.hb.done .ht{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--dim)}
+.dots{display:flex;gap:4px}.dots i{width:7px;height:7px;border-radius:2px;background:var(--cell2)}.dots i.on{background:var(--lime);opacity:.85}
+.count{background:var(--lilac);color:var(--ink);border:0;padding:22px 24px;display:flex;justify-content:space-between;align-items:flex-end;flex:1}
+.count .k{font-size:14px;font-weight:600;display:flex;gap:8px;align-items:center;opacity:.8}
+.count .nm{font-size:24px;font-weight:700;letter-spacing:-.03em;margin-top:8px}
+.count .d{font-size:14px;margin-top:4px;opacity:.7}
+.count .num{font-size:112px;font-weight:800;letter-spacing:-.07em;line-height:.78;text-align:right}
+.count .num small{font-size:18px;letter-spacing:0;font-weight:600;display:block;text-align:right;margin-top:6px}
+
+/* phone */
+.phone{position:absolute;left:1832px;top:200px;width:414px;height:880px;border-radius:62px;background:#1c1d1a;padding:12px;box-shadow:0 40px 90px -30px rgba(10,20,0,.5)}
+.scr{width:390px;height:856px;border-radius:50px;background:var(--bg);overflow:hidden;position:relative;display:flex;flex-direction:column}
+.status{height:54px;display:flex;justify-content:space-between;align-items:center;padding:6px 34px 0 40px;font-weight:600;font-size:16px}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:122px;height:36px;border-radius:20px;background:#000}
+.pbody{padding:4px 18px 0;flex:1;display:flex;flex-direction:column;gap:11px}
+.ph{display:flex;justify-content:space-between;align-items:center}
+.ph h2{font-size:40px;font-weight:700;letter-spacing:-.05em;line-height:1}
+.ph .k2{font-family:'Geist Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.strip{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.dc{border-radius:20px;background:var(--tile);border:1px solid var(--line);height:72px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.dc small{font-size:11px;color:var(--muted);font-family:'Geist Mono',monospace;text-transform:uppercase}
+.dc b{font-size:20px;font-weight:600;letter-spacing:-.02em}
+.dc .pd{display:flex;gap:2px}.dc .pd i{width:4px;height:4px;border-radius:50%;background:var(--dim)}.dc .pd i.on{background:var(--lime)}
+.dc.on{background:var(--lime);color:var(--ink);border-color:var(--lime)}
+.dc.on small{color:rgba(11,12,10,.6)}.dc.on .pd i{background:rgba(11,12,10,.2)}.dc.on .pd i.on{background:var(--ink)}
+.pcard{background:var(--tile);border:1px solid var(--line);border-radius:24px;padding:13px 14px}
+.prow{display:flex;gap:12px}
+.mini{flex:1;border-radius:24px;padding:13px 14px}
+.tab{position:absolute;left:18px;right:18px;bottom:18px;height:64px;border-radius:34px;background:rgba(28,31,25,.92);border:1px solid var(--line);display:flex;align-items:center;justify-content:space-around;padding:0 8px;backdrop-filter:blur(20px)}
+.tab .t1{color:var(--muted);display:grid;place-items:center;width:48px;height:48px}
+.tab .t1.on{color:var(--fg)}
+.tab .addp{width:54px;height:54px;border-radius:50%;background:var(--lime);color:var(--ink);display:grid;place-items:center}
+</style></head>
+<body>
+<div class="label"><b>A · Ink &amp; Lime</b><span>Dark bento grid · one electric accent · Geist</span>
+  <div class="sw"><i style="background:#0b0c0a"></i><i style="background:#141612"></i><i style="background:#d4ff3f"></i><i style="background:#b9a6ff"></i><i style="background:#ff7a59"></i><i style="background:#f1f4ec"></i></div></div>
+
+<div class="frame">
+  <aside class="rail">
+    <div class="mark" id="markA"></div>
+    <div class="nav">
+      <div class="rbtn" data-i="grid"></div><div class="rbtn on" data-i="cal"></div><div class="rbtn" data-i="flag"></div><div class="rbtn" data-i="gift"></div><div class="rbtn" data-i="chart"></div>
+    </div>
+    <div class="sp"></div>
+    <div class="rbtn" data-i="sliders"></div>
+    <div class="ava">R</div>
+  </aside>
+  <main class="main">
+    <div class="head">
+      <div>
+        <div class="kick"><span class="dot"></span>Week 48 · 3 goals left today · 4 days to December</div>
+        <div class="title"><h1>November</h1><span class="yr">2026</span></div>
+      </div>
+      <div class="ctrls">
+        <div class="search" id="srch"></div>
+        <div class="seg"><span>Day</span><span>Week</span><span class="on">Month</span><span>Year</span></div>
+        <div class="ib" data-i="chevL"></div><div class="ib" data-i="chevR"></div>
+        <div class="new" id="newA"></div>
+      </div>
+    </div>
+    <div class="body">
+      <section class="tile month" id="month"></section>
+      <section class="side">
+        <div class="tile today">
+          <div class="thead">
+            <div class="big">27<small>Friday · Week 48</small></div>
+            <div class="ringbig" id="ringBig"></div>
+          </div>
+          <div class="tl" id="tl"></div>
+        </div>
+        <div class="tile habits" id="habits"></div>
+        <div class="tile count" id="count"></div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<div class="phone"><div class="scr">
+  <div class="island"></div>
+  <div class="status"><span>9:41</span><span style="letter-spacing:2px">●●● ▮</span></div>
+  <div class="pbody">
+    <div class="ph"><div><div class="k2">Week 48 · 2026</div><h2>November</h2></div><div class="mark" id="markP" style="width:44px;height:44px"></div></div>
+    <div class="strip" id="strip"></div>
+    <div class="pcard" id="ptl"></div>
+    <div class="pcard" id="phab"></div>
+    <div class="prow">
+      <div class="mini" style="background:var(--lilac);color:var(--ink)"><div style="font-size:12px;font-weight:600;opacity:.75;display:flex;gap:6px;align-items:center" id="pg"></div><div style="font-size:52px;font-weight:800;letter-spacing:-.07em;line-height:.85;margin-top:8px">3<span style="font-size:15px;letter-spacing:0;font-weight:600;margin-left:6px">days</span></div><div style="font-size:13px;font-weight:600;margin-top:6px">Mom's birthday</div></div>
+      <div class="mini tile" style="border-radius:26px"><div style="font-size:12px;color:var(--muted);font-weight:600;display:flex;gap:6px;align-items:center" id="pf"></div><div style="font-size:52px;font-weight:800;letter-spacing:-.07em;line-height:.85;margin-top:8px;color:var(--lime)">12</div><div style="font-size:13px;font-weight:600;margin-top:6px">day streak</div></div>
+    </div>
+  </div>
+  <div class="tab" id="tab"></div>
+</div></div>
+
+<script>
+const CAT = { sport:'var(--sky)', birthday:'var(--lilac)', life:'#9aa094', social:'var(--sun)', health:'var(--coral)', money:'var(--mint)', holiday:'var(--coral)' };
+const markSvg = (s, bg='var(--lime)', fg='var(--ink)') => `<svg width="${s}" height="${s}" viewBox="0 0 48 48"><circle cx="24" cy="24" r="24" fill="${bg}"/><path d="M10.5 32V20.5c0-2.2 1.6-3.8 3.7-3.8 2 0 3.6 1.6 3.6 3.8V32M20.3 20.5c0-2.2 1.6-3.8 3.7-3.8 2 0 3.6 1.6 3.6 3.8V32" fill="none" stroke="${fg}" stroke-width="3.4" stroke-linecap="round"/><circle cx="35" cy="28" r="2" fill="${fg}"/><circle cx="35" cy="28" r="5" fill="none" stroke="${fg}" stroke-width="2.2"/></svg>`;
+$('#markA').innerHTML = markSvg(46); $('#markP').innerHTML = markSvg(44);
+document.querySelectorAll('[data-i]').forEach(e => e.innerHTML = ic(e.dataset.i, 22, 1.7));
+$('#srch').innerHTML = ic('search', 18, 1.8) + 'Search';
+$('#newA').innerHTML = ic('plus', 20, 2.4) + 'New';
+const ring = (done, total, size, sw, fg, bg) => { const r = (size - sw) / 2, c = 2 * Math.PI * r, p = total ? done / total : 0;
+  return `<svg width="${size}" height="${size}" style="transform:rotate(-90deg)"><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${bg}" stroke-width="${sw}"/><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${fg}" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-p)}"/></svg>`; };
+// month grid
+let h = '<div></div>' + WD.map((w,i) => `<div class="wdh ${i>4?'we':''}">${w}</div>`).join('');
+const days = gridDays();
+for (let r = 0; r < 6; r++) {
+  const wn = weekNo(days[r*7]);
+  h += `<div class="wk ${wn===48?'cur':''}">W${wn}</div>`;
+  for (let c = 0; c < 7; c++) {
+    const d = days[r*7+c], out = d.getMonth() !== 10, t = same(d, TODAY), past = d < TODAY;
+    const evs = eventsOn(d), sc = dayScore(d);
+    const evH = evs.slice(0, 2).map(e => `<div class="ev"><i style="background:${CAT[e.cat]}"></i>${e.title}</div>`).join('');
+    const bars = (past || t) && !out ? `<div class="bar">${habitsOn(d).map(x=>`<b class="${x.done?'on':''}"></b>`).join('')}</div>` : '';
+    const band = d.getMonth()===11 || (d.getDate()>=30 && d.getMonth()===10) ? '' : '';
+    h += `<div class="cell ${out?'out':''} ${t?'today':''} ${past&&!out?'past':''}"><span class="n">${d.getDate()}</span>${evH}<span class="sp"></span>${bars}</div>`;
+  }
+}
+$('#month').innerHTML = h;
+// today
+$('#ringBig').innerHTML = ring(2, 4, 104, 10, 'var(--lime)', 'var(--cell2)') + '<div><span>2/4<small>HABITS</small></span></div>';
+const tlItems = [
+  { t:'10:30', title:'Dentist', sub:'Event · Smaida clinic', cat:'health', now:true },
+  { t:'16:00', title:'Call with Liene', sub:'Event · 30 min', cat:'social' },
+  { t:'Week', title:'Ship v1.7 redesign', sub:'Weekly goal · ends Sunday', cat:'week', chip:'60%' },
+];
+$('#tl').innerHTML = tlItems.map(x => `<div class="tli ${x.now?'now':''}"><span class="t">${x.t}</span><span class="ico" style="background:${x.cat==='week'?'var(--fg)':CAT[x.cat]}">${ic(x.cat==='week'?'flag':CAT_ICON[x.cat],20,1.8)}</span><span class="tt">${x.title}<small>${x.sub}</small></span>${x.chip?`<span class="chip">${x.chip}</span>`:x.now?'<span class="chip">in 40 min</span>':''}</div>`).join('');
+// habits
+const hs = habitsOn(TODAY);
+$('#habits').innerHTML = `<div class="sh"><h3>Daily habits</h3><span class="streak">${ic('fire',16,1.8)}12-day streak</span></div>` +
+  hs.map(x => { const last = Array.from({length:7},(_,i)=>addDays(TODAY,i-7)).map(d=>habitsOn(d).find(y=>y.t===x.t)).map(y=>`<i class="${y&&y.done?'on':''}"></i>`).join('');
+    return `<div class="hb ${x.done?'done':''}"><span class="ck ${x.done?'on':''}">${x.done?ic('check',16,2.6):''}</span><span class="ht">${x.t}</span><span class="dots">${last}</span></div>`; }).join('');
+$('#count').innerHTML = `<div><div class="k">${ic('gift',18,1.8)}Next up</div><div class="nm">Mom's birthday</div><div class="d">Monday, 30 November</div></div><div class="num">3<small>days</small></div>`;
+// phone
+const wk = Array.from({length:7}, (_,i) => addDays(TODAY, i-4));
+$('#strip').innerHTML = wk.map(d => { const hs = habitsOn(d); const shown = d <= TODAY;
+  return `<div class="dc ${same(d,TODAY)?'on':''}"><small>${WD[isoWd(d)-1].slice(0,2)}</small><b>${d.getDate()}</b><span class="pd">${hs.slice(0,4).map(x=>`<i class="${shown&&x.done?'on':''}"></i>`).join('')}</span></div>`; }).join('');
+$('#ptl').innerHTML = `<div class="sh" style="margin-bottom:6px"><h3>Today</h3><span style="font-size:12px;color:var(--muted);font-family:'Geist Mono'">FRI 27 NOV</span></div>` + tlItems.slice(0,2).map(x => `<div class="tli ${x.now?'now':''}" style="grid-template-columns:44px 36px 1fr auto;padding:8px 10px 8px 0"><span class="t" style="font-size:12px">${x.t}</span><span class="ico" style="width:36px;height:36px;background:${CAT[x.cat]}">${ic(CAT_ICON[x.cat],18,1.8)}</span><span class="tt" style="font-size:15px">${x.title}<small>${x.sub}</small></span>${x.now?'<span class="chip">40 min</span>':''}</div>`).join('');
+$('#phab').innerHTML = `<div class="sh" style="margin-bottom:4px"><h3>Habits · 2 of 4</h3>${ring(2,4,26,4,'var(--lime)','var(--cell2)')}</div>` + hs.map(x => `<div class="hb ${x.done?'done':''}" style="padding:5px 0"><span class="ck ${x.done?'on':''}" style="width:26px;height:26px">${x.done?ic('check',14,2.6):''}</span><span class="ht" style="font-size:14.5px">${x.t}</span></div>`).join('');
+$('#pg').innerHTML = ic('gift',14,1.8) + 'Next up'; $('#pf').innerHTML = ic('fire',14,1.8) + 'Habits';
+$('#tab').innerHTML = `<span class="t1">${ic('grid',24,1.7)}</span><span class="t1 on">${ic('cal',24,1.7)}</span><span class="addp">${ic('plus',26,2.4)}</span><span class="t1">${ic('flag',24,1.7)}</span><span class="t1">${ic('menu',24,1.7)}</span>`;
+</script>
+</body></html>

@@ -345,7 +345,7 @@ const icons = {
   padding: 20px;
 }
 
-/* All good: an accent disc with a check. Problems: a plain disc (no red — text says what's wrong). */
+/* All good: a mint disc with a check. Problems: a plain disc (no red — text says what's wrong). */
 .summary-icon {
   display: grid;
   place-items: center;
@@ -353,14 +353,14 @@ const icons = {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: var(--pill);
+  background: var(--surface-2);
   color: var(--fg);
 }
 
 .summary.ok .summary-icon {
-  background: var(--accent);
-  box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 35%, transparent);
-  color: var(--on-accent);
+  background: var(--mint);
+  color: var(--ink);
+  animation: pop 0.5s var(--spring) backwards 0.1s;
 }
 
 .summary-icon svg {
@@ -371,9 +371,10 @@ const icons = {
 
 .summary-title {
   margin: 0;
-  font-size: 1.35rem;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 
 .summary-list {
@@ -395,7 +396,7 @@ const icons = {
   margin-bottom: 12px;
 }
 
-/* Status: icon + word, never colour alone. OK is the accent; problems stay in text colour (brand rule). */
+/* Status: icon + word, never colour alone. OK is green; problems stay in text colour (brand rule). */
 .status {
   display: inline-flex;
   flex-shrink: 0;
@@ -411,7 +412,7 @@ const icons = {
 }
 
 .status.ok {
-  color: var(--accent);
+  color: var(--flag-low);
 }
 
 .status.warning,
@@ -518,7 +519,7 @@ const icons = {
   padding: 10px;
   overflow: auto;
   border-radius: 12px;
-  background: var(--pill);
+  background: var(--surface-2);
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -528,7 +529,7 @@ const icons = {
   margin-top: 12px;
   overflow: hidden;
   border-radius: 999px;
-  background: var(--pill);
+  background: var(--surface-2);
 }
 
 .meter-fill {

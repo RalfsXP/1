@@ -22,23 +22,20 @@ import { LOCALES, locale } from '@/lib/i18n'
 </template>
 
 <style scoped>
-/* Glass pill; the chosen language is a raised inner pill. */
+/* White pill; the chosen language is the ink pill. */
 .lang {
   display: inline-flex;
   flex-shrink: 0;
-  height: 40px;
-  padding: 3px;
-  border: 1px solid var(--glass-edge);
+  height: 44px;
+  padding: 4px;
   border-radius: 999px;
   background: var(--surface);
-  box-shadow: var(--glass-shadow);
-  -webkit-backdrop-filter: blur(20px) saturate(1.4);
-  backdrop-filter: blur(20px) saturate(1.4);
+  box-shadow: var(--card-shadow), inset 0 0 0 1px var(--card-edge);
 }
 
 .lang-option {
   min-width: 36px;
-  padding: 0 9px;
+  padding: 0 10px;
   border: 0;
   border-radius: 999px;
   background: transparent;
@@ -47,21 +44,17 @@ import { LOCALES, locale } from '@/lib/i18n'
   font-weight: 800;
   letter-spacing: 0.04em;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+  transition: background-color 0.25s var(--ease), color 0.25s var(--ease);
 }
 
-.lang-option:hover {
-  color: var(--fg);
+@media (hover: hover) {
+  .lang-option:hover {
+    color: var(--fg);
+  }
 }
 
 .lang-option.active {
-  background: var(--pill-active);
-  box-shadow: 0 2px 8px rgb(10 33 40 / 0.12);
-  color: var(--fg);
-}
-
-.lang-option:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  background: var(--accent);
+  color: var(--on-accent);
 }
 </style>

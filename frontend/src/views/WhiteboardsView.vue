@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { PencilSquareIcon, PlusIcon, TrashIcon } from '@heroicons/vue/24/outline'
 import BottomSheet from '@/components/BottomSheet.vue'
+import { useAddAction } from '@/lib/addAction'
 import { locale, t } from '@/lib/i18n'
 import { createBoard, deleteBoard, listBoards, saveBoard } from '@/lib/whiteboards'
 
@@ -26,6 +27,7 @@ function askName() {
   newTitle.value = ''
   naming.value = true
 }
+useAddAction(askName, 'whiteboard.new')
 
 async function create() {
   creating.value = true
@@ -121,10 +123,6 @@ function edited(iso) {
       </li>
     </ul>
 
-    <button type="button" class="float-btn add" :aria-label="$t('whiteboard.new')" :disabled="creating" @click="askName">
-      <PlusIcon aria-hidden="true" />
-    </button>
-
     <BottomSheet :open="naming" :title="$t('whiteboard.new')" @close="naming = false">
       <form class="name-form" @submit.prevent="create">
         <label class="form-field">
@@ -168,21 +166,23 @@ function edited(iso) {
   list-style: none;
 }
 
-/* A glass card holding a paper-white preview. */
+/* A card holding a paper-white preview. */
 .board {
   display: grid;
   grid-template-columns: 1fr auto;
   grid-template-rows: auto auto;
   padding: 8px;
-  border: 1px solid var(--glass-edge);
+  border: 1px solid var(--card-edge);
   border-radius: 24px;
   background: var(--surface);
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--card-shadow);
   transition: border-color 0.2s;
 }
 
-.board:hover {
-  border-color: var(--accent);
+@media (hover: hover) {
+  .board:hover {
+    border-color: var(--accent);
+  }
 }
 
 /* Previews are always rendered on white (ink stored as black), like paper. */
@@ -193,7 +193,7 @@ function edited(iso) {
   overflow: hidden;
   aspect-ratio: 6 / 5;
   border-radius: 18px;
-  background: var(--white);
+  background: #ffffff;
 }
 
 .thumb img {
@@ -205,7 +205,7 @@ function edited(iso) {
 .thumb-empty {
   width: 36px;
   height: 36px;
-  color: color-mix(in srgb, var(--black) 30%, var(--white));
+  color: color-mix(in srgb, var(--ink) 30%, #ffffff);
 }
 
 .meta {
@@ -253,17 +253,9 @@ function edited(iso) {
   height: 18px;
 }
 
-.page {
-  padding-bottom: calc(env(safe-area-inset-bottom) + 104px);
-}
-
 @media (min-width: 860px) {
   .new {
     display: inline-flex;
-  }
-
-  .page {
-    padding-bottom: 32px;
   }
 
   .grid {
