@@ -11,6 +11,10 @@ for (const type of ['gesturestart', 'gesturechange']) {
   document.addEventListener(type, (e) => e.preventDefault(), { passive: false })
 }
 
+// iOS Safari only shows :active (the press feedback on every button, row and tile) when a touch listener
+// exists; an empty passive one turns it on everywhere without costing scroll performance.
+document.addEventListener('touchstart', () => {}, { passive: true })
+
 // The signed-in shell never scrolls the window (only <main> scrolls). iOS still shifts the window to show a
 // focused field (login keyboard) and leaves it shifted, which slid the page under the top bar and cut the list
 // off early — so in the shell, any window offset snaps back once nothing is being typed.

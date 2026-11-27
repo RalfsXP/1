@@ -15,7 +15,8 @@
   "landing": {
     "login": "Log in",
     "signup": "Sign up",
-    "sceneGoal": "Run 5 km"
+    "sceneGoal": "Run 5 km",
+    "sceneEvent": "Anna’s birthday"
   },
   "auth": {
     "back": "Back",
@@ -53,7 +54,9 @@
     "guide": "Guide",
     "settings": "Settings",
     "health": "Site health",
-    "whiteboards": "Whiteboards"
+    "whiteboards": "Whiteboards",
+    "goals": "Goals",
+    "add": "Add"
   },
   "periods": {
     "day": "Daily goals",
@@ -132,7 +135,12 @@
     "weekShort": "W",
     "weekRange": "Week {n} · {range}",
     "monthYear": "{month} {year}",
-    "goalCount": "{n} goals"
+    "goalCount": "{n} goals",
+    "monthView": "Month",
+    "weekView": "Week",
+    "view": "Calendar view",
+    "free": "Nothing planned",
+    "dailyDone": "Daily goals done: {done} of {total}"
   },
   "picker": {
     "day1": "day",
@@ -169,9 +177,13 @@
     "focus": "In focus now",
     "allDone": "Nothing open right now.",
     "completedCount": "{n} completed",
-    "yesterday": "Goals yesterday"
+    "yesterday": "Goals yesterday",
+    "streak": "Streak",
+    "daysInRow": "days in a row with every daily goal done",
+    "upcoming": "Coming up",
+    "noUpcoming": "No events coming up"
   },
-  "colors": ["Pacific Blue", "Sky Blue", "Stormy Teal", "Amber Glow", "Coral", "Ochre", "Sage", "Ink"],
+  "colors": ["Lavender", "Mint", "Peach", "Butter", "Sky", "Rose", "Violet", "Ink"],
   "icons": {
     "flag": "Flag",
     "star": "Star",

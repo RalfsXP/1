@@ -1,11 +1,13 @@
 <script setup>
 import { HandRaisedIcon, XMarkIcon } from '@heroicons/vue/24/outline'
+import Expand from '@/components/Expand.vue'
 import { dismissHoldHint, holdHintDismissed, touchUI } from '@/lib/input'
 
 // Touch devices only: explains tap = done, hold = edit until dismissed once.
 </script>
 
 <template>
+  <Expand>
   <p v-if="touchUI && !holdHintDismissed" class="hold-hint">
     <HandRaisedIcon class="hand" aria-hidden="true" />
     <span>{{ $t('goal.holdHint') }}</span>
@@ -13,6 +15,7 @@ import { dismissHoldHint, holdHintDismissed, touchUI } from '@/lib/input'
       <XMarkIcon aria-hidden="true" />
     </button>
   </p>
+  </Expand>
 </template>
 
 <style scoped>
@@ -22,11 +25,10 @@ import { dismissHoldHint, holdHintDismissed, touchUI } from '@/lib/input'
   gap: 8px;
   margin: 0;
   padding: 8px 6px 8px 14px;
-  border: 1px solid var(--glass-edge);
-  border-radius: 16px;
-  background: var(--surface);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--butter) var(--wash-strong), var(--surface));
   color: var(--fg);
-  font-size: 0.8rem;
+  font-size: 0.84rem;
   font-weight: 600;
 }
 
@@ -34,7 +36,7 @@ import { dismissHoldHint, holdHintDismissed, touchUI } from '@/lib/input'
   flex-shrink: 0;
   width: 18px;
   height: 18px;
-  color: var(--link);
+  color: var(--fg);
 }
 
 span {

@@ -12,18 +12,25 @@ import LoadingScreen from '@/components/LoadingScreen.vue'
     </Transition>
   </RouterView>
 
-  <!-- The signed-in shell shows the version inside its side nav instead. -->
+  <!-- The signed-in shell shows the version in its header (desktop) and menu (phones) instead. -->
   <AppVersion v-if="$route.meta.viewKey !== 'app'" />
   <LoadingScreen />
 </template>
 
 <style>
-.page-enter-active,
-.page-leave-active {
-  transition: opacity 0.2s ease;
+.page-enter-active {
+  transition: opacity 0.3s ease, transform 0.45s var(--ease);
 }
 
-.page-enter-from,
+.page-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
 .page-leave-to {
   opacity: 0;
 }

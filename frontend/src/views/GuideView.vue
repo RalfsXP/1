@@ -71,7 +71,7 @@ function jump(id) {
 </template>
 
 <style scoped>
-/* Contents: wrapping glass pills that jump to a topic. */
+/* Contents: wrapping white pills that jump to a topic. */
 .toc {
   display: flex;
   flex-wrap: wrap;
@@ -79,27 +79,36 @@ function jump(id) {
 }
 
 .toc-link {
-  min-height: 38px;
-  padding: 0 14px;
-  border: 1px solid var(--glass-edge);
+  min-height: 42px;
+  padding: 0 16px;
+  border: 0;
   border-radius: 999px;
-  background: var(--pill);
+  background: var(--surface);
+  box-shadow: var(--card-shadow), inset 0 0 0 1px var(--card-edge);
   color: var(--fg);
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.88rem;
+  font-weight: 700;
   cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, transform 0.25s var(--spring);
 }
 
-.toc-link:hover {
-  background: var(--pill-active);
+@media (hover: hover) {
+  .toc-link:hover {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+}
+
+.toc-link:active {
+  transform: scale(0.94);
 }
 
 /* Phones: one row that swipes sideways instead of a tall block of pills. */
 @media (max-width: 859px) {
   .toc {
     flex-wrap: nowrap;
-    margin: 0 -20px;
-    padding: 2px 20px;
+    margin: 0 -18px;
+    padding: 2px 18px 6px;
     overflow-x: auto;
     scrollbar-width: none;
   }
@@ -136,12 +145,19 @@ function jump(id) {
   place-items: center;
   width: 32px;
   height: 32px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: var(--on-accent);
-  font-size: 0.9rem;
+  border-radius: 12px;
+  background: var(--topic-tint, var(--lav));
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1rem;
   font-weight: 800;
+  transform: rotate(-6deg);
 }
+
+.topic:nth-of-type(5n + 2) { --topic-tint: var(--mint); }
+.topic:nth-of-type(5n + 3) { --topic-tint: var(--peach); }
+.topic:nth-of-type(5n + 4) { --topic-tint: var(--butter); }
+.topic:nth-of-type(5n + 5) { --topic-tint: var(--sky); }
 
 .steps {
   display: grid;
@@ -168,12 +184,11 @@ function jump(id) {
   left: 0;
   display: grid;
   place-items: center;
-  width: 23px;
-  height: 23px;
-  border: 1px solid var(--glass-edge);
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  background: var(--field);
-  color: var(--muted);
+  background: var(--surface-2);
+  color: var(--fg);
   font-size: 0.75rem;
   font-weight: 700;
 }
@@ -202,10 +217,9 @@ function jump(id) {
   display: block;
   width: 100%;
   height: auto;
-  border: 1px solid var(--glass-edge);
-  border-radius: 22px;
+  border-radius: 24px;
   background: var(--bg);
-  box-shadow: var(--glass-shadow);
+  box-shadow: 0 12px 30px -16px rgb(0 0 0 / 0.35), 0 0 0 1px var(--line);
 }
 
 @media (min-width: 860px) {

@@ -74,26 +74,34 @@ const rainbow = computed(() => ({ background: `conic-gradient(${[...SWATCHES, SW
 .swatch {
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
   padding: 0;
-  border: 2px solid transparent;
+  border: 0;
   border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.06);
   cursor: pointer;
-  transition: transform 0.15s;
+  transition: transform 0.3s var(--spring), box-shadow 0.2s;
 }
 
-.swatch:hover {
-  transform: scale(1.08);
+@media (hover: hover) {
+  .swatch:hover {
+    transform: scale(1.1);
+  }
 }
 
 .swatch:active {
-  transform: scale(0.92);
+  transform: scale(0.9);
 }
 
 .swatch[aria-pressed='true'],
 .swatch.custom.active {
-  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--fg);
+  box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--fg);
+  transform: scale(1.06);
+}
+
+.swatch svg {
+  animation: pop 0.35s var(--spring);
 }
 
 .swatch svg {
@@ -125,12 +133,16 @@ const rainbow = computed(() => ({ background: `conic-gradient(${[...SWATCHES, SW
   display: grid;
   place-items: center;
   aspect-ratio: 1;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: transparent;
+  border: 0;
+  border-radius: 14px;
+  background: var(--surface-2);
   color: var(--fg);
   cursor: pointer;
-  transition: border-color 0.2s, background-color 0.2s, color 0.2s;
+  transition: background-color 0.2s, color 0.2s, transform 0.25s var(--spring);
+}
+
+.icon-choice:active {
+  transform: scale(0.88);
 }
 
 .icon-choice svg {
@@ -138,12 +150,13 @@ const rainbow = computed(() => ({ background: `conic-gradient(${[...SWATCHES, SW
   height: 20px;
 }
 
-.icon-choice:hover {
-  border-color: var(--accent);
+@media (hover: hover) {
+  .icon-choice:hover {
+    background: var(--line);
+  }
 }
 
 .icon-choice[aria-pressed='true'] {
-  border-color: var(--accent);
   background: var(--accent);
   color: var(--on-accent);
 }

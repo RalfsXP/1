@@ -1,0 +1,212 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=block" rel="stylesheet">
+<script src="data.js"></script>
+<style>
+:root{
+  --bg:#f3efe7; --card:#fff; --ink:#17171c; --muted:#7c786f; --line:#ebe5d9; --soft:#f7f4ee;
+  --lav:#cbbcff; --mint:#bdebc9; --peach:#ffc9a6; --butter:#ffe27a; --sky:#c2e1ff; --rose:#ffbfd0;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:2400px;height:1260px;background:#e4ddd0;font-family:'DM Sans',system-ui,sans-serif;color:var(--ink);position:relative;overflow:hidden;-webkit-font-smoothing:antialiased}
+.disp{font-family:'Bricolage Grotesque',sans-serif}
+.label{position:absolute;left:70px;top:46px;display:flex;align-items:center;gap:22px}
+.label b{font-size:30px;font-weight:800;letter-spacing:-.02em;font-family:'Bricolage Grotesque'}
+.label span{font-size:18px;color:#6f6a60;font-weight:500}
+.sw{display:flex;gap:6px}.sw i{width:26px;height:26px;border-radius:50%;display:block;border:1px solid rgba(0,0,0,.08)}
+.frame{position:absolute;left:70px;top:130px;width:1660px;height:1060px;border-radius:26px;background:var(--bg);overflow:hidden;box-shadow:0 40px 90px -30px rgba(60,40,0,.35);display:flex;flex-direction:column}
+.top{height:88px;display:flex;align-items:center;justify-content:space-between;padding:0 28px}
+.brand{display:flex;align-items:center;gap:12px;font-family:'Bricolage Grotesque';font-weight:800;font-size:28px;letter-spacing:-.04em}
+.pnav{display:flex;background:var(--card);border-radius:30px;padding:5px;gap:2px;box-shadow:0 1px 0 var(--line)}
+.pnav span{height:46px;padding:0 20px;border-radius:24px;display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:var(--muted)}
+.pnav span.on{background:var(--ink);color:#fff}
+.tr{display:flex;gap:10px;align-items:center}
+.cb{width:50px;height:50px;border-radius:50%;background:var(--card);display:grid;place-items:center}
+.ava{width:50px;height:50px;border-radius:50%;background:var(--peach);display:grid;place-items:center;font-family:'Bricolage Grotesque';font-weight:700;font-size:20px;border:3px solid #fff}
+.content{flex:1;display:grid;grid-template-columns:340px 1fr;grid-template-rows:minmax(0,1fr);gap:22px;padding:4px 28px 28px;min-height:0}
+.col{display:flex;flex-direction:column;gap:18px;min-height:0}
+.card{background:var(--card);border-radius:30px;padding:22px}
+.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.ch h3{font-family:'Bricolage Grotesque';font-weight:700;font-size:20px;letter-spacing:-.02em}
+.arr{display:flex;gap:6px}.arr span{width:34px;height:34px;border-radius:50%;background:var(--soft);display:grid;place-items:center}
+.mm{display:grid;grid-template-columns:repeat(7,1fr);row-gap:4px;text-align:center}
+.mm .h{font-size:12px;color:var(--muted);font-weight:600;padding-bottom:6px}
+.mm .d{height:36px;display:grid;place-items:center;font-weight:600;font-size:14px;position:relative}
+.mm .d.out{color:#c5bfb3}
+.mm .d.wk{background:var(--lav)}
+.mm .d.wk.s{border-radius:19px 0 0 19px}.mm .d.wk.e{border-radius:0 19px 19px 0}
+.mm .d.t span{width:34px;height:34px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center}
+.mm .d i{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%}
+.goal{display:flex;flex-direction:column;gap:7px;padding:9px 0;border-top:1px solid var(--line)}
+.goal:first-of-type{border-top:0;padding-top:2px}
+.gt{display:flex;justify-content:space-between;font-weight:600;font-size:15px}
+.gt small{color:var(--muted);font-weight:500;font-size:13px}
+.pill{height:12px;border-radius:6px;background:var(--soft);overflow:hidden}
+.pill b{display:block;height:100%;border-radius:6px}
+.streak{background:var(--butter);display:flex;align-items:center;justify-content:space-between}
+.streak{padding:18px 22px}.streak .n{font-family:'Bricolage Grotesque';font-size:58px;font-weight:800;letter-spacing:-.05em;line-height:.8}
+.streak .k{font-weight:700;font-size:15px;display:flex;gap:6px;align-items:center}
+.streak .k2{font-size:13px;margin-top:6px;opacity:.7;font-weight:500}
+.wdots{display:flex;gap:5px;margin-top:12px}.wdots i{width:22px;height:22px;border-radius:50%;background:rgba(23,23,28,.12);display:grid;place-items:center}.wdots i.on{background:var(--ink);color:var(--butter)}
+/* week */
+.wh{display:flex;justify-content:space-between;align-items:center;margin:6px 0 16px}
+.wh h1{font-family:'Bricolage Grotesque';font-size:50px;font-weight:800;letter-spacing:-.045em;line-height:1;display:flex;align-items:center;gap:16px}
+.wh h1 em{font-style:normal;font-size:16px;font-family:'DM Sans';font-weight:700;background:var(--lav);padding:8px 14px;border-radius:20px;letter-spacing:0}
+.seg{display:flex;background:var(--card);border-radius:28px;padding:5px}
+.seg span{height:42px;padding:0 18px;display:grid;place-items:center;font-weight:600;font-size:15px;color:var(--muted);border-radius:22px}
+.seg span.on{background:var(--soft);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.add{height:52px;padding:0 24px 0 18px;border-radius:26px;background:var(--ink);color:#fff;font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px}
+.board{flex:1;background:var(--card);border-radius:32px;padding:16px 16px 0 0;display:grid;grid-template-columns:62px repeat(7,1fr);grid-template-rows:78px 56px 1fr;min-height:0;overflow:hidden}
+.dh{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.dh small{font-size:13px;color:var(--muted);font-weight:600}
+.dh b{font-family:'Bricolage Grotesque';font-size:28px;font-weight:700;letter-spacing:-.03em;width:52px;height:44px;display:grid;place-items:center;border-radius:22px}
+.dh.t b{background:var(--ink);color:#fff}
+.dh.t small{color:var(--ink)}
+.ad{display:flex;align-items:center;justify-content:center;gap:4px;border-bottom:1px solid var(--line);border-top:1px solid var(--line)}
+.ad .hp{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;padding:6px 10px 6px 6px;border-radius:16px;background:var(--soft)}
+.ad .hp.full{background:var(--mint)}
+.ad .hp i{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:#fff}
+.adl{font-size:11px;color:var(--muted);font-weight:600;display:flex;align-items:center;justify-content:flex-end;padding-right:10px;border-bottom:1px solid var(--line);border-top:1px solid var(--line)}
+.grid{grid-column:1 / -1;position:relative;display:grid;grid-template-columns:62px repeat(7,1fr)}
+.hours{position:relative}
+.hours span{position:absolute;right:10px;font-size:12px;color:var(--muted);font-weight:500;transform:translateY(-50%)}
+.dcol{position:relative;border-left:1px solid var(--line)}
+.dcol.t{background:linear-gradient(180deg,rgba(203,188,255,.16),rgba(203,188,255,.05))}
+.hl{position:absolute;left:62px;right:0;height:1px;background:var(--line)}
+.evb{position:absolute;left:6px;right:6px;border-radius:18px;padding:10px 12px;display:flex;flex-direction:column;gap:3px;overflow:hidden}
+.evb b{font-size:14px;font-weight:700;line-height:1.15;padding-right:28px}
+.evb small{font-size:12px;font-weight:500;opacity:.7}
+.evb .ei{position:absolute;right:9px;top:9px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.6);display:grid;place-items:center}
+.now{position:absolute;height:2px;background:var(--ink);z-index:3}
+.now:before{content:'';position:absolute;left:-6px;top:-5px;width:12px;height:12px;border-radius:50%;background:var(--ink)}
+/* phone */
+.phone{position:absolute;left:1832px;top:200px;width:414px;height:880px;border-radius:62px;background:#232227;padding:12px;box-shadow:0 40px 90px -30px rgba(60,40,0,.45)}
+.scr{width:390px;height:856px;border-radius:50px;background:var(--bg);overflow:hidden;position:relative;display:flex;flex-direction:column}
+.status{height:54px;display:flex;justify-content:space-between;align-items:center;padding:6px 34px 0 40px;font-weight:700;font-size:16px}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:122px;height:36px;border-radius:20px;background:#000}
+.pb{padding:4px 18px 0;display:flex;flex-direction:column;gap:14px}
+.ph{display:flex;justify-content:space-between;align-items:flex-end}
+.ph h2{font-family:'Bricolage Grotesque';font-size:42px;font-weight:800;letter-spacing:-.05em;line-height:.95}
+.ph small{font-size:14px;color:var(--muted);font-weight:600;display:block;margin-bottom:4px}
+.bub{display:flex;justify-content:space-between}
+.bub div{width:46px;height:64px;border-radius:23px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--card);gap:1px}
+.bub div small{font-size:11px;color:var(--muted);font-weight:600}
+.bub div b{font-family:'Bricolage Grotesque';font-size:19px;font-weight:700}
+.bub div.on{background:var(--ink);color:#fff}.bub div.on small{color:#bdb8ae}
+.hg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ht{border-radius:22px;padding:12px 12px 12px 14px;display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:14px;line-height:1.2;min-height:62px}
+.ht .c{width:30px;height:30px;border-radius:50%;background:#fff;display:grid;place-items:center;flex:none}
+.ht.done .c{background:var(--ink);color:#fff}
+.ht:not(.done){background:var(--card)!important}
+.ht:not(.done) .c{border:2px dashed #cfc8ba;background:transparent}
+.pa{display:flex;flex-direction:column;gap:10px}
+.pe{display:grid;grid-template-columns:48px 1fr;gap:10px;align-items:stretch}
+.pe .tm{font-size:13px;font-weight:700;padding-top:12px;color:var(--muted)}
+.pe .bx{border-radius:22px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center}
+.pe .bx b{display:block;font-size:15px}
+.pe .bx small{font-size:12.5px;opacity:.7;font-weight:500}
+.cd{background:var(--ink);color:#fff;border-radius:24px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+.bnav{position:absolute;left:50%;transform:translateX(-50%);bottom:20px;height:66px;border-radius:33px;background:var(--ink);display:flex;align-items:center;gap:6px;padding:0 9px}
+.bnav span{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;color:#8f8a80}
+.bnav span.on{color:#fff;background:#2c2c33}
+.bnav span.plus{background:var(--lav);color:var(--ink)}
+</style></head>
+<body>
+<div class="label"><b>B · Paper &amp; Pills</b><span>Warm paper · pastel colour-coded pills · Bricolage Grotesque</span>
+  <div class="sw"><i style="background:#f3efe7"></i><i style="background:#17171c"></i><i style="background:#cbbcff"></i><i style="background:#bdebc9"></i><i style="background:#ffc9a6"></i><i style="background:#ffe27a"></i></div></div>
+
+<div class="frame">
+  <header class="top">
+    <div class="brand" id="brand"></div>
+    <nav class="pnav" id="pnav"></nav>
+    <div class="tr"><span class="cb" data-i="search"></span><span class="cb" data-i="bell"></span><span class="ava">R</span></div>
+  </header>
+  <div class="content">
+    <div class="col">
+      <div class="card"><div class="ch"><h3>November 2026</h3><div class="arr"><span data-s="chevL"></span><span data-s="chevR"></span></div></div><div class="mm" id="mm"></div></div>
+      <div class="card" style="flex:1"><div class="ch" style="margin-bottom:8px"><h3>Big goals</h3><span style="font-size:13px;color:var(--muted);font-weight:600">4 active</span></div><div id="goals"></div><div class="ch" style="margin:12px 0 2px"><h3>Coming up</h3></div><div id="up"></div></div>
+      <div class="card streak"><div><div class="k" id="stk"></div><div class="wdots" id="wd"></div></div><div class="n">12</div></div>
+    </div>
+    <div class="col" style="gap:0">
+      <div class="wh"><h1>23 – 29 November <em>Week 48</em></h1>
+        <div class="tr"><div class="seg"><span>Day</span><span class="on">Week</span><span>Month</span><span>Year</span></div><span class="cb" data-i="chevL"></span><span class="cb" data-i="chevR"></span><span class="add" id="add"></span></div></div>
+      <div class="board" id="board"></div>
+    </div>
+  </div>
+</div>
+
+<div class="phone"><div class="scr">
+  <div class="island"></div>
+  <div class="status"><span>9:41</span><span style="letter-spacing:2px">●●● ▮</span></div>
+  <div class="pb">
+    <div class="ph"><div><small>Today · Week 48</small><h2>Friday 27</h2></div><span id="pmark"></span></div>
+    <div class="bub" id="bub"></div>
+    <div class="hg" id="hg"></div>
+    <div class="pa" id="pa"></div>
+    <div class="cd" id="cd"></div>
+    <div class="card" style="padding:14px 16px;border-radius:24px"><div class="gt" style="margin-bottom:8px"><span>Ship v1.7 redesign</span><small>60% · this week</small></div><div class="pill"><b style="width:60%;background:var(--lav)"></b></div></div>
+  </div>
+  <div class="bnav" id="bnav"></div>
+</div></div>
+
+<script>
+const markB = (s) => `<svg width="${s}" height="${s}" viewBox="0 0 52 52"><g transform="rotate(-8 26 26)"><rect x="4" y="4" width="44" height="44" rx="15" fill="var(--lav)" stroke="var(--ink)" stroke-width="2.5"/><path d="M14.5 34V23.5c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2V34M22.5 23.5c0-2.4 1.8-4.2 4-4.2s4 1.8 4 4.2V34" fill="none" stroke="var(--ink)" stroke-width="3.6" stroke-linecap="round"/></g><circle cx="40" cy="36" r="6.5" fill="var(--butter)" stroke="var(--ink)" stroke-width="2.5"/></svg>`;
+$('#brand').innerHTML = markB(52) + '<span>mērķis</span>';
+$('#pmark').innerHTML = markB(48);
+document.querySelectorAll('[data-i]').forEach(e => e.innerHTML = ic(e.dataset.i, 22, 1.8));
+document.querySelectorAll('[data-s]').forEach(e => e.innerHTML = ic(e.dataset.s, 16, 2));
+$('#pnav').innerHTML = [['grid','Overview'],['cal','Calendar',1],['flag','Goals'],['gift','Events'],['chart','Insights']].map(([i,t,on]) => `<span class="${on?'on':''}">${ic(i,19,1.9)}${t}</span>`).join('');
+$('#add').innerHTML = ic('plus', 20, 2.4) + 'Add';
+const CC = { sport:'var(--sky)', birthday:'var(--rose)', life:'var(--soft)', social:'var(--butter)', health:'var(--peach)', money:'var(--mint)', holiday:'var(--lav)' };
+// mini month
+let m = WD.map(w => `<div class="h">${w[0]}</div>`).join('');
+gridDays().forEach((d, i) => { const out = d.getMonth() !== 10, wk = weekNo(d) === 48, ev = eventsOn(d)[0];
+  m += `<div class="d ${out?'out':''} ${wk?'wk':''} ${wk&&i%7===0?'s':''} ${wk&&i%7===6?'e':''} ${same(d,TODAY)?'t':''}"><span>${d.getDate()}</span>${ev&&!same(d,TODAY)&&!out?`<i style="background:${CC[ev.cat]==='var(--soft)'?'#c9c2b4':'var(--ink)'}"></i>`:''}</div>`; });
+$('#mm').innerHTML = m;
+const GC = ['var(--lav)','var(--mint)','var(--peach)','var(--butter)'];
+$('#goals').innerHTML = BIG_GOALS.map((g,i) => `<div class="goal"><div class="gt"><span>${g.t}</span><small>${g.period}</small></div><div class="pill"><b style="width:${g.progress*100}%;background:${GC[i]}"></b></div></div>`).join('');
+$('#up').innerHTML = [['gift',"Mom's birthday",'Mon 30 Nov','3 days','var(--rose)'],['banknotes','Rent','Tue 1 Dec','4 days','var(--mint)']].map(([i,t,d,n,c]) => `<div style="display:flex;align-items:center;gap:12px;padding:8px 0"><span style="width:40px;height:40px;border-radius:14px;background:${c};display:grid;place-items:center">${ic(i,19,1.9)}</span><div style="flex:1"><b style="font-size:15px">${t}</b><div style="font-size:13px;color:var(--muted)">${d}</div></div><span style="font-weight:700;font-size:13px;background:var(--soft);padding:6px 10px;border-radius:12px">${n}</span></div>`).join('');
+$('#stk').innerHTML = ic('fire', 18, 2) + 'Streak';
+$('#wd').innerHTML = WD.map((w,i) => `<i class="${i<4?'on':''}">${i<4?ic('check',12,3):''}</i>`).join('');
+// week board
+const week = Array.from({length:7}, (_,i) => addDays(TODAY, i-4));
+const H0 = 8, H1 = 21;
+const blocks = [
+  { d:0, s:9, e:10.5, t:'Design review', c:'var(--sky)', i:'users' },
+  { d:0, s:17.5, e:18.5, t:'Run 5 km', c:'var(--mint)', i:'bolt' },
+  { d:1, s:19, e:20.5, t:'Football', c:'var(--sky)', i:'bolt' },
+  { d:1, s:11, e:12.5, t:'v1.7 focus', c:'var(--lav)', i:'flag' },
+  { d:2, s:12.5, e:13.5, t:'Lunch with Anna', c:'var(--peach)', i:'heart' },
+  { d:2, s:18, e:19, t:'Yoga', c:'var(--mint)', i:'sun' },
+  { d:3, s:14, e:16, t:'v1.7 focus', c:'var(--lav)', i:'flag' },
+  { d:4, s:10.5, e:11.5, t:'Dentist', c:'var(--peach)', i:'heart' },
+  { d:4, s:16, e:16.75, t:'Call with Liene', c:'var(--butter)', i:'users' },
+  { d:5, s:11, e:13, t:'Market', c:'var(--mint)', i:'sun' },
+  { d:6, s:18, e:19, t:'Call grandma', c:'var(--butter)', i:'heart' },
+  { d:6, s:10, e:11.5, t:'Long run', c:'var(--rose)', i:'bolt' },
+];
+const fmt = h => `${String(Math.floor(h)).padStart(2,'0')}:${String(Math.round((h%1)*60)).padStart(2,'0')}`;
+let b = '<div></div>' + week.map(d => `<div class="dh ${same(d,TODAY)?'t':''}"><small>${WD[isoWd(d)-1]}</small><b>${d.getDate()}</b></div>`).join('');
+b += '<div class="adl">Habits</div>' + week.map(d => { const s = dayScore(d), show = d <= TODAY;
+  return `<div class="ad">${show?`<span class="hp ${s.done===s.total?'full':''}"><i>${ic(s.done===s.total?'check':'fire',12,2.6)}</i>${s.done}/${s.total}</span>`:`<span class="hp" style="color:var(--muted)">0/${s.total}</span>`}</div>`; }).join('');
+b += '<div class="grid" id="tg"></div>';
+$('#board').innerHTML = b;
+const tg = $('#tg'); const gh = tg.getBoundingClientRect().height; const ph = (gh - 14) / (H1 - H0);
+let g = '<div class="hours">' + Array.from({length:H1-H0}, (_,i) => `<span style="top:${14+i*ph}px">${String(H0+i).padStart(2,'0')}:00</span>`).join('') + '</div>';
+g += week.map((d,di) => `<div class="dcol ${same(d,TODAY)?'t':''}">${blocks.filter(x=>x.d===di).map(x => `<div class="evb" style="top:${14+(x.s-H0)*ph+3}px;height:${(x.e-x.s)*ph-6}px;background:${x.c}"><span class="ei">${ic(x.i,14,2)}</span><b>${x.t}</b>${(x.e-x.s)>=0.9?`<small>${fmt(x.s)} – ${fmt(x.e)}</small>`:''}</div>`).join('')}</div>`).join('');
+g += Array.from({length:H1-H0}, (_,i) => `<div class="hl" style="top:${14+i*ph}px"></div>`).join('');
+tg.innerHTML = g;
+const cols = tg.querySelectorAll('.dcol'); const fc = cols[4];
+tg.insertAdjacentHTML('beforeend', `<div class="now" style="left:${fc.offsetLeft}px;width:${fc.offsetWidth}px;top:${14+(9.83-H0)*ph}px"></div>`);
+// phone
+$('#bub').innerHTML = week.map(d => `<div class="${same(d,TODAY)?'on':''}"><small>${WD[isoWd(d)-1].slice(0,2)}</small><b>${d.getDate()}</b></div>`).join('');
+const hcol = ['var(--lav)','var(--mint)','var(--peach)','var(--butter)'];
+$('#hg').innerHTML = habitsOn(TODAY).map((h,i) => `<div class="ht ${h.done?'done':''}" style="background:${hcol[i]}"><span>${h.t}</span><span class="c">${h.done?ic('check',15,3):''}</span></div>`).join('');
+$('#pa').innerHTML = [
+  { tm:'10:30', t:'Dentist', s:'10:30 – 11:30 · in 40 min', c:'var(--peach)', i:'heart' },
+  { tm:'16:00', t:'Call with Liene', s:'16:00 – 16:45', c:'var(--butter)', i:'users' },
+].map(x => `<div class="pe"><span class="tm">${x.tm}</span><div class="bx" style="background:${x.c}"><div><b>${x.t}</b><small>${x.s}</small></div><span class="c" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.6);display:grid;place-items:center">${ic(x.i,17,2)}</span></div></div>`).join('');
+$('#cd').innerHTML = `<div style="display:flex;gap:12px;align-items:center"><span style="width:40px;height:40px;border-radius:50%;background:var(--rose);color:var(--ink);display:grid;place-items:center">${ic('gift',20,2)}</span><div><b style="font-size:15px">Mom's birthday</b><div style="font-size:12.5px;color:#a8a39a;font-weight:500">Monday, 30 Nov</div></div></div><div class="disp" style="font-size:40px;font-weight:800;letter-spacing:-.05em;line-height:1">3<span style="font-size:14px;font-family:'DM Sans';letter-spacing:0;font-weight:600;margin-left:4px;color:#a8a39a">days</span></div>`;
+$('#bnav').innerHTML = `<span>${ic('grid',23,1.8)}</span><span class="on">${ic('cal',23,1.8)}</span><span class="plus">${ic('plus',24,2.4)}</span><span>${ic('flag',23,1.8)}</span><span>${ic('menu',23,1.8)}</span>`;
+</script>
+</body></html>

@@ -1,7 +1,7 @@
 import { computed, reactive, watch } from 'vue'
 import api from './api'
 import { user } from './auth'
-import { categoryStyle, refreshTick } from './goals'
+import { categoryStyle, paletteColor, refreshTick } from './goals'
 import { locale } from './i18n'
 import { addDays, parseISO, toISO } from './periods'
 
@@ -145,5 +145,5 @@ export function dayUnit(n) {
 /** An event's badge: its own colour/icon, else the default event badge (Settings). */
 export function eventBadge(ev) {
   const base = categoryStyle('event')
-  return { color: ev.badge_color ?? base.color, icon: ev.badge_icon ?? base.icon }
+  return { color: paletteColor(ev.badge_color) ?? base.color, icon: ev.badge_icon ?? base.icon }
 }

@@ -1,5 +1,5 @@
 <script setup>
-import { nextTick, onBeforeUnmount, ref, useId, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 
 // Slides up from the bottom on phones, a centred dialog on wider screens.
@@ -34,11 +34,63 @@ function onKey(e) {
   }
 }
 
+/*
+ * Drag the handle/header down to dismiss (phones), like a native sheet: it follows the finger (a little
+ * give upwards), the backdrop fades with it, and a long pull or a quick flick closes it — sliding on from
+ * where it was let go instead of jumping back first. Otherwise it springs back.
+ */
+const drag = ref(0)
+const dragging = ref(false)
+let startY = null
+let lastY = 0
+let lastT = 0
+let speed = 0
+
+function onDragStart(e) {
+  startY = lastY = e.touches[0].clientY
+  lastT = performance.now()
+  speed = 0
+  dragging.value = true
+}
+
+function onDragMove(e) {
+  if (startY === null) return
+  const y = e.touches[0].clientY
+  const now = performance.now()
+  speed = (y - lastY) / Math.max(1, now - lastT)
+  lastY = y
+  lastT = now
+  const d = y - startY
+  drag.value = d < 0 ? Math.max(-24, d / 4) : d
+}
+
+function onDragEnd() {
+  if (startY === null) return
+  startY = null
+  dragging.value = false
+  if (drag.value > 110 || (speed > 0.5 && drag.value > 16)) {
+    // Written straight to the element: once closing starts, Vue no longer patches the leaving sheet.
+    const el = sheet.value
+    el.classList.remove('dragging')
+    el.style.transition = `transform ${speed > 1 ? 0.2 : 0.3}s cubic-bezier(0.4, 0, 1, 1)`
+    el.style.transform = 'translateY(105%)'
+    emit('close')
+    return
+  }
+  drag.value = 0
+}
+
+const sheetStyle = computed(() => (drag.value ? { transform: `translateY(${drag.value}px)` } : null))
+// The dimmed page lightens as the sheet is pulled down.
+const rootStyle = computed(() =>
+  drag.value > 0 ? { backgroundColor: `color-mix(in srgb, var(--backdrop) ${Math.max(0, 100 - drag.value / 4)}%, transparent)` } : null,
+)
 // Focus moves into the dialog on open and back to what opened it on close.
 watch(
   () => props.open,
   async (open) => {
     if (open) {
+      drag.value = 0
       returnFocus = document.activeElement
       addEventListener('keydown', onKey)
       await nextTick()
@@ -55,33 +107,29 @@ watch(
 )
 onBeforeUnmount(() => removeEventListener('keydown', onKey))
 
-/* Drag the handle/header down to dismiss (phones). */
-const drag = ref(0)
-let startY = null
-const onDragStart = (e) => (startY = e.touches[0].clientY)
-const onDragMove = (e) => startY !== null && (drag.value = Math.max(0, e.touches[0].clientY - startY))
-function onDragEnd() {
-  if (drag.value > 90) emit('close')
-  drag.value = 0
-  startY = null
-}
 </script>
 
 <template>
   <Teleport to="body">
     <Transition name="sheet">
-      <div v-if="open" class="sheet-root" @click.self="emit('close')">
+      <div v-if="open" class="sheet-root" :style="rootStyle" @click.self="emit('close')">
         <section
           ref="sheet"
           class="sheet"
-          :class="{ dragging: drag }"
-          :style="drag ? { transform: `translateY(${drag}px)` } : null"
+          :class="{ dragging }"
+          :style="sheetStyle"
           role="dialog"
           aria-modal="true"
           :aria-labelledby="titleId"
           tabindex="-1"
         >
-          <div class="drag-zone" @touchstart.passive="onDragStart" @touchmove.passive="onDragMove" @touchend="onDragEnd">
+          <div
+            class="drag-zone"
+            @touchstart.passive="onDragStart"
+            @touchmove.passive="onDragMove"
+            @touchend="onDragEnd"
+            @touchcancel="onDragEnd"
+          >
             <span class="grabber" aria-hidden="true" />
             <header class="sheet-head">
               <h2 :id="titleId">{{ title }}</h2>
@@ -117,24 +165,20 @@ function onDragEnd() {
   outline: none;
 }
 
-/* Frosted glass over the dimmed page. */
+/* A white card that slides up over the dimmed page. */
 .sheet {
   display: flex;
   flex-direction: column;
   width: 100%;
   max-height: calc(var(--app-h) * 0.92);
-  border: 1px solid var(--glass-edge);
-  border-bottom: 0;
   border-radius: 32px 32px 0 0;
-  background: var(--surface-strong);
-  box-shadow: 0 -12px 40px rgb(0 0 0 / 0.18);
+  background: var(--surface);
+  box-shadow: 0 -16px 50px rgb(0 0 0 / 0.16), inset 0 0 0 1px var(--card-edge);
   color: var(--fg);
-  -webkit-backdrop-filter: blur(30px) saturate(1.4);
-  backdrop-filter: blur(30px) saturate(1.4);
 }
 
 .sheet:not(.dragging) {
-  transition: transform 0.25s ease;
+  transition: transform 0.4s var(--sheet-ease);
 }
 
 .drag-zone {
@@ -145,11 +189,11 @@ function onDragEnd() {
 
 .grabber {
   align-self: center;
-  width: 40px;
+  width: 42px;
   height: 5px;
-  margin-top: 8px;
+  margin-top: 9px;
   border-radius: 3px;
-  background: color-mix(in srgb, var(--fg) 22%, transparent);
+  background: var(--line);
 }
 
 .sheet-head {
@@ -157,24 +201,26 @@ function onDragEnd() {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px 18px 6px 22px;
+  padding: 12px 16px 6px 22px;
 }
 
 h2 {
   margin: 0;
-  font-size: 1.5rem;
+  font-family: var(--font-display);
+  font-size: 1.75rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.04em;
 }
 
 .sheet-head .icon-btn {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
 }
 
 .sheet-head .icon-btn svg {
   width: 18px;
   height: 18px;
+  stroke-width: 2.2;
 }
 
 .sheet-body {
@@ -183,14 +229,20 @@ h2 {
   padding: 10px 22px max(24px, calc(env(safe-area-inset-bottom) + 12px));
 }
 
-.sheet-enter-active,
-.sheet-leave-active {
-  transition: background-color 0.25s ease;
+.sheet-enter-active {
+  transition: background-color 0.3s ease;
 }
 
-.sheet-enter-active .sheet,
+.sheet-leave-active {
+  transition: background-color 0.3s ease;
+}
+
+.sheet-enter-active .sheet {
+  transition: transform 0.5s var(--sheet-ease), opacity 0.2s ease;
+}
+
 .sheet-leave-active .sheet {
-  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.25s ease;
+  transition: transform 0.25s ease-in, opacity 0.2s ease;
 }
 
 .sheet-enter-from,
@@ -210,9 +262,8 @@ h2 {
   }
 
   .sheet {
-    width: min(520px, 100%);
-    max-height: min(calc(var(--app-h) * 0.88), 820px);
-    border-bottom: 1px solid var(--glass-edge);
+    width: min(540px, 100%);
+    max-height: min(calc(var(--app-h) * 0.88), 840px);
     border-radius: 32px;
   }
 
@@ -220,9 +271,17 @@ h2 {
     display: none;
   }
 
+  .sheet-head {
+    padding-top: 20px;
+  }
+
+  .sheet-enter-active .sheet {
+    transition: transform 0.45s var(--spring), opacity 0.25s ease;
+  }
+
   .sheet-enter-from .sheet,
   .sheet-leave-to .sheet {
-    transform: translateY(16px) scale(0.98);
+    transform: translateY(24px) scale(0.94);
     opacity: 0;
   }
 }

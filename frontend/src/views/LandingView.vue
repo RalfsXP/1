@@ -1,8 +1,8 @@
 <script setup>
 import { useRouter } from 'vue-router'
-import LogoMark from '@/components/LogoMark.vue'
-import GlassScene from '@/components/GlassScene.vue'
+import AppLogo from '@/components/AppLogo.vue'
 import LanguageSwitch from '@/components/LanguageSwitch.vue'
+import PaperScene from '@/components/PaperScene.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import { withLoader } from '@/lib/loader'
 
@@ -22,9 +22,9 @@ const open = (name) => withLoader(() => router.push({ name }))
     </header>
 
     <main class="hero">
-      <h1 class="brand"><LogoMark /><span class="visually-hidden">Merkis</span></h1>
-      <GlassScene class="scene" />
-      <div class="actions">
+      <h1 class="brand rise"><AppLogo /><span class="visually-hidden">Merkis</span></h1>
+      <PaperScene class="scene" />
+      <div class="actions rise">
         <button type="button" class="btn btn-primary btn-lg" @click="open('register')">{{ $t('landing.signup') }}</button>
         <button type="button" class="btn btn-ghost btn-lg" @click="open('login')">{{ $t('landing.login') }}</button>
       </div>
@@ -33,13 +33,13 @@ const open = (name) => withLoader(() => router.push({ name }))
 </template>
 
 <style scoped>
-/* Exactly one screen tall: the landing page never scrolls. Controls top right; the m. mark,
-   the floating glass scene and the sign-up / login buttons form one block, well above the bottom edge
-   so the button sits in easy thumb reach without hugging the edge. */
+/* Exactly one screen tall: the landing page never scrolls. Controls top right; the logo, the floating
+   paper scene and the sign-up / login buttons form one block, well above the bottom edge so the buttons
+   sit in easy thumb reach without hugging it. */
 .page {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
-  gap: 16px;
+  gap: 8px;
   height: 100vh;
   height: var(--app-h);
   padding: max(16px, var(--top-inset)) 20px max(24px, env(safe-area-inset-bottom));
@@ -61,28 +61,27 @@ const open = (name) => withLoader(() => router.push({ name }))
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
   justify-items: center;
-  gap: clamp(16px, 4dvh, 36px);
+  gap: clamp(16px, 3.5dvh, 36px);
   min-height: 0;
-  padding: clamp(8px, 3dvh, 32px) 0 clamp(40px, 14dvh, 140px);
+  padding: clamp(4px, 2dvh, 24px) 0 clamp(36px, 12dvh, 120px);
 }
 
 .brand {
-  width: min(132px, 34vw);
-  height: auto;
-  aspect-ratio: 113.5 / 55.1;
   margin: 0;
+  font-size: clamp(2rem, 9vw, 2.6rem);
 }
 
 /* The scene keeps its proportions and shrinks to whatever height is left. */
 .scene {
-  max-width: 360px;
-  max-height: 382px;
+  max-width: 380px;
+  max-height: 402px;
 }
 
 .actions {
   display: grid;
   gap: 10px;
   width: min(420px, 100%);
+  animation-delay: 0.5s;
 }
 
 @media (min-width: 640px) {
@@ -90,14 +89,18 @@ const open = (name) => withLoader(() => router.push({ name }))
     padding: 24px 32px 40px;
   }
 
+  .brand {
+    font-size: 3rem;
+  }
+
   .scene {
-    max-width: 460px;
-    max-height: 488px;
+    max-width: 500px;
+    max-height: 530px;
   }
 
   .actions {
     grid-template-columns: 1fr 1fr;
-    width: 420px;
+    width: 440px;
   }
 }
 </style>

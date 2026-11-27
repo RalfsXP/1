@@ -2,9 +2,9 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { EyeIcon, EyeSlashIcon, InformationCircleIcon } from '@heroicons/vue/24/outline'
-import GlassScene from '@/components/GlassScene.vue'
 import LanguageSwitch from '@/components/LanguageSwitch.vue'
-import LogoMark from '@/components/LogoMark.vue'
+import AppLogo from '@/components/AppLogo.vue'
+import PaperScene from '@/components/PaperScene.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import { login, register } from '@/lib/auth'
 import { t } from '@/lib/i18n'
@@ -78,17 +78,17 @@ async function submit() {
 <template>
   <div class="auth-page">
     <header class="form-top">
-      <!-- The m. mark top left, which also leads back home. -->
-      <RouterLink to="/" class="home" :aria-label="$t('auth.back')"><LogoMark /></RouterLink>
+      <!-- The logo top left, which also leads back home. -->
+      <RouterLink to="/" class="home" :aria-label="$t('auth.back')"><AppLogo /></RouterLink>
       <div class="controls">
         <LanguageSwitch />
         <ThemeToggle />
       </div>
     </header>
 
-    <!-- Decorative side (desktop): the landing page's floating glass cards. -->
+    <!-- Decorative side (desktop): the landing page's floating paper scene on a lavender panel. -->
     <section class="art" aria-hidden="true">
-      <GlassScene class="scene" />
+      <div class="art-panel"><PaperScene class="scene" /></div>
     </section>
 
     <section class="form-side">
@@ -100,7 +100,7 @@ async function submit() {
 
             <p v-if="formError" class="form-error" role="alert">{{ formError }}</p>
 
-            <!-- Fields + submit on one glass card. -->
+            <!-- Fields + submit on one white card. -->
             <div class="form-card">
               <div v-if="isRegister" class="field">
                 <label for="name">{{ $t('auth.name') }}</label>
@@ -175,7 +175,7 @@ async function submit() {
                     :aria-valuenow="strength"
                     :aria-valuetext="strengthLabel"
                   >
-                    <div class="strength-fill" :style="{ width: strength * 20 + '%' }" />
+                    <div class="strength-fill" :style="{ transform: `translateX(${strength * 20 - 100}%)` }" />
                   </div>
                 </div>
               </div>
@@ -219,7 +219,7 @@ async function submit() {
 </template>
 
 <style scoped>
-/* Desktop: the glass scene on the left, the form on the right. */
+/* Desktop: the paper scene on the left, the form on the right. */
 .auth-page {
   position: relative;
   display: grid;
@@ -231,14 +231,23 @@ async function submit() {
 
 .art {
   display: grid;
+  min-height: 0;
+  padding: 92px 0 24px 24px;
+}
+
+.art-panel {
+  display: grid;
   place-items: center;
   min-height: 0;
-  padding: 96px 40px 40px;
+  padding: 40px;
+  border-radius: 40px;
+  background: color-mix(in srgb, var(--lav) var(--wash), var(--bg));
+  animation: rise 0.6s var(--ease) backwards;
 }
 
 .scene {
-  max-width: 460px;
-  max-height: 488px;
+  max-width: 480px;
+  max-height: 510px;
 }
 
 .form-side {
@@ -274,9 +283,15 @@ async function submit() {
 
 .home {
   display: block;
-  width: 54px;
-  height: 26px;
-  border-radius: 6px;
+  border-radius: 12px;
+  color: var(--fg);
+  font-size: 1.4rem;
+  text-decoration: none;
+  transition: transform 0.25s var(--spring);
+}
+
+.home:active {
+  transform: scale(0.95) rotate(-2deg);
 }
 
 .home:focus-visible {
@@ -297,10 +312,11 @@ async function submit() {
 
 h1 {
   margin: 0;
-  font-size: 2.3rem;
+  font-family: var(--font-display);
+  font-size: 2.8rem;
   font-weight: 800;
-  letter-spacing: -0.035em;
-  line-height: 1.1;
+  letter-spacing: -0.045em;
+  line-height: 1.02;
 }
 
 .lead {
@@ -311,11 +327,10 @@ h1 {
 }
 
 .form-card {
-  padding: 20px;
-  border: 1px solid var(--glass-edge);
-  border-radius: 28px;
+  padding: 22px;
+  border-radius: 30px;
   background: var(--surface);
-  box-shadow: var(--glass-shadow);
+  box-shadow: var(--card-shadow), inset 0 0 0 1px var(--card-edge);
 }
 
 .field {
@@ -326,16 +341,16 @@ label {
   display: block;
   margin-bottom: 8px;
   color: var(--muted);
-  font-size: 0.8rem;
-  font-weight: 600;
+  font-size: 0.82rem;
+  font-weight: 700;
 }
 
 input {
   width: 100%;
-  height: 52px;
+  height: 54px;
   padding: 0 16px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
+  border: 1.5px solid transparent;
+  border-radius: 18px;
   background: var(--field);
   color: var(--fg);
   font: inherit;
@@ -347,8 +362,8 @@ input {
 
 input:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent);
+  border-color: var(--fg);
+  background: var(--surface);
 }
 
 input[aria-invalid='true'] {
@@ -380,12 +395,14 @@ input[aria-invalid='true'] {
   transform: translateY(-50%);
 }
 
-.reveal:hover {
-  color: var(--accent);
+@media (hover: hover) {
+  .reveal:hover {
+    color: var(--fg);
+  }
 }
 
 .reveal:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--link);
 }
 
 .reveal svg {
@@ -407,17 +424,16 @@ input[aria-invalid='true'] {
   flex-shrink: 0;
   width: 16px;
   height: 16px;
-  color: var(--accent);
+  color: var(--flag-important);
   stroke-width: 2;
 }
 
 .form-error {
   margin: -6px 0 16px;
   padding: 10px 14px;
-  border: 1px solid var(--line);
-  border-left: 3px solid var(--accent);
-  border-radius: 12px;
-  background: var(--field);
+  border: 0;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--rose) var(--wash-strong), var(--surface));
   color: var(--fg);
   font-size: 0.85rem;
   font-weight: 700;
@@ -460,17 +476,18 @@ input[aria-invalid='true'] {
 
 .strength-track {
   flex: 1;
-  height: 4px;
+  height: 6px;
   overflow: hidden;
   border-radius: 999px;
-  background: var(--line);
+  background: var(--surface-2);
 }
 
 .strength-fill {
+  width: 100%;
   height: 100%;
   border-radius: inherit;
   background: var(--accent);
-  transition: width 0.25s ease;
+  transition: transform 0.4s var(--spring);
 }
 
 /* "New to Merkis? Sign up" under the card. */
@@ -488,20 +505,29 @@ input[aria-invalid='true'] {
   text-decoration: none;
 }
 
-.switch a:hover {
-  text-decoration: underline;
+@media (hover: hover) {
+  .switch a:hover {
+    text-decoration: underline;
+  }
 }
 
 /* Log in <-> Sign up: the form cross-fades. */
-.form-swap-enter-active,
-.form-swap-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+.form-swap-enter-active {
+  transition: opacity 0.3s ease, transform 0.45s var(--spring);
 }
 
-.form-swap-enter-from,
+.form-swap-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.form-swap-enter-from {
+  opacity: 0;
+  transform: translateY(14px) scale(0.98);
+}
+
 .form-swap-leave-to {
   opacity: 0;
-  transform: translateY(6px);
+  transform: translateY(-6px);
 }
 
 /* ---------- Narrow screens: header + form only ---------- */
@@ -520,8 +546,7 @@ input[aria-invalid='true'] {
   }
 
   .home {
-    width: 46px;
-    height: 22px;
+    font-size: 1.25rem;
   }
 
   .form-side {
@@ -541,7 +566,7 @@ input[aria-invalid='true'] {
   }
 
   h1 {
-    font-size: 2.1rem;
+    font-size: 2.3rem;
   }
 }
 </style>

@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { CalendarIcon, XMarkIcon } from '@heroicons/vue/24/outline'
 import DatePicker from '@/components/DatePicker.vue'
+import Expand from '@/components/Expand.vue'
 import { periodLabel } from '@/lib/periods'
 
 // A single optional date: shows the value, opens the brand date picker inline when tapped.
@@ -36,10 +37,11 @@ function onPick(iso) {
         <span v-if="value" class="value">{{ periodLabel(mode, value) }}</span>
         <span v-else class="placeholder">—</span>
       </button>
-      <button v-if="value" type="button" class="icon-btn" :aria-label="$t('picker.clear')" @click="value = ''">
+      <button v-if="value" type="button" class="icon-btn bare" :aria-label="$t('picker.clear')" @click="value = ''">
         <XMarkIcon aria-hidden="true" />
       </button>
     </div>
+    <Expand>
     <DatePicker
       v-if="open"
       :model-value="value || null"
@@ -49,6 +51,7 @@ function onPick(iso) {
       :series="series"
       @update:model-value="onPick"
     />
+    </Expand>
   </div>
 </template>
 
@@ -82,7 +85,7 @@ function onPick(iso) {
   flex-shrink: 0;
   width: 20px;
   height: 20px;
-  color: var(--accent);
+  color: var(--muted);
 }
 
 .value {

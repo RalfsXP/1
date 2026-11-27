@@ -32,11 +32,11 @@ const style = computed(() => ({ '--badge': props.color, color: readableOn(props.
   gap: 6px;
   max-width: 100%;
   min-width: 0;
-  height: 30px;
-  padding: 0 12px 0 9px;
+  height: 32px;
+  padding: 0 13px 0 10px;
   border-radius: 999px;
   background: var(--badge);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -45,10 +45,10 @@ const style = computed(() => ({ '--badge': props.color, color: readableOn(props.
   display: flex;
   gap: 3px;
   width: 100%;
-  height: 20px;
+  height: 22px;
   padding: 0 7px;
-  border-radius: 6px;
-  font-size: 0.68rem;
+  border-radius: 8px;
+  font-size: 0.7rem;
 }
 
 .badge.compact.done {
@@ -56,7 +56,7 @@ const style = computed(() => ({ '--badge': props.color, color: readableOn(props.
 }
 
 .badge.done {
-  opacity: 0.5;
+  opacity: 0.55;
 }
 
 .badge.done .badge-title {

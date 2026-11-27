@@ -4,9 +4,10 @@ import { InformationCircleIcon } from '@heroicons/vue/24/outline'
 import BadgePicker from '@/components/BadgePicker.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
 import DatePicker from '@/components/DatePicker.vue'
+import Expand from '@/components/Expand.vue'
 import GoalBadge from '@/components/GoalBadge.vue'
 import { REPEATS, createEvent, deleteEvent, updateEvent } from '@/lib/events'
-import { categoryStyle } from '@/lib/goals'
+import { categoryStyle, paletteColor } from '@/lib/goals'
 import { t } from '@/lib/i18n'
 import { todayISO } from '@/lib/timeLeft'
 
@@ -32,7 +33,7 @@ function reset() {
     time: ev?.time ?? '',
     repeat: ev?.repeat ?? null,
     customBadge: Boolean(ev?.badge_color || ev?.badge_icon),
-    color: ev?.badge_color ?? style.color,
+    color: paletteColor(ev?.badge_color) ?? style.color,
     icon: ev?.badge_icon ?? style.icon,
   })
   errors.value = []
@@ -133,16 +134,18 @@ async function remove() {
         <div class="badge-row">
           <GoalBadge :title="form.title || $t('events.name')" :color="form.color" :icon="form.icon" />
           <label class="toggle">
-            <input v-model="form.customBadge" type="checkbox" @change="useDefaultBadge" />
+            <input v-model="form.customBadge" type="checkbox" class="switch-input" @change="useDefaultBadge" />
             <span>{{ $t('goal.customBadge') }}</span>
           </label>
         </div>
       </div>
-      <BadgePicker v-if="form.customBadge" v-model:color="form.color" v-model:icon="form.icon" />
+      <Expand><BadgePicker v-if="form.customBadge" v-model:color="form.color" v-model:icon="form.icon" /></Expand>
 
+      <Expand>
       <ul v-if="errors.length" class="errors" role="alert">
         <li v-for="msg in errors" :key="msg"><InformationCircleIcon aria-hidden="true" />{{ msg }}</li>
       </ul>
+      </Expand>
 
       <div class="actions">
         <button v-if="event" type="button" class="btn btn-ghost btn-lg" :disabled="saving" @click="remove">
@@ -179,19 +182,14 @@ async function remove() {
 .toggle {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 32px;
-  font-size: 0.9rem;
+  gap: 12px;
+  min-height: 36px;
+  font-size: 0.92rem;
   font-weight: 600;
   cursor: pointer;
 }
 
-.toggle input {
-  width: 20px;
-  height: 20px;
-  margin: 0;
-  accent-color: var(--accent);
-}
+
 
 .badge-row {
   display: flex;
@@ -220,7 +218,7 @@ async function remove() {
   flex-shrink: 0;
   width: 18px;
   height: 18px;
-  color: var(--accent);
+  color: var(--flag-important);
 }
 
 .actions {

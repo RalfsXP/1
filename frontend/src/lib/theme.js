@@ -4,11 +4,18 @@ import { ref } from 'vue'
 export const theme = ref(document.documentElement.dataset.theme === 'light' ? 'light' : 'dark')
 
 export function toggleTheme() {
-  theme.value = theme.value === 'dark' ? 'light' : 'dark'
-  document.documentElement.dataset.theme = theme.value
-  syncThemeColor()
+  const next = theme.value === 'dark' ? 'light' : 'dark'
+  const apply = () => {
+    theme.value = next
+    document.documentElement.dataset.theme = next
+    syncThemeColor()
+  }
+  // Cross-fade the whole page (cards, text, ground together) where View Transitions exist (Safari 18+, Chrome);
+  // elsewhere, or with reduced motion, switch at once. (The callback runs a frame later.)
+  if (document.startViewTransition && !matchMedia('(prefers-reduced-motion: reduce)').matches) document.startViewTransition(apply)
+  else apply()
   try {
-    localStorage.setItem('merkis-theme', theme.value)
+    localStorage.setItem('merkis-theme', next)
   } catch {
     // Storage can be unavailable (private mode); the toggle still works.
   }
@@ -16,7 +23,7 @@ export function toggleTheme() {
 
 /** Browser chrome (mobile address bar) matches the page background of the current theme. */
 export function syncThemeColor() {
-  // Measure --bg on a throwaway element: <body> fades its background, so mid-switch it reads stale.
+  // Measure --bg on a throwaway element (always the current value, whatever is mid-animation).
   const probe = document.createElement('span')
   probe.style.cssText = 'position:absolute;visibility:hidden;transition:none;background:var(--bg)'
   document.body.append(probe)

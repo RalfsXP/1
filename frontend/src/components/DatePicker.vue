@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/outline'
 import { t } from '@/lib/i18n'
+import { useSwipe } from '@/lib/motion'
 import { todayISO } from '@/lib/timeLeft'
 import {
   addDays,
@@ -132,7 +133,10 @@ function pick(iso) {
   }
 }
 
+// Which way the page turned: the new month/year slides in from that side ('' until the first turn).
+const direction = ref('')
 function go(n) {
+  direction.value = n > 0 ? 'next' : 'prev'
   view.value = toISO(shiftPeriod(props.mode === 'year' ? 'year' : 'month', view.value, n))
 }
 
@@ -180,19 +184,19 @@ const seriesSummary = computed(() => {
   return `${every} · ${t('picker.until', { date: dayMonth(last, true) })}`
 })
 
-/* Swipe sideways to change month/year. */
-let touchX = null
-const onTouchStart = (e) => (touchX = e.touches[0].clientX)
-function onTouchEnd(e) {
-  if (touchX === null) return
-  const dx = e.changedTouches[0].clientX - touchX
-  touchX = null
-  if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1)
-}
+/* Swipe sideways to change month/year: the days follow the finger, then page (or spring back). */
+const swipe = useSwipe(go)
 </script>
 
 <template>
-  <div class="picker" :class="`mode-${mode}`" @touchstart.passive="onTouchStart" @touchend="onTouchEnd">
+  <div
+    class="picker"
+    :class="`mode-${mode}`"
+    @touchstart.passive="swipe.down"
+    @touchmove.passive="swipe.move"
+    @touchend="swipe.up"
+    @touchcancel="swipe.up"
+  >
     <header class="head">
       <button type="button" class="nav" :aria-label="$t('calendar.prev')" @click="go(-1)">
         <ChevronLeftIcon aria-hidden="true" />
@@ -203,7 +207,8 @@ function onTouchEnd(e) {
       </button>
     </header>
 
-    <div v-if="mode === 'year'" class="months">
+    <div class="drag" :class="{ dragging: swipe.dragging.value }" :style="{ transform: `translateX(${swipe.dx.value}px)` }">
+    <div v-if="mode === 'year'" :key="`y${year}`" class="months" :class="`in-${direction}`">
       <button
         v-for="m in months"
         :key="m.iso"
@@ -217,7 +222,7 @@ function onTouchEnd(e) {
       </button>
     </div>
 
-    <div v-else class="grid" @mouseleave="hover = null">
+    <div v-else :key="view" class="grid" :class="`in-${direction}`" @mouseleave="hover = null">
       <span v-for="name in $t('common.weekdaysShort')" :key="name" class="dow" aria-hidden="true">{{ name }}</span>
       <template v-for="week in weeks" :key="week[0].iso">
         <button
@@ -236,6 +241,7 @@ function onTouchEnd(e) {
         </button>
       </template>
     </div>
+    </div>
 
     <p class="summary" aria-live="polite">
       {{ summary }}
@@ -249,10 +255,40 @@ function onTouchEnd(e) {
   display: grid;
   gap: 10px;
   padding: 12px;
-  border: 1px solid var(--line);
-  border-radius: 18px;
-  background: var(--surface);
+  border-radius: 24px;
+  background: var(--surface-2);
   user-select: none;
+}
+
+.picker {
+  touch-action: pan-y;
+}
+
+.drag:not(.dragging) {
+  transition: transform 0.4s var(--ease);
+}
+
+/* A new month/year slides in from the side it was paged towards (re-keyed, so no gap while it swaps). */
+.in-next {
+  animation: in-next 0.35s var(--ease);
+}
+
+.in-prev {
+  animation: in-prev 0.35s var(--ease);
+}
+
+@keyframes in-next {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+}
+
+@keyframes in-prev {
+  from {
+    opacity: 0;
+    transform: translateX(-28px);
+  }
 }
 
 .head {
@@ -262,9 +298,10 @@ function onTouchEnd(e) {
 }
 
 .title {
-  font-size: 0.95rem;
-  font-weight: 800;
-  letter-spacing: -0.01em;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .title::first-letter {
@@ -279,13 +316,14 @@ function onTouchEnd(e) {
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: transparent;
+  background: var(--surface);
   color: var(--fg);
   cursor: pointer;
+  transition: transform 0.25s var(--spring);
 }
 
-.nav:hover {
-  color: var(--accent);
+.nav:active {
+  transform: scale(0.88);
 }
 
 .nav svg {
@@ -340,29 +378,36 @@ function onTouchEnd(e) {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  transition: background-color 0.15s, color 0.15s;
+  transition: background-color 0.15s, color 0.15s, transform 0.25s var(--spring);
 }
 
-.cell:not(:disabled):hover .num {
-  background: var(--line);
+@media (hover: hover) {
+  .cell:not(:disabled):hover .num {
+    background: var(--surface);
+  }
+}
+
+.cell:not(:disabled):active .num {
+  transform: scale(0.88);
 }
 
 .cell.today .num {
-  box-shadow: inset 0 0 0 1.5px var(--highlight);
+  box-shadow: inset 0 0 0 1.5px var(--fg);
   font-weight: 800;
 }
 
-/* Bands: selection (strong), later repeats (medium), hover preview (faint). */
+/* Bands (lavender): selection (strong), later repeats (medium), hover preview (faint). */
 .cell.sel {
-  background: color-mix(in srgb, var(--accent) 34%, transparent);
+  background: var(--lav);
+  color: var(--ink);
 }
 
 .cell.series {
-  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  background: color-mix(in srgb, var(--lav) var(--wash-strong), transparent);
 }
 
 .cell.pre {
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  background: color-mix(in srgb, var(--lav) var(--wash), transparent);
 }
 
 .cell.round-l {
@@ -376,9 +421,10 @@ function onTouchEnd(e) {
 }
 
 .cell.dot .num {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--ink);
+  color: #ffffff;
   font-weight: 800;
+  animation: pop 0.35s var(--spring);
 }
 
 .months {
@@ -387,15 +433,17 @@ function onTouchEnd(e) {
   gap: 6px;
 }
 
-.month:hover {
-  border-color: var(--accent);
+@media (hover: hover) {
+  .month:hover {
+    background: var(--line);
+  }
 }
 
 .month {
   height: 44px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: transparent;
+  border: 0;
+  border-radius: 14px;
+  background: var(--surface);
   color: var(--fg);
   font-size: 0.8rem;
   font-weight: 700;
@@ -404,24 +452,23 @@ function onTouchEnd(e) {
 }
 
 .month.sel {
-  border-color: transparent;
-  background: color-mix(in srgb, var(--accent) 34%, transparent);
+  background: var(--lav);
+  color: var(--ink);
 }
 
 .month.series {
-  border-color: transparent;
-  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  background: color-mix(in srgb, var(--lav) var(--wash-strong), var(--surface));
 }
 
 .month:focus-visible,
 .cell:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--link);
   outline-offset: -2px;
   border-radius: 12px;
 }
 
 .month.current {
-  box-shadow: inset 0 0 0 1.5px var(--accent);
+  box-shadow: inset 0 0 0 1.5px var(--fg);
 }
 
 .summary {
@@ -429,8 +476,8 @@ function onTouchEnd(e) {
   gap: 2px;
   min-height: 1.2em;
   margin: 2px 4px 0;
-  color: var(--accent);
-  font-size: 0.8rem;
+  color: var(--fg);
+  font-size: 0.82rem;
   font-weight: 700;
 }
 

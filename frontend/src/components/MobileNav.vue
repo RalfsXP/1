@@ -1,34 +1,51 @@
 <script setup>
-import { useRouter } from 'vue-router'
-import { ArrowRightStartOnRectangleIcon } from '@heroicons/vue/24/outline'
+import { useRoute, useRouter } from 'vue-router'
+import { ArrowRightStartOnRectangleIcon, ChevronRightIcon } from '@heroicons/vue/24/outline'
 import AppVersion from '@/components/AppVersion.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
-import { NAV_FOOT, NAV_LINKS, signOut } from '@/lib/nav'
+import { GOAL_TABS, NAV_FOOT, isActive, signOut } from '@/lib/nav'
 
-// Phone navigation: a sheet from the bottom with every page as a tile.
+// Phone menu (the dock's Menu button): every goal category as a pastel tile, then Guide, Settings, Log out.
 defineProps({ open: { type: Boolean, default: false } })
 const emit = defineEmits(['close'])
+const route = useRoute()
 const router = useRouter()
+const goalActive = (tab) => route.name === 'goals' && route.params.period === tab.period
 </script>
 
 <template>
   <BottomSheet :open="open" :title="$t('nav.menu')" @close="emit('close')">
     <nav class="mobile-nav" :aria-label="$t('nav.menu')">
-      <ul class="tiles">
-        <li v-for="link in NAV_LINKS" :key="link.label">
-          <RouterLink :to="link.to" class="tile" exact-active-class="active" @click="emit('close')">
-            <component :is="link.icon" aria-hidden="true" />
-            <span>{{ $t(link.label) }}</span>
+      <span class="section-label">{{ $t('nav.goals') }}</span>
+      <ul class="tiles stagger">
+        <li v-for="tab in GOAL_TABS" :key="tab.period">
+          <RouterLink
+            :to="{ name: 'goals', params: { period: tab.period } }"
+            class="tile"
+            :class="{ active: goalActive(tab) }"
+            :style="{ '--tint': `var(--${tab.tint})` }"
+            @click="emit('close')"
+          >
+            <span class="tile-icon"><component :is="tab.icon" aria-hidden="true" /></span>
+            <span>{{ $t(tab.label) }}</span>
           </RouterLink>
         </li>
       </ul>
 
       <div class="rows">
-        <RouterLink v-for="link in NAV_FOOT" :key="link.label" :to="link.to" class="row" exact-active-class="active" @click="emit('close')">
+        <RouterLink
+          v-for="link in NAV_FOOT"
+          :key="link.label"
+          :to="link.to"
+          class="row"
+          :class="{ active: isActive(link, route) }"
+          @click="emit('close')"
+        >
           <component :is="link.icon" aria-hidden="true" />
           <span>{{ $t(link.label) }}</span>
+          <ChevronRightIcon class="chev" aria-hidden="true" />
         </RouterLink>
-        <button type="button" class="row logout" @click="emit('close'); signOut(router)">
+        <button type="button" class="row" @click="emit('close'); signOut(router)">
           <ArrowRightStartOnRectangleIcon aria-hidden="true" />
           <span>{{ $t('nav.logout') }}</span>
         </button>
@@ -42,103 +59,118 @@ const router = useRouter()
 <style scoped>
 .mobile-nav {
   display: grid;
-  gap: 16px;
+  gap: 12px;
 }
 
 .tiles {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
-  margin: 0;
+  margin: 0 0 6px;
   padding: 0;
   list-style: none;
 }
 
-/* Icon beside the label; two glass tiles to a row. */
+/* The fifth tile (Custom) spans the row. */
+.tiles li:last-child:nth-child(odd) {
+  grid-column: span 2;
+}
+
 .tile {
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-height: 58px;
-  padding: 8px 12px;
-  border: 1px solid var(--glass-edge);
-  border-radius: 18px;
-  background: var(--surface);
+  gap: 10px;
+  min-height: 64px;
+  padding: 10px 14px 10px 10px;
+  border-radius: 22px;
+  background: color-mix(in srgb, var(--tint) var(--wash-strong), var(--surface));
   color: var(--fg);
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.92rem;
+  font-weight: 700;
   line-height: 1.2;
   text-decoration: none;
-  transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+  transition: transform 0.25s var(--spring), background-color 0.2s;
 }
 
-.tile svg,
-.row svg {
+.tile:active {
+  transform: scale(0.95);
+}
+
+.tile.active {
+  background: var(--tint);
+  box-shadow: inset 0 0 0 2px var(--ink);
+  color: var(--ink);
+}
+
+.tile-icon {
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  background: var(--tint);
+  color: var(--ink);
+}
+
+.tile-icon svg {
   width: 22px;
   height: 22px;
 }
 
-.tile svg {
-  color: var(--link);
-}
-
-/* Long names wrap to a second line rather than being cut off. */
-.tile span {
+.tile span:last-child {
   min-width: 0;
   overflow-wrap: anywhere;
 }
 
-.tile.active {
-  border-color: var(--accent);
-  background: var(--accent);
-  box-shadow: 0 8px 20px color-mix(in srgb, var(--accent) 30%, transparent);
-  color: var(--on-accent);
-  font-weight: 700;
-}
-
-.tile.active svg {
-  color: currentColor;
-}
-
 .rows {
   display: grid;
-  gap: 2px;
-  padding-top: 8px;
-  border-top: 1px solid var(--line);
+  overflow: hidden;
+  border-radius: 22px;
+  background: var(--surface-2);
 }
 
 .row {
   display: flex;
   align-items: center;
   gap: 14px;
-  min-height: 52px;
-  padding: 0 8px;
+  min-height: 56px;
+  padding: 0 16px;
   border: 0;
-  border-radius: 14px;
   background: transparent;
   color: var(--fg);
-  font-size: 0.95rem;
+  font-size: 0.98rem;
   font-weight: 600;
   text-align: left;
   text-decoration: none;
   cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.row + .row {
+  box-shadow: inset 0 1px 0 var(--line);
+}
+
+.row:active,
+.row.active {
+  background: var(--line);
 }
 
 .row svg {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
   color: var(--muted);
 }
 
-.row.active {
-  background: var(--accent);
-  color: var(--on-accent);
-}
-
-.row.active svg {
-  color: currentColor;
+.row .chev {
+  width: 18px;
+  height: 18px;
+  margin-left: auto;
 }
 
 .version {
-  padding: 0 8px;
+  justify-self: center;
+  padding-top: 4px;
 }
 </style>

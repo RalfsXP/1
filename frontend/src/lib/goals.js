@@ -11,19 +11,38 @@ import { occurrencesIn, toISO } from './periods'
 export const PRIORITIES = ['low', 'high', 'important']
 const PRIORITY_RANK = { important: 0, high: 1, low: 2 }
 
-/** User-picked colours start from these; any hex is allowed (badges/flags are the colour exception). */
-export const SWATCHES = ['#489fb5', '#82c0cc', '#16697a', '#ffa62b', '#e5604d', '#c98a12', '#7fa98a', '#0a2128']
+/**
+ * User-picked colours start from these (v1.7 pastels: Lavender, Mint, Peach, Butter, Sky, Rose, Violet, Ink);
+ * any hex is allowed (badges/flags are the colour exception). Names: lang `colors`.
+ */
+export const SWATCHES = ['#cbbcff', '#bdebc9', '#ffc9a6', '#ffe27a', '#c2e1ff', '#ffbfd0', '#8b74ff', '#17171c']
 
 /** Built-in category look; mirrors config/goals.php default_styles (every period + events needs one). */
 const DEFAULT_STYLES = {
-  day: { color: '#489fb5', icon: 'sun' },
-  week: { color: '#82c0cc', icon: 'bolt' },
-  month: { color: '#ffa62b', icon: 'star' },
-  year: { color: '#16697a', icon: 'trophy' },
-  custom: { color: '#0a2128', icon: 'flag' },
+  day: { color: '#cbbcff', icon: 'sun' },
+  week: { color: '#c2e1ff', icon: 'bolt' },
+  month: { color: '#ffe27a', icon: 'star' },
+  year: { color: '#bdebc9', icon: 'trophy' },
+  custom: { color: '#ffc9a6', icon: 'flag' },
   // Not a period: the default badge for events.
-  event: { color: '#e5604d', icon: 'calendar' },
+  event: { color: '#ffbfd0', icon: 'calendar' },
 }
+
+/**
+ * Badges saved with the v1.6 "Harbour fog" presets show as their v1.7 pastel twin, so old goals fit the
+ * new look without touching stored data. Any other custom colour is kept as picked.
+ */
+const LEGACY = {
+  '#489fb5': '#cbbcff',
+  '#82c0cc': '#c2e1ff',
+  '#16697a': '#bdebc9',
+  '#ffa62b': '#ffe27a',
+  '#e5604d': '#ffbfd0',
+  '#c98a12': '#ffc9a6',
+  '#7fa98a': '#bdebc9',
+  '#0a2128': '#17171c',
+}
+export const paletteColor = (hex) => (hex ? (LEGACY[hex.toLowerCase()] ?? hex) : hex)
 
 const cache = reactive(new Map())
 
@@ -124,7 +143,12 @@ export async function deleteGoal(id) {
 const toggleSeq = new Map()
 
 /** Tick or untick one occurrence; the UI updates first and rolls back on failure. */
+/** The occurrence ticked off last and when: rows play the check animation only for a real tick, not on every render. */
+export const lastTick = { key: null, at: 0 }
+export const justTicked = (key) => lastTick.key === key && performance.now() - lastTick.at < 1200
+
 export async function setDone(occurrence, done) {
+  if (done) Object.assign(lastTick, { key: occurrence.key, at: performance.now() })
   const goal = cache.get(occurrence.goal.id)
   const seq = (toggleSeq.get(occurrence.key) ?? 0) + 1
   toggleSeq.set(occurrence.key, seq)
@@ -151,12 +175,15 @@ export async function setDone(occurrence, done) {
 
 /* ---------- Badge styles ---------- */
 
-export const categoryStyle = (period) => ({ ...DEFAULT_STYLES[period], ...user.value?.goal_styles?.[period] })
+export function categoryStyle(period) {
+  const style = { ...DEFAULT_STYLES[period], ...user.value?.goal_styles?.[period] }
+  return { ...style, color: paletteColor(style.color) }
+}
 
 /** A goal's badge: its own colour/icon, else its category's. */
 export function badgeFor(goal) {
   const base = categoryStyle(goal.period)
-  return { color: goal.badge_color ?? base.color, icon: goal.badge_icon ?? base.icon }
+  return { color: paletteColor(goal.badge_color) ?? base.color, icon: goal.badge_icon ?? base.icon }
 }
 
 export async function saveCategoryStyle(period, style) {
@@ -171,5 +198,5 @@ export function readableOn(hex) {
     return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
   })
   const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b
-  return lum > 0.179 ? 'var(--black)' : 'var(--white)'
+  return lum > 0.179 ? 'var(--ink)' : '#ffffff'
 }

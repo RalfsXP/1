@@ -36,11 +36,11 @@ class DemoSeeder extends Seeder
             'password' => $password,
             'locale' => 'en',
             'goal_styles' => [
-                'day' => ['color' => '#489fb5', 'icon' => 'sun'],
-                'week' => ['color' => '#82c0cc', 'icon' => 'bolt'],
-                'month' => ['color' => '#ffa62b', 'icon' => 'star'],
-                'year' => ['color' => '#16697a', 'icon' => 'trophy'],
-                'custom' => ['color' => '#0a2128', 'icon' => 'flag'],
+                'day' => ['color' => '#cbbcff', 'icon' => 'sun'],
+                'week' => ['color' => '#c2e1ff', 'icon' => 'bolt'],
+                'month' => ['color' => '#ffe27a', 'icon' => 'star'],
+                'year' => ['color' => '#bdebc9', 'icon' => 'trophy'],
+                'custom' => ['color' => '#ffc9a6', 'icon' => 'flag'],
             ],
         ]);
         $user->forceFill(['email_verified_at' => now()])->save();
@@ -58,9 +58,9 @@ class DemoSeeder extends Seeder
     {
         $start = $today->copy()->subWeeks(6)->startOfWeek(Carbon::MONDAY);
         $habits = [
-            ['Drink 2 l of water', 'low', '#16697a', 'beaker', null, 0.9],
-            ['Read 20 minutes', 'low', '#c98a12', 'book-open', null, 0.75],
-            ['Gym', 'high', '#e5604d', 'bolt', [1, 3, 5], 0.85],
+            ['Drink 2 l of water', 'low', '#bdebc9', 'beaker', null, 0.9],
+            ['Read 20 minutes', 'low', '#ffc9a6', 'book-open', null, 0.75],
+            ['Gym', 'high', '#ffbfd0', 'bolt', [1, 3, 5], 0.85],
             ['Meditate 10 minutes', 'low', null, null, [2, 4, 6, 7], 0.6],
         ];
 
@@ -84,19 +84,19 @@ class DemoSeeder extends Seeder
     {
         $yesterday = $today->copy()->subDay();
 
-        $invoice = $this->goal($user, 'day', $yesterday, 'Send the invoice to the client', 'high', '#489fb5', 'banknotes');
+        $invoice = $this->goal($user, 'day', $yesterday, 'Send the invoice to the client', 'high', '#cbbcff', 'banknotes');
         $this->done($invoice, $yesterday, $yesterday->copy()->setTime(16, 40));
         $this->goal($user, 'day', $yesterday, 'Book a dentist appointment', 'important', null, 'heart');
 
-        $run = $this->goal($user, 'day', $today, 'Run 5 km', 'important', '#489fb5', 'fire');
+        $run = $this->goal($user, 'day', $today, 'Run 5 km', 'important', '#cbbcff', 'fire');
         $this->done($run, $today, $today->copy()->setTime(7, 15));
-        $this->goal($user, 'day', $today, 'Team meeting', 'high', '#82c0cc', 'user-group', ['due_at' => $today->copy()->setTime(17, 0)]);
-        $this->goal($user, 'day', $today, 'Buy a present for Anna', 'low', '#c98a12', 'gift');
+        $this->goal($user, 'day', $today, 'Team meeting', 'high', '#c2e1ff', 'user-group', ['due_at' => $today->copy()->setTime(17, 0)]);
+        $this->goal($user, 'day', $today, 'Buy a present for Anna', 'low', '#ffc9a6', 'gift');
 
-        $this->goal($user, 'day', $today->copy()->addDay(), 'Submit the report', 'important', '#489fb5', 'briefcase');
-        $this->goal($user, 'day', $today->copy()->addDays(2), 'Guitar lesson', 'low', '#e5604d', 'musical-note');
-        $this->goal($user, 'day', $today->copy()->addDays(4), 'Bake a cake', 'low', '#ffa62b', 'cake');
-        $this->goal($user, 'day', $today->copy()->addDays(6), 'Hike in Sigulda', 'high', '#16697a', 'globe-europe-africa');
+        $this->goal($user, 'day', $today->copy()->addDay(), 'Submit the report', 'important', '#cbbcff', 'briefcase');
+        $this->goal($user, 'day', $today->copy()->addDays(2), 'Guitar lesson', 'low', '#ffbfd0', 'musical-note');
+        $this->goal($user, 'day', $today->copy()->addDays(4), 'Bake a cake', 'low', '#ffe27a', 'cake');
+        $this->goal($user, 'day', $today->copy()->addDays(6), 'Hike in Sigulda', 'high', '#bdebc9', 'globe-europe-africa');
     }
 
     /** Weekly, monthly, yearly and custom-period goals. */
@@ -105,12 +105,12 @@ class DemoSeeder extends Seeder
         $week = $today->copy()->startOfWeek(Carbon::MONDAY);
         $lastWeek = $week->copy()->subWeek();
 
-        $slides = $this->goal($user, 'week', $lastWeek, 'Prepare the presentation', 'important', '#489fb5', 'light-bulb');
+        $slides = $this->goal($user, 'week', $lastWeek, 'Prepare the presentation', 'important', '#cbbcff', 'light-bulb');
         $this->done($slides, $lastWeek, $lastWeek->copy()->addDays(2)->setTime(18, 5));
-        $this->goal($user, 'week', $week, 'Read 3 chapters', 'high', '#c98a12', 'book-open');
+        $this->goal($user, 'week', $week, 'Read 3 chapters', 'high', '#ffc9a6', 'book-open');
         $this->goal($user, 'week', $week, 'Clean the garage', 'low', null, 'home');
 
-        $training = $this->goal($user, 'week', $week->copy()->subWeeks(5), 'Work out 3 times', 'high', '#7fa98a', 'fire', ['repeats' => true]);
+        $training = $this->goal($user, 'week', $week->copy()->subWeeks(5), 'Work out 3 times', 'high', '#8b74ff', 'fire', ['repeats' => true]);
         for ($w = $week->copy()->subWeeks(5); $w->lt($week); $w->addWeek()) {
             if ($w->weekOfYear % 4 !== 0) {
                 $this->done($training, $w, $w->copy()->addDays(5)->setTime(19, 30));
@@ -118,35 +118,35 @@ class DemoSeeder extends Seeder
         }
 
         $month = $today->copy()->startOfMonth();
-        $budget = $this->goal($user, 'month', $month->copy()->subMonths(3), 'Budget review', 'high', '#16697a', 'banknotes', ['repeats' => true]);
+        $budget = $this->goal($user, 'month', $month->copy()->subMonths(3), 'Budget review', 'high', '#bdebc9', 'banknotes', ['repeats' => true]);
         for ($m = $month->copy()->subMonths(3); $m->lt($month); $m->addMonth()) {
             $this->done($budget, $m, $m->copy()->addDays(24)->setTime(20, 0));
         }
-        $this->goal($user, 'month', $month, 'Save €300', 'high', '#ffa62b', 'banknotes');
+        $this->goal($user, 'month', $month, 'Save €300', 'high', '#ffe27a', 'banknotes');
         $this->goal($user, 'month', $month, 'Read 2 books', 'low', null, 'book-open');
 
         $year = $today->copy()->startOfYear();
-        $this->goal($user, 'year', $year, 'Run a half marathon', 'important', '#489fb5', 'trophy');
-        $this->goal($user, 'year', $year, 'Learn Spanish', 'high', '#c98a12', 'academic-cap');
-        $trip = $this->goal($user, 'year', $year, 'Visit 3 new countries', 'low', '#489fb5', 'paper-airplane');
+        $this->goal($user, 'year', $year, 'Run a half marathon', 'important', '#cbbcff', 'trophy');
+        $this->goal($user, 'year', $year, 'Learn Spanish', 'high', '#ffc9a6', 'academic-cap');
+        $trip = $this->goal($user, 'year', $year, 'Visit 3 new countries', 'low', '#cbbcff', 'paper-airplane');
         $this->done($trip, $year, $today->copy()->subDays(20)->setTime(12, 0));
 
-        $this->goal($user, 'custom', $today->copy()->subDays(5), 'Kitchen renovation', 'high', '#ffa62b', 'home', ['period_end' => $today->copy()->addDays(5)]);
-        $this->goal($user, 'custom', $today->copy()->addDays(10), 'Holiday in Italy', 'low', '#c98a12', 'paper-airplane', ['period_end' => $today->copy()->addDays(17)]);
+        $this->goal($user, 'custom', $today->copy()->subDays(5), 'Kitchen renovation', 'high', '#ffe27a', 'home', ['period_end' => $today->copy()->addDays(5)]);
+        $this->goal($user, 'custom', $today->copy()->addDays(10), 'Holiday in Italy', 'low', '#ffc9a6', 'paper-airplane', ['period_end' => $today->copy()->addDays(17)]);
     }
 
     /** Birthdays and a few one-off events spread around today, so the countdown list has a mix. */
     private function events(User $user, Carbon $today): void
     {
         $events = [
-            ["Anna's birthday", $today->copy()->addDays(27)->subYears(31), null, 'year', '#e5604d', 'cake'],
-            ["Mum's birthday", $today->copy()->addDays(74)->subYears(58), null, 'year', '#ffa62b', 'gift'],
-            ['Wedding anniversary', $today->copy()->addDays(160)->subYears(4), null, 'year', '#e5604d', 'heart'],
-            ['Rent payment', $today->copy()->startOfMonth()->addDays(14), null, 'month', '#16697a', 'banknotes'],
-            ['Football with friends', $today->copy()->subWeeks(3)->addDays(2), '19:30', 'week', '#7fa98a', 'user-group'],
+            ["Anna's birthday", $today->copy()->addDays(27)->subYears(31), null, 'year', '#ffbfd0', 'cake'],
+            ["Mum's birthday", $today->copy()->addDays(74)->subYears(58), null, 'year', '#ffe27a', 'gift'],
+            ['Wedding anniversary', $today->copy()->addDays(160)->subYears(4), null, 'year', '#ffbfd0', 'heart'],
+            ['Rent payment', $today->copy()->startOfMonth()->addDays(14), null, 'month', '#bdebc9', 'banknotes'],
+            ['Football with friends', $today->copy()->subWeeks(3)->addDays(2), '19:30', 'week', '#8b74ff', 'user-group'],
             ['Dentist', $today->copy()->addDays(3), '09:15', null, null, null],
-            ['Concert at Arena Riga', $today->copy()->addDays(19), '20:00', null, '#489fb5', 'musical-note'],
-            ['Flight to Rome', $today->copy()->addDays(10), '06:40', null, '#82c0cc', 'paper-airplane'],
+            ['Concert at Arena Riga', $today->copy()->addDays(19), '20:00', null, '#cbbcff', 'musical-note'],
+            ['Flight to Rome', $today->copy()->addDays(10), '06:40', null, '#c2e1ff', 'paper-airplane'],
         ];
 
         foreach ($events as [$title, $date, $time, $repeat, $color, $icon]) {
@@ -166,12 +166,12 @@ class DemoSeeder extends Seeder
     {
         $note = fn ($text, $x, $y, $bg, $fg = '#000000') => [
             'type' => 'StickyNote', 'version' => '7.4.0', 'text' => $text, 'left' => $x, 'top' => $y, 'width' => 200,
-            'fontFamily' => 'Montserrat', 'fontWeight' => 600, 'fontSize' => 20, 'lineHeight' => 1.25,
+            'fontFamily' => 'DM Sans', 'fontWeight' => 600, 'fontSize' => 20, 'lineHeight' => 1.25,
             'fill' => $fg, 'backgroundColor' => $bg, 'padding' => 14,
         ];
         $text = fn ($value, $x, $y, $size = 30) => [
             'type' => 'IText', 'version' => '7.4.0', 'text' => $value, 'left' => $x, 'top' => $y,
-            'fontFamily' => 'Montserrat', 'fontWeight' => 700, 'fontSize' => $size, 'fill' => '#000000',
+            'fontFamily' => 'DM Sans', 'fontWeight' => 700, 'fontSize' => $size, 'fill' => '#000000',
         ];
         $box = fn ($x, $y, $w, $h, $stroke = '#000000') => [
             'type' => 'Rect', 'version' => '7.4.0', 'left' => $x, 'top' => $y, 'width' => $w, 'height' => $h,
@@ -187,9 +187,9 @@ class DemoSeeder extends Seeder
             'title' => 'Weekly plan',
             'data' => ['version' => '7.4.0', 'objects' => [
                 $text('This week', 330, 60, 40),
-                $note("Monday\nGym\nInvoices", 140, 200, '#489fb5'),
-                $note("Wednesday\nClient\npresentation", 380, 200, '#489fb5', '#ffffff'),
-                $note("Friday\nHike in\nSigulda", 620, 200, '#ffa62b'),
+                $note("Monday\nGym\nInvoices", 140, 200, '#cbbcff'),
+                $note("Wednesday\nClient\npresentation", 380, 200, '#c2e1ff'),
+                $note("Friday\nHike in\nSigulda", 620, 200, '#ffe27a'),
             ], 'viewport' => [1, 0, 0, 1, 0, 0]],
         ]);
 
@@ -200,10 +200,10 @@ class DemoSeeder extends Seeder
                 $box(160, 220, 200, 110),
                 $text('Goal', 160, 220, 26),
                 $arrow(270, 220, 390, 220),
-                $box(500, 220, 200, 110, '#e5604d'),
+                $box(500, 220, 200, 110, '#ffbfd0'),
                 $text('Habit', 500, 220, 26),
                 $arrow(610, 220, 730, 220),
-                $note("Result:\na little better\nevery day", 840, 220, '#c98a12'),
+                $note("Result:\na little better\nevery day", 840, 220, '#ffc9a6'),
             ], 'viewport' => [1, 0, 0, 1, 0, 0]],
         ]);
     }
