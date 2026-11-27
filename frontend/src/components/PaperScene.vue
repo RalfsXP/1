@@ -7,7 +7,7 @@ import { addDays, isoWeekday, parseISO } from '@/lib/periods'
 import { todayISO } from '@/lib/timeLeft'
 
 /*
- * Landing / auth art (v1.7): a few tilted paper cards and pastel pills floating gently — this week with
+ * Landing / auth art (v1.8): a few tilted paper cards and pastel pills floating gently — this week with
  * today in ink, today's ring, a streak, a ticked-off goal and an upcoming birthday. Decorative only.
  * Drawn on a 340 × 360 grid in container units, so it fits whatever box it gets.
  */

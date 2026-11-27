@@ -194,7 +194,7 @@ async function remove() {
 
       <div class="form-field">
         <span class="form-label">{{ $t('goal.period') }}</span>
-        <div class="segmented tight" role="group" :aria-label="$t('goal.period')">
+        <div v-slide-pill class="segmented tight" role="group" :aria-label="$t('goal.period')">
           <button v-for="p in PERIODS" :key="p" type="button" :aria-pressed="form.period === p" @click="choosePeriod(p)">
             {{ $t(`periods.short.${p}`) }}
           </button>
@@ -210,7 +210,7 @@ async function remove() {
       <div v-if="!isCustom" class="sub">
         <div class="form-field">
           <span class="form-label">{{ $t('goal.repeat') }}</span>
-          <div class="segmented" role="group" :aria-label="$t('goal.repeat')">
+          <div v-slide-pill class="segmented" role="group" :aria-label="$t('goal.repeat')">
             <button type="button" :aria-pressed="!form.repeats" @click="form.repeats = false">{{ $t('goal.once') }}</button>
             <button type="button" :aria-pressed="form.repeats" @click="form.repeats = true">{{ $t(`periods.every.${form.period}`) }}</button>
           </div>
@@ -263,7 +263,7 @@ async function remove() {
 
       <div class="form-field">
         <span class="form-label">{{ $t('priority.label') }}</span>
-        <div class="segmented outline" role="group" :aria-label="$t('priority.label')">
+        <div v-slide-pill class="segmented outline" role="group" :aria-label="$t('priority.label')">
           <button v-for="p in PRIORITIES" :key="p" type="button" :aria-pressed="form.priority === p" @click="form.priority = p">
             <PriorityFlag :priority="p" decorative />{{ $t(`priority.${p}`) }}
           </button>

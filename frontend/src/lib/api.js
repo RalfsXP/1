@@ -25,4 +25,18 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+/**
+ * The session ran out while the app was open (common for a Home Screen app left open for days): any
+ * signed-in request answered 401/419 tells the app, which goes back to the login page instead of showing
+ * errors. (lib/auth.js listens; kept as an event so this module doesn't import the router.)
+ */
+api.interceptors.response.use(undefined, (error) => {
+  const status = error.response?.status
+  const url = error.config?.url ?? ''
+  if ((status === 401 || status === 419) && !['/user', '/login', '/register', '/logout'].includes(url)) {
+    window.dispatchEvent(new Event('merkis:signed-out'))
+  }
+  return Promise.reject(error)
+})
+
 export default api

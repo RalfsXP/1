@@ -12,7 +12,7 @@
 
 <p align="center">
   <a href="https://merkis.app"><img src="https://img.shields.io/badge/live-merkis.app-4c956c?style=flat-square" alt="Live at merkis.app"></a>
-  <img src="https://img.shields.io/badge/version-v1.7-17171c?style=flat-square" alt="Version v1.7">
+  <img src="https://img.shields.io/badge/version-v1.8-17171c?style=flat-square" alt="Version v1.8">
   <img src="https://img.shields.io/badge/Vue_3-42b883?style=flat-square&logo=vuedotjs&logoColor=white" alt="Vue 3">
   <img src="https://img.shields.io/badge/Laravel_13-FF2D20?style=flat-square&logo=laravel&logoColor=white" alt="Laravel 13">
   <img src="https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=white" alt="Supabase">

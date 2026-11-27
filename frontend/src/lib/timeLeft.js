@@ -1,5 +1,6 @@
 import { computed, ref } from 'vue'
 import { locale, t } from './i18n'
+import { intl } from './intl'
 import { parseISO, toISO } from './periods'
 
 /** Shared clock for countdowns; a 30 s tick is plenty for "in 3 hours". */
@@ -30,7 +31,7 @@ export function timeLeft(deadline, at = now.value) {
   else if (abs >= HOUR) [value, unit] = [Math.floor(abs / HOUR), 'hour']
   else [value, unit] = [Math.max(1, Math.ceil(abs / MINUTE)), 'minute']
 
-  const text = new Intl.RelativeTimeFormat(locale.value, { numeric: 'always' }).format(sign * value, unit)
+  const text = intl(Intl.RelativeTimeFormat, locale.value, { numeric: 'always' }).format(sign * value, unit)
   return { text, overdue: diff < 0, soon: diff >= 0 && diff < DAY }
 }
 
@@ -41,13 +42,13 @@ function formatCompleted(date, withTime) {
   const opts = { weekday: 'short', day: 'numeric', month: 'short' }
   if (withTime) Object.assign(opts, { hour: '2-digit', minute: '2-digit' })
   // Non-breaking spaces keep the date on one line when the status text wraps.
-  return new Intl.DateTimeFormat(intlLocale(), opts).format(date).replace(/ /g, '\u00a0')
+  return intl(Intl.DateTimeFormat, intlLocale(), opts).format(date).replace(/ /g, '\u00a0')
 }
 
 /** "3 days" / "3 dienas"; Latvian uses the singular after numbers ending in 1 (except 11): "21 dienu". */
 function days(n) {
   if (locale.value === 'lv') return `${n} ${n % 10 === 1 && n % 100 !== 11 ? 'dienu' : 'dienas'}`
-  return new Intl.NumberFormat('en', { style: 'unit', unit: 'day', unitDisplay: 'long' }).format(n)
+  return intl(Intl.NumberFormat, 'en', { style: 'unit', unit: 'day', unitDisplay: 'long' }).format(n)
 }
 
 /**

@@ -92,7 +92,7 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
     </header>
 
     <!-- Categories: one pill each, the current one is ink. -->
-    <nav ref="tabsEl" class="tabs" :aria-label="$t('nav.goals')">
+    <nav ref="tabsEl" v-slide-pill="'.tab.active'" class="tabs" :aria-label="$t('nav.goals')">
       <RouterLink
         v-for="tab in GOAL_TABS"
         :key="tab.period"
@@ -190,13 +190,17 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
   opacity: 0;
 }
 
-/* One swipeable row on phones. */
+/* One white track (a swipeable row on phones); the ink pill slides to the chosen tab (v-slide-pill). */
 .tabs {
+  position: relative;
+  isolation: isolate;
   display: flex;
-  gap: 8px;
-  margin: 0 -18px;
-  padding: 2px 18px 6px;
+  gap: 2px;
+  padding: 4px;
   overflow-x: auto;
+  border-radius: 999px;
+  background: var(--surface);
+  box-shadow: var(--card-shadow), inset 0 0 0 1px var(--card-edge);
   scrollbar-width: none;
 }
 
@@ -204,21 +208,29 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
   display: none;
 }
 
+.tabs > :deep(.seg-pill) {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: transform 0.5s var(--spring), width 0.5s var(--spring);
+}
+
 .tab {
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
   gap: 8px;
-  height: 46px;
-  padding: 0 16px 0 6px;
+  height: 44px;
+  padding: 0 16px 0 5px;
   border-radius: 999px;
-  background: var(--surface);
-  box-shadow: var(--card-shadow), inset 0 0 0 1px var(--card-edge);
   color: var(--fg);
   font-size: 0.92rem;
   font-weight: 700;
   text-decoration: none;
-  transition: background-color 0.25s var(--ease), color 0.25s var(--ease), transform 0.25s var(--spring);
+  transition: color 0.3s var(--ease), transform 0.25s var(--spring);
 }
 
 .tab:active {
@@ -241,7 +253,6 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
 }
 
 .tab.active {
-  background: var(--accent);
   color: var(--on-accent);
 }
 
@@ -342,10 +353,8 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
   }
 
   .tabs {
-    margin: 0;
-    padding: 2px 0 6px;
-    overflow: visible;
-    flex-wrap: wrap;
+    align-self: start;
+    justify-self: start;
   }
 }
 </style>

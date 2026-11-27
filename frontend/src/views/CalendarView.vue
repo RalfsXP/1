@@ -33,7 +33,7 @@ import {
 import { todayISO } from '@/lib/timeLeft'
 
 /*
- * Calendar (v1.7): a Month board (with the selected day's panel) or a Week board, switched in the
+ * Calendar (v1.8): a Month board (with the selected day's panel) or a Week board, switched in the
  * header and remembered. One selected day drives both: paging moves it, picking a day follows it.
  */
 const VIEW_KEY = 'merkis-cal-view'
@@ -193,7 +193,7 @@ function addEvent() {
       </div>
 
       <div class="page-actions cal-actions">
-        <div class="segmented raised view-switch" role="group" :aria-label="$t('calendar.view')">
+        <div v-slide-pill class="segmented raised view-switch" role="group" :aria-label="$t('calendar.view')">
           <button type="button" :aria-pressed="view === 'month'" @click="view = 'month'">{{ $t('calendar.monthView') }}</button>
           <button type="button" :aria-pressed="view === 'week'" @click="view = 'week'">{{ $t('calendar.weekView') }}</button>
         </div>
@@ -270,7 +270,7 @@ function addEvent() {
             </AnimatedList>
           </div>
 
-          <div v-for="group in groups" :key="group.period" class="group">
+          <div v-for="group in groups" :key="group.period" v-reveal class="group">
             <RouterLink
               class="section-label group-title"
               :to="{ name: 'goals', params: { period: PERIOD_TO_ROUTE[group.period] }, query: { date: group.start } }"

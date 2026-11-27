@@ -35,6 +35,7 @@ function jump(id) {
       v-for="(section, n) in GUIDE"
       :id="`guide-${section.id}`"
       :key="section.id"
+      v-reveal
       class="card topic"
       :class="{ 'no-shots': !section.shots.length }"
       :aria-labelledby="`guide-${section.id}-title`"

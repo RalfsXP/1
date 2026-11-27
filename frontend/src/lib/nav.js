@@ -15,14 +15,14 @@ import { logout } from './auth'
 import { withLoader } from './loader'
 
 /**
- * Main navigation (v1.7): the desktop top pill nav and the phone's floating pill bar.
+ * Main navigation (v1.8): the desktop top pill nav and the big tiles of the phone menu (`tint` = pastel token).
  * `names` = route names that light the item up (Goals covers every period page).
  */
 export const NAV_MAIN = [
-  { to: { name: 'home' }, label: 'nav.home', icon: Squares2X2Icon, names: ['home'] },
-  { to: { name: 'calendar' }, label: 'nav.calendar', icon: CalendarDaysIcon, names: ['calendar'] },
-  { to: { name: 'goals', params: { period: 'daily' } }, label: 'nav.goals', icon: FlagIcon, names: ['goals'] },
-  { to: { name: 'events' }, label: 'nav.events', icon: CakeIcon, names: ['events'] },
+  { to: { name: 'home' }, label: 'nav.home', icon: Squares2X2Icon, names: ['home'], tint: 'lav' },
+  { to: { name: 'calendar' }, label: 'nav.calendar', icon: CalendarDaysIcon, names: ['calendar'], tint: 'sky' },
+  { to: { name: 'goals', params: { period: 'daily' } }, label: 'nav.goals', icon: FlagIcon, names: ['goals'], tint: 'butter' },
+  { to: { name: 'events' }, label: 'nav.events', icon: CakeIcon, names: ['events'], tint: 'rose' },
   // Whiteboards (/whiteboards) are hidden from the menus for now; the pages still work by URL.
 ]
 

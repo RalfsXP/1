@@ -5,8 +5,7 @@ import { isActive } from '@/lib/nav'
 
 /**
  * Pill navigation with a sliding active pill.
- * variant 'top'  (desktop header): white track, icon + label, the active pill is ink.
- * variant 'dock' (phone, floating): dark track, icons only; the slot adds trailing buttons (Menu).
+ * variant 'top' (desktop header): white track, icon + label, the active pill is ink.
  */
 defineProps({
   items: { type: Array, required: true },
@@ -47,7 +46,7 @@ const active = (item) => isActive(item, route)
     <span
       class="indicator"
       :class="{ on: pill.on, instant: pill.instant }"
-      :style="variant === 'top' ? { width: `${pill.w}px`, transform: `translateX(${pill.x}px)` } : { transform: `translateX(${pill.x}px)` }"
+      :style="{ width: `${pill.w}px`, transform: `translateX(${pill.x}px)` }"
       aria-hidden="true"
     />
     <RouterLink
@@ -57,7 +56,7 @@ const active = (item) => isActive(item, route)
       class="item"
       :class="{ active: active(item) }"
       :aria-current="active(item) ? 'page' : undefined"
-      :aria-label="variant === 'dock' ? $t(item.label) : undefined"
+      :aria-label="variant === 'top' ? undefined : $t(item.label)"
     >
       <component :is="item.icon" aria-hidden="true" />
       <span v-if="variant === 'top'" class="label">{{ $t(item.label) }}</span>
@@ -143,44 +142,5 @@ const active = (item) => isActive(item, route)
 
 .top .item.active {
   color: var(--on-accent);
-}
-
-/* ---------- Phone dock ---------- */
-.dock {
-  --dock-fg: rgb(255 255 255 / 0.55);
-  gap: 4px;
-  padding: 7px;
-  background: var(--dock);
-  box-shadow: var(--float-shadow), inset 0 0 0 1px var(--card-edge);
-}
-
-.dock .indicator {
-  /* Every dock button is 48 px: the pill only moves (transform), so it glides on the GPU even while a page builds. */
-  top: 7px;
-  bottom: 7px;
-  width: 48px;
-  background: rgb(255 255 255 / 0.14);
-}
-
-.dock .item,
-.dock :slotted(button) {
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  color: var(--dock-fg);
-  cursor: pointer;
-}
-
-.dock .item.active {
-  color: #ffffff;
-}
-
-.dock .item svg,
-.dock :slotted(button) svg {
-  width: 24px;
-  height: 24px;
 }
 </style>

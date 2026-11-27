@@ -1,7 +1,7 @@
 <script setup>
 import LogoMark from './LogoMark.vue'
 
-// Brand lockup (v1.7): the sticker mark + "mērķis" set in Bricolage Grotesque ExtraBold.
+// Brand lockup (v1.8): the sticker mark + "mērķis" set in Bricolage Grotesque ExtraBold.
 // The size comes from the parent's font-size (the mark is 1.75em).
 </script>
 

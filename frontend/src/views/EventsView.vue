@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { PlusIcon } from '@heroicons/vue/24/outline'
 import EventForm from '@/components/EventForm.vue'
 import AnimatedList from '@/components/AnimatedList.vue'
+import CountUp from '@/components/CountUp.vue'
 import EventItem from '@/components/EventItem.vue'
 import Fold from '@/components/Fold.vue'
 import { useAddAction } from '@/lib/addAction'
@@ -83,7 +84,7 @@ function edit(occurrence) {
         </span>
       </span>
       <span v-if="heroDays > 2" class="hero-count" :aria-label="countdown(hero.date, todayISO)">
-        <span class="hero-num">{{ heroDays }}</span>
+        <CountUp class="hero-num" :value="heroDays" />
         <span class="hero-unit">{{ dayUnit(heroDays) }}</span>
       </span>
       <span v-else class="hero-pill">{{ countdown(hero.date, todayISO) }}</span>

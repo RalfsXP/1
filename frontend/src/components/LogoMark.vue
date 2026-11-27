@@ -1,5 +1,5 @@
 <script setup>
-// The mark (v1.7): a tilted lavender sticker with an ink "m" and a butter dot. Fixed colours in both
+// The mark (v1.8): a tilted lavender sticker with an ink "m" and a butter dot. Fixed colours in both
 // themes (it's a sticker, not text). Same geometry as scripts/build-logo.mjs, which renders the icons from it.
 // `animated` gives it a gentle wobble (loading screen).
 defineProps({ animated: { type: Boolean, default: false } })

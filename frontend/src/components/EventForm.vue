@@ -114,7 +114,7 @@ async function remove() {
 
       <div class="form-field">
         <span class="form-label">{{ $t('events.repeat') }}</span>
-        <div class="segmented" role="group" :aria-label="$t('events.repeat')">
+        <div v-slide-pill class="segmented" role="group" :aria-label="$t('events.repeat')">
           <button type="button" :aria-pressed="!form.repeat" @click="form.repeat = null">{{ $t('events.once') }}</button>
           <button
             v-for="r in REPEATS"
