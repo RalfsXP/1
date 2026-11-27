@@ -13,6 +13,7 @@ import BottomSheet from '@/components/BottomSheet.vue'
 import Expand from '@/components/Expand.vue'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import api from '@/lib/api'
+import { vSlidePill } from '@/lib/directives'
 import { t } from '@/lib/i18n'
 
 // Music prototype (/music, public, not in any menu): a lyric snippet → matching songs with 30 s previews.
@@ -23,6 +24,30 @@ const mode = ref('lyrics')
 const loading = ref(false)
 const error = ref('')
 const searchId = ref(0)
+// Paging: the backend sends 5 songs per page; "Load more" asks for the next page of the same search.
+const page = ref(1)
+const hasMore = ref(false)
+const loadingMore = ref(false)
+let current = null // { q, by } of the shown results — the field may have changed since
+
+// Best match by: lyrics (Genius) or song name (Deezer titles + artists). Remembered; switching re-runs the search.
+const BY_KEY = 'merkis-music-by'
+const by = ref('lyrics')
+try {
+  if (localStorage.getItem(BY_KEY) === 'title') by.value = 'title'
+} catch {
+  // Storage unavailable: lyrics.
+}
+function setBy(value) {
+  if (by.value === value) return
+  by.value = value
+  try {
+    localStorage.setItem(BY_KEY, value)
+  } catch {
+    // Not remembered, still works.
+  }
+  if (results.value && query.value.trim().length >= 3) search()
+}
 
 async function search() {
   const q = query.value.trim()
@@ -31,17 +56,53 @@ async function search() {
   error.value = ''
   stop()
   try {
-    const { data } = await api.get('/music/search', { params: { q } })
+    const { data } = await api.get('/music/search', { params: { q, by: by.value } })
     searchId.value++
-    // Rows get their own id: the same recording on several albums shares one preview file (and Deezer/Genius
-    // links can repeat), so neither can tell rows apart.
-    results.value = data.results.map((song, i) => ({ ...song, uid: `${searchId.value}-${i}` }))
+    current = { q, by: by.value }
+    results.value = []
+    addResults(data)
     mode.value = data.mode
   } catch (e) {
     error.value = e.response?.status === 429 ? t('music.throttle') : t('music.error')
   } finally {
     loading.value = false
   }
+}
+
+async function loadMore() {
+  if (!current || loadingMore.value || !hasMore.value) return
+  loadingMore.value = true
+  error.value = ''
+  const id = searchId.value
+  try {
+    const { data } = await api.get('/music/search', { params: { ...current, page: page.value + 1 } })
+    if (id === searchId.value) addResults(data) // a new search started meanwhile: drop this page
+  } catch (e) {
+    error.value = e.response?.status === 429 ? t('music.throttle') : t('music.error')
+  } finally {
+    loadingMore.value = false
+  }
+}
+
+// Same rule as the backend's unique() (same title + artist + album, or the same preview file): the backend merges
+// repeats within a page, this catches one that comes back on a later page.
+const songKeys = (s) => {
+  const norm = (v) => String(v ?? '').trim().toLowerCase().replace(/\s+/g, ' ')
+  const keys = [`meta:${norm(s.title)}|${norm(s.artist)}|${norm(s.album)}`]
+  if (s.preview) keys.push(`clip:${s.preview.split('?')[0]}`)
+  return keys
+}
+
+function addResults(data) {
+  const seen = new Set(results.value.flatMap(songKeys))
+  // Rows get their own id: the same recording on several albums shares one preview file (and Deezer/Genius
+  // links can repeat), so neither can tell rows apart.
+  const fresh = data.results
+    .filter((song) => !songKeys(song).some((k) => seen.has(k)))
+    .map((song, i) => ({ ...song, uid: `${searchId.value}-${results.value.length + i}` }))
+  results.value = [...results.value, ...fresh]
+  page.value = data.page ?? 1
+  hasMore.value = !!data.has_more
 }
 
 // The field starts one line tall and grows with the text (up to its max-height, then it scrolls).
@@ -148,6 +209,14 @@ const services = computed(() => {
     <main class="page narrow">
       <p class="page-sub rise">{{ $t('music.sub') }}</p>
 
+      <div class="filter rise">
+        <span id="music-by" class="filter-label">{{ $t('music.by') }}</span>
+        <div v-slide-pill class="segmented raised" role="group" aria-labelledby="music-by">
+          <button type="button" :aria-pressed="by === 'lyrics'" @click="setBy('lyrics')">{{ $t('music.byLyrics') }}</button>
+          <button type="button" :aria-pressed="by === 'title'" @click="setBy('title')">{{ $t('music.byTitle') }}</button>
+        </div>
+      </div>
+
       <form class="card search rise" @submit.prevent="search">
         <label class="visually-hidden" for="lyrics">{{ $t('music.label') }}</label>
         <textarea
@@ -157,7 +226,7 @@ const services = computed(() => {
           class="input"
           rows="2"
           maxlength="300"
-          :placeholder="$t('music.placeholder')"
+          :placeholder="by === 'title' ? $t('music.placeholderTitle') : $t('music.placeholder')"
           autocomplete="off"
           @keydown="onKey"
         />
@@ -178,7 +247,7 @@ const services = computed(() => {
       </Expand>
 
       <template v-if="results">
-        <p v-if="mode === 'title'" class="note">{{ $t('music.titleMode') }}</p>
+        <p v-if="mode === 'title' && by === 'lyrics'" class="note">{{ $t('music.titleMode') }}</p>
         <p v-if="!results.length" class="empty-state">{{ $t('music.empty') }}</p>
         <ul v-else :key="searchId" class="list stagger">
           <li
@@ -224,6 +293,17 @@ const services = computed(() => {
             </span>
           </li>
         </ul>
+        <button
+          v-if="hasMore && results.length"
+          type="button"
+          class="btn more"
+          :class="{ busy: loadingMore }"
+          :disabled="loadingMore"
+          :aria-busy="loadingMore"
+          @click="loadMore"
+        >
+          <span class="more-label">{{ loadingMore ? $t('music.loadingMore') : $t('music.loadMore') }}</span>
+        </button>
       </template>
     </main>
 
@@ -284,6 +364,26 @@ const services = computed(() => {
   padding-top: 10px;
 }
 
+.filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+.filter-label {
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+/* Label + switch share one line, also on a 375px phone (the switch shrinks to ~230px there). */
+.filter .segmented {
+  flex: 1 1 200px;
+  max-width: 280px;
+}
+
 /* Phones: the field (two lines, grows with the text) with the full-width Search button under it;
    ≥640px: side by side, the button as tall as the field. */
 .search {
@@ -333,7 +433,7 @@ const services = computed(() => {
     var(--lav) 100%
   );
   content: '';
-  animation: drift 6s linear infinite;
+  animation: drift 3s linear infinite;
 }
 
 /* One loop = one colour cycle (a third of the layer), so the restart is seamless. */
@@ -352,7 +452,7 @@ const services = computed(() => {
 }
 
 .go.busy::before {
-  animation-duration: 1.4s;
+  animation-duration: 0.9s;
 }
 
 .go:disabled:not(.busy) {
@@ -369,10 +469,12 @@ const services = computed(() => {
 
 /* The global reduced-motion rule shortens animations to ~0 ms, which would make an endless one flicker. */
 @media (prefers-reduced-motion: reduce) {
-  .go::before {
+  .go::before,
+  .more-label {
     animation: none;
   }
 }
+
 
 .note {
   margin: 0;
@@ -493,6 +595,61 @@ const services = computed(() => {
 @media (hover: hover) {
   .play:hover:not(:disabled) {
     background: color-mix(in srgb, var(--accent) 86%, var(--bg));
+  }
+}
+
+/* Load more: full width under the list, its text in the Search button's drifting colours. Pastel text needs a dark
+   pill to stay readable (lavender on white is ~1.6:1): --dock = the ink card (ink in light mode, a dark card in dark mode;
+   a scoped :global([data-theme=dark]) rule would be dropped by Vue). */
+.more {
+  width: 100%;
+  height: 46px;
+  background: var(--dock);
+  box-shadow: var(--card-shadow), inset 0 0 0 1px var(--card-edge);
+  font-size: 0.98rem;
+}
+
+@media (hover: hover) {
+  .more:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--dock) 86%, var(--fg));
+  }
+}
+
+/* Loading: full colour (it's disabled meanwhile) and a faster drift. */
+.more.busy {
+  opacity: 1;
+}
+
+/* Gradient text: two colour cycles across a 200%-wide background, sliding one cycle per loop (seamless).
+   background-position on one short label is cheap; a transform can't move a text-clipped background. */
+.more-label {
+  background: linear-gradient(
+    100deg,
+    var(--lav) 0%,
+    var(--butter) 16.66%,
+    var(--peach) 33.33%,
+    var(--lav) 50%,
+    var(--butter) 66.66%,
+    var(--peach) 83.33%,
+    var(--lav) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 2.5s linear infinite;
+}
+
+.more.busy .more-label {
+  animation-duration: 0.9s;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: 100% 50%;
   }
 }
 

@@ -48,6 +48,7 @@ class MusicTest extends TestCase
                 'previewUrl' => 'https://audio.itunes.apple.com/r.m4a',
                 'trackViewUrl' => 'https://music.apple.com/us/album/rare/1?i=2',
                 'collectionName' => 'Rare Album',
+                'artistName' => 'Nobody & Friends',
             ]]]),
         ]);
 
@@ -119,6 +120,124 @@ class MusicTest extends TestCase
             ->assertJsonPath('results.0.deezer_url', 'https://www.deezer.com/track/1')
             ->assertJsonPath('results.1.deezer_url', 'https://www.deezer.com/track/3')
             ->assertJsonPath('results.2.artist', 'Neves17');
+    }
+
+    public function test_lyric_search_is_one_genius_search_in_its_own_order(): void
+    {
+        config(['services.genius.token' => 'test-token']);
+
+        Http::fake([
+            'api.genius.com/*' => Http::response(['response' => ['hits' => [
+                $this->geniusHit('First', 'One'),
+                $this->geniusHit('Second', 'Two'),
+            ]]]),
+            'api.deezer.com/*' => Http::response(['data' => []]),
+            'itunes.apple.com/*' => Http::response(['results' => []]),
+        ]);
+
+        $this->getJson('/api/music/search?q='.urlencode('look at the stars see how they shine'))
+            ->assertOk()
+            ->assertJsonPath('results.0.title', 'First')
+            ->assertJsonPath('results.1.title', 'Second');
+
+        $this->assertCount(1, Http::recorded(fn (Request $r) => str_contains($r->url(), 'api.genius.com')));
+        Http::assertSent(fn (Request $r) => str_contains($r->url(), 'api.genius.com')
+            && $r['q'] === 'look at the stars see how they shine' && $r['per_page'] == 20);
+    }
+
+    public function test_translation_pages_and_wrong_itunes_clips_are_left_out(): void
+    {
+        config(['services.genius.token' => 'test-token']);
+
+        $hit = fn (string $title, string $artist) => ['type' => 'song', 'result' => [
+            'id' => crc32($title),
+            'title' => $title,
+            'artist_names' => $artist,
+            'primary_artist' => ['name' => $artist],
+            'url' => 'https://genius.com/'.crc32($title),
+        ]];
+
+        Http::fake([
+            'api.genius.com/*' => Http::response(['response' => ['hits' => [
+                $hit('Heart of Darkness (Section II)', 'Joseph Conrad'),          // a book: no store has it
+                $hit('Hello (Traducción)', 'Genius Traducciones al Español'),    // a translation page
+                $hit('Hello', 'Adele'),
+            ]]]),
+            'api.deezer.com/*' => Http::response(['data' => []]),
+            'itunes.apple.com/*' => function (Request $r) {
+                return str_contains($r['term'], 'Adele')
+                    ? Http::response(['results' => [['previewUrl' => 'https://a/hello.m4a', 'artistName' => 'Adele']]])
+                    : Http::response(['results' => [['previewUrl' => 'https://a/other.m4a', 'artistName' => 'Some Narrator']]]);
+            },
+        ]);
+
+        $this->getJson('/api/music/search?q='.urlencode('hello from the other side'))
+            ->assertOk()
+            ->assertJsonCount(2, 'results')                             // the translation page is gone
+            ->assertJsonPath('results.0.title', 'Heart of Darkness (Section II)')
+            ->assertJsonPath('results.0.preview', null)                // the narrator's clip was not taken
+            ->assertJsonPath('results.1.title', 'Hello')
+            ->assertJsonPath('results.1.preview', 'https://a/hello.m4a');
+    }
+
+    public function test_song_name_filter_uses_deezer_even_with_a_token_and_pages_by_five(): void
+    {
+        config(['services.genius.token' => 'test-token']);
+
+        Http::fake(['api.deezer.com/*' => Http::response(['data' => collect(range(1, 12))->map(fn ($i) => [
+            'title' => "Song $i",
+            'artist' => ['name' => 'Band'],
+            'album' => ['title' => "Album $i", 'cover_medium' => null],
+            'preview' => "https://cdnt-preview.dzcdn.net/$i.mp3",
+            'link' => "https://www.deezer.com/track/$i",
+        ])->all()])]);
+
+        $this->getJson('/api/music/search?by=title&q=song')
+            ->assertOk()
+            ->assertJsonPath('mode', 'title')
+            ->assertJsonPath('page', 1)
+            ->assertJsonCount(5, 'results')
+            ->assertJsonPath('results.0.title', 'Song 1')
+            ->assertJsonPath('has_more', true);
+
+        $this->getJson('/api/music/search?by=title&q=song&page=3')
+            ->assertOk()
+            ->assertJsonCount(2, 'results')
+            ->assertJsonPath('results.0.title', 'Song 11')
+            ->assertJsonPath('has_more', false);
+
+        Http::assertNotSent(fn (Request $r) => str_contains($r->url(), 'genius'));
+        Http::assertSent(fn (Request $r) => str_contains($r->url(), 'api.deezer.com') && $r['limit'] == 50);
+
+        $this->getJson('/api/music/search?by=artist&q=song')->assertUnprocessable()->assertJsonValidationErrors('by');
+        $this->getJson('/api/music/search?q=song&page=0')->assertUnprocessable()->assertJsonValidationErrors('page');
+    }
+
+    public function test_lyric_pages_only_look_up_previews_for_their_own_five(): void
+    {
+        config(['services.genius.token' => 'test-token']);
+
+        Http::fake([
+            'api.genius.com/*' => Http::response(['response' => ['hits' => collect(range(1, 12))
+                ->map(fn ($i) => $this->geniusHit("Song $i", "Artist $i"))->all()]]),
+            'api.deezer.com/*' => Http::response(['data' => []]),
+            'itunes.apple.com/*' => Http::response(['results' => []]),
+        ]);
+
+        $this->getJson('/api/music/search?q=some+lyric&page=2')
+            ->assertOk()
+            ->assertJsonPath('mode', 'lyrics')
+            ->assertJsonPath('page', 2)
+            ->assertJsonCount(5, 'results')
+            ->assertJsonPath('results.0.title', 'Song 6')
+            ->assertJsonPath('has_more', true);
+
+        $this->assertCount(5, Http::recorded(fn (Request $r) => str_contains($r->url(), 'api.deezer.com')));
+
+        $this->getJson('/api/music/search?q=some+lyric&page=3')
+            ->assertJsonCount(2, 'results')
+            ->assertJsonPath('results.1.title', 'Song 12')
+            ->assertJsonPath('has_more', false);
     }
 
     public function test_genius_failure_is_a_502(): void
