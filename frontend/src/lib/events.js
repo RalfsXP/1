@@ -3,6 +3,7 @@ import api from './api'
 import { user } from './auth'
 import { categoryStyle, paletteColor, refreshTick } from './goals'
 import { locale } from './i18n'
+import { intl } from './intl'
 import { addDays, parseISO, toISO } from './periods'
 
 /*
@@ -133,7 +134,7 @@ export const daysUntil = (dateISO, fromISO) => Math.round((parseISO(dateISO) - p
 
 /** "šodien" / "rīt" / "pēc 27 dienām" — "today" / "tomorrow" / "in 27 days" (Intl handles the plurals). */
 export function countdown(dateISO, fromISO) {
-  return new Intl.RelativeTimeFormat(locale.value, { numeric: 'auto' }).format(daysUntil(dateISO, fromISO), 'day')
+  return intl(Intl.RelativeTimeFormat, locale.value, { numeric: 'auto' }).format(daysUntil(dateISO, fromISO), 'day')
 }
 
 /** The unit under a big day count: "diena" / "dienas" (LV: singular after 1, 21, 31… but not 11), "day" / "days". */

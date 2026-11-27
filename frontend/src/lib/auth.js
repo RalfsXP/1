@@ -58,7 +58,17 @@ export async function changeLocale(next) {
   }
 }
 
+/** Sign out; an already expired session (401/419) counts as signed out too, so the user is never stuck. */
 export async function logout() {
-  await api.post('/logout')
+  try {
+    await api.post('/logout')
+  } catch (e) {
+    if (![401, 419].includes(e.response?.status)) throw e
+  }
   user.value = null
 }
+
+// The session expired mid-use (lib/api.js): forget the user; AppShell sends them to the login page.
+addEventListener('merkis:signed-out', () => {
+  if (user.value) user.value = null
+})

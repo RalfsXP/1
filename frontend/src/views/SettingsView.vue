@@ -59,26 +59,26 @@ function signOut() {
 </script>
 
 <template>
-  <div class="page narrow stagger">
+  <div class="page narrow">
     <header class="page-head">
       <div>
         <h1 class="page-title">{{ $t('settings.title') }}</h1>
       </div>
     </header>
 
-    <section class="section">
+    <section v-reveal class="section">
       <h2 class="section-title">{{ $t('settings.appearance') }}</h2>
       <div class="card prefs">
         <div class="pref">
           <span class="pref-name">{{ $t('settings.theme') }}</span>
-          <div class="segmented" role="group" :aria-label="$t('settings.theme')">
+          <div v-slide-pill class="segmented" role="group" :aria-label="$t('settings.theme')">
             <button type="button" :aria-pressed="theme === 'light'" @click="setTheme('light')">{{ $t('common.themeLight') }}</button>
             <button type="button" :aria-pressed="theme === 'dark'" @click="setTheme('dark')">{{ $t('common.themeDark') }}</button>
           </div>
         </div>
         <div v-if="LOCALES.length > 1" class="pref">
           <span class="pref-name">{{ $t('common.language') }}</span>
-          <div class="segmented" role="group" :aria-label="$t('common.language')">
+          <div v-slide-pill class="segmented" role="group" :aria-label="$t('common.language')">
             <button v-for="code in LOCALES" :key="code" type="button" :aria-pressed="locale === code" @click="changeLocale(code)">
               {{ $t(`settings.languages.${code}`) }}
             </button>
@@ -87,7 +87,7 @@ function signOut() {
       </div>
     </section>
 
-    <section class="section">
+    <section v-reveal class="section">
       <header>
         <h2 class="section-title">{{ $t('settings.badges') }}</h2>
         <p class="lead">{{ $t('settings.badgesLead') }}</p>
@@ -116,7 +116,7 @@ function signOut() {
       </ul>
     </section>
 
-    <section class="section">
+    <section v-reveal class="section">
       <h2 class="section-title">{{ $t('common.account') }}</h2>
       <div class="card account">
         <span class="avatar" aria-hidden="true">{{ initial }}</span>

@@ -12,7 +12,7 @@ export const PRIORITIES = ['low', 'high', 'important']
 const PRIORITY_RANK = { important: 0, high: 1, low: 2 }
 
 /**
- * User-picked colours start from these (v1.7 pastels: Lavender, Mint, Peach, Butter, Sky, Rose, Violet, Ink);
+ * User-picked colours start from these (v1.8 pastels: Lavender, Mint, Peach, Butter, Sky, Rose, Violet, Ink);
  * any hex is allowed (badges/flags are the colour exception). Names: lang `colors`.
  */
 export const SWATCHES = ['#cbbcff', '#bdebc9', '#ffc9a6', '#ffe27a', '#c2e1ff', '#ffbfd0', '#8b74ff', '#17171c']
@@ -29,7 +29,7 @@ const DEFAULT_STYLES = {
 }
 
 /**
- * Badges saved with the v1.6 "Harbour fog" presets show as their v1.7 pastel twin, so old goals fit the
+ * Badges saved with the v1.6 "Harbour fog" presets show as their v1.8 pastel twin, so old goals fit the
  * new look without touching stored data. Any other custom colour is kept as picked.
  */
 const LEGACY = {

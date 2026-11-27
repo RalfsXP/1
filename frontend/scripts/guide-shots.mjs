@@ -120,8 +120,8 @@ for (const theme of ['dark', 'light']) {
 
   await go('/home')
   await shot('overview', theme)
-  await click('.menu-btn')
-  await sleep(900)
+  await click('.pm-toggle')
+  await sleep(1200)
   await shot('menu', theme)
 
   await go('/calendar')
@@ -136,7 +136,9 @@ for (const theme of ['dark', 'light']) {
 
   await go('/events')
   await shot('events', theme)
-  await click('.dock-add')
+  await click('.pm-toggle')
+  await sleep(900)
+  await click('.pm-add')
   await sleep(900)
   await type('.sheet input[type=text]', "Grandma's birthday")
   await js(`[...document.querySelectorAll('.sheet .segmented button')].find((b) => b.getAttribute('aria-label') === 'Every year').click(); return true`)
@@ -145,7 +147,9 @@ for (const theme of ['dark', 'light']) {
 
   await go('/goals/daily')
   await shot('daily', theme)
-  await click('.dock-add')
+  await click('.pm-toggle')
+  await sleep(900)
+  await click('.pm-add')
   await sleep(900)
   await type('.sheet input[type=text]', 'Morning walk')
   await sleep(300)
@@ -182,4 +186,9 @@ for (const theme of ['dark', 'light']) {
 
 ws.close()
 chrome.kill()
-fs.rmSync(SCRATCH, { recursive: true, force: true })
+// Chrome may still be writing its profile while it exits: clean up a moment later, and never fail on it.
+setTimeout(() => {
+  try {
+    fs.rmSync(SCRATCH, { recursive: true, force: true })
+  } catch {}
+}, 500)

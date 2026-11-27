@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 
 /*
- * Shared motion helpers (v1.7). Everything here respects "reduce motion" and runs through the
+ * Shared motion helpers (v1.8). Everything here respects "reduce motion" and runs through the
  * Web Animations API, so elements end in their natural CSS state (no leftover inline styles).
  */
 const reduce = matchMedia('(prefers-reduced-motion: reduce)')

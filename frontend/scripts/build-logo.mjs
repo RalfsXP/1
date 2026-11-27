@@ -1,5 +1,5 @@
 // Regenerate: cd frontend && npm i --no-save opentype.js@1.3.4 @fontsource/bricolage-grotesque@5 @resvg/resvg-js@2 && node scripts/build-logo.mjs
-// Builds every brand asset (v1.7) from the sticker mark: a tilted lavender tile with an ink "m" and a butter dot.
+// Builds every brand asset (v1.8) from the sticker mark: a tilted lavender tile with an ink "m" and a butter dot.
 // The same geometry lives in components/LogoMark.vue (keep both in sync); the lockup wordmark "mērķis" is
 // Bricolage Grotesque ExtraBold — live text in the app, outlines here for the README files.
 import fs from 'node:fs'

@@ -12,7 +12,7 @@ import { addDays, parseISO, periodLabel, toISO, weekdayName } from '@/lib/period
 import { todayISO } from '@/lib/timeLeft'
 
 /**
- * Week board (v1.7). Desktop: seven columns side by side; phones: seven day cards stacked.
+ * Week board (v1.8). Desktop: seven columns side by side; phones: seven day cards stacked.
  * Each day lists its events (pastel cards, by time) and its daily goals (tinted rows you can tick off).
  * Goals: desktop — the circle ticks, the title edits; touch — tap ticks, hold edits (like goal rows).
  */

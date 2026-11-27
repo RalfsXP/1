@@ -22,13 +22,12 @@ export const GUIDE = [
   {
     id: 'around',
     title: 'Find your way around',
-    shots: [{ name: 'menu', alt: 'Menu with every page' }],
+    shots: [{ name: 'menu', alt: 'The menu opened from the round button' }],
     steps: [
-      'On a phone, the dark bar at the bottom takes you to **Overview**, **Calendar**, **Goals** and **Events**. The last button, **Menu**, opens every goal category plus **Guide**, **Settings** and **Log out**. Drag the menu down or tap **×** to close it.',
-      'On a computer, the same pages sit in the bar at the top. Tap your initial in the top-right corner for **Settings**.',
-      'Tap the **mērķis** logo to go back to the Overview.',
+      'On a phone, tap the round dark button in the bottom-right corner: it opens into the menu. At the top is the button to add something to the page you are on (**New goal** or **New event**), then **Overview**, **Calendar**, **Goals** and **Events**, the goal categories, and **Guide**, **Settings** and **Log out**. Tap **×**, or anywhere outside it, to close it.',
+      'On a computer, the same pages sit in the bar at the top, and each page has its own **New goal** / **New event** button next to its title. Tap your initial in the top-right corner for **Settings**.',
+      'Tap the **mērķis** logo to go back to the Overview. When you scroll down, the page name moves into the bar at the top.',
       'The sun / moon button in the top-right corner switches between light and dark mode.',
-      'The round lavender **+** next to the bottom bar adds something new to the page you are on: a goal or an event. On a computer the same button sits next to the page title.',
     ],
   },
   {
@@ -53,7 +52,7 @@ export const GUIDE = [
       { name: 'goal-form-more', alt: 'New goal: repeat days, priority and badge' },
     ],
     steps: [
-      'Open **Goals**, pick a category at the top (**Day**, **Week**, **Month**, **Year** or **Custom**) and tap **+** (on a computer: **New goal**).',
+      'Open **Goals**, pick a category at the top (**Day**, **Week**, **Month**, **Year** or **Custom**), then open the menu and tap **New goal** (on a computer: **New goal** next to the title).',
       'Write what you want to do in **Goal**.',
       'Choose the **Type**: Day, Week, Month, Year or Custom.',
       'Pick the **Date**. For a week, month or year the whole period is selected. For Custom, tap the first day and then the last day.',
@@ -108,7 +107,7 @@ export const GUIDE = [
       'The month shows your goals and events as coloured marks on each day.',
       'Swipe left or right, or use the arrows, to change the month or week. **Today** brings you back.',
       'Longer goals sit in a row above the days: monthly and yearly goals in the month, weekly and monthly goals in the week. On a phone, tap one to mark it done or hold it to edit; on a computer, click it to edit.',
-      'Tap a day to see its events and goals under the calendar (beside it on a wide screen). Tick goals off there, or tap **+** to add a goal on that day.',
+      'Tap a day to see its events and goals under the calendar (beside it on a wide screen). Tick goals off there; **New goal** in the menu (on a computer the **+** next to the date) adds one on that day.',
       'Tap a week number to open that week in the **Week** view. It lists every day with its events (by time) and daily goals; the small counter shows how many daily goals are done. Tap the circle to tick a goal off.',
     ],
   },
@@ -122,7 +121,7 @@ export const GUIDE = [
     steps: [
       '**Events** lists birthdays, anniversaries, appointments and other dates, soonest first, with a countdown: today, tomorrow or the number of days left.',
       'The next event sits at the top in a big dark card with its countdown.',
-      'Tap **+** (on a computer: **New event**) to add one.',
+      'To add one, open the menu and tap **New event** (on a computer: **New event** next to the title).',
       'Enter a **Name** and pick the **Date**.',
       'Add a **Time** if it has one. Leave it empty for an all-day event.',
       'Choose **Repeat**: Once, Week, Month or Year. A birthday set to Year comes back every year; a Month event comes back on the same day every month.',

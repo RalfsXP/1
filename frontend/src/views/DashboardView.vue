@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { ArrowRightIcon, CheckIcon, FireIcon } from '@heroicons/vue/24/outline'
 import AnimatedList from '@/components/AnimatedList.vue'
+import CountUp from '@/components/CountUp.vue'
 import EventForm from '@/components/EventForm.vue'
 import EventItem from '@/components/EventItem.vue'
 import GoalForm from '@/components/GoalForm.vue'
@@ -226,8 +227,8 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
           <span class="ring-center">
             <CheckIcon v-if="ring.complete" class="ring-check" aria-hidden="true" />
             <template v-else>
-              <span class="ring-value">{{ ring.done }}<span class="of">/{{ ring.total }}</span></span>
-              <span v-if="ring.total" class="ring-percent">{{ ring.percent }}%</span>
+              <span class="ring-value"><CountUp :value="ring.done" /><span class="of">/{{ ring.total }}</span></span>
+              <span v-if="ring.total" class="ring-percent"><CountUp :value="ring.percent" />%</span>
             </template>
           </span>
         </span>
@@ -238,7 +239,7 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
         <span class="tile-top">
           <span class="tile-label"><FireIcon aria-hidden="true" />{{ $t('dashboard.streak') }}</span>
         </span>
-        <span class="streak-num">{{ streak }}</span>
+        <CountUp class="streak-num" :value="streak" />
         <span class="streak-sub">{{ $t('dashboard.daysInRow') }}</span>
         <span class="streak-week" aria-hidden="true">
           <span v-for="d in streakWeek" :key="d.iso" class="streak-day" :class="{ on: d.state === true, none: d.state === null }">
@@ -251,7 +252,7 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
       <section class="tile activity">
         <header class="tile-top">
           <h2 class="tile-label">{{ $t('dashboard.activity') }}</h2>
-          <span class="tile-meta">{{ activityTotal }}</span>
+          <CountUp class="tile-meta" :value="activityTotal" />
         </header>
         <!-- One series, so no legend: the title names it. Hover/tap a bar for its value. -->
         <div class="bars" @mouseleave="hovered = null">
@@ -290,7 +291,7 @@ const toggle = (occurrence) => setDone(occurrence, !occurrence.done).catch(() =>
       </section>
     </div>
 
-    <section class="focus">
+    <section v-reveal class="focus">
       <header class="focus-head">
         <h2 class="section-title">{{ $t('dashboard.focus') }}</h2>
         <RouterLink class="more" :to="{ name: 'calendar' }">
