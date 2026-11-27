@@ -18,6 +18,11 @@ return [
         'key' => env('POSTMARK_API_KEY'),
     ],
 
+    // Music prototype: free Genius API client access token (genius.com/api-clients). Unset = title search only.
+    'genius' => [
+        'token' => env('GENIUS_ACCESS_TOKEN'),
+    ],
+
     'resend' => [
         'key' => env('RESEND_API_KEY'),
     ],

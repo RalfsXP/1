@@ -8,6 +8,8 @@ const router = createRouter({
     { path: '/', name: 'landing', component: LandingView },
     // Same view key for both: the page stays mounted and only the form swaps.
     { path: '/login', name: 'login', component: () => import('./views/AuthView.vue'), meta: { mode: 'login', guestOnly: true, viewKey: 'auth' } },
+    // Music prototype: lyric snippet → songs + previews. Public, not in any menu.
+    { path: '/music', name: 'music', component: () => import('./views/MusicView.vue') },
     { path: '/register', name: 'register', component: () => import('./views/AuthView.vue'), meta: { mode: 'register', guestOnly: true, viewKey: 'auth' } },
     {
       // Signed-in app: side nav + one shared shell (viewKey keeps it mounted between pages).
